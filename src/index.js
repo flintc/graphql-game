@@ -2,8 +2,19 @@ import React, { useState, useEffect, useContext } from "react";
 import ReactDOM from "react-dom";
 
 import { ApolloProvider } from "react-apollo";
-import { useQuery, useLazyQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
-import { BrowserRouter as Router, Route, Switch, Redirect, useHistory } from "react-router-dom";
+import {
+  useQuery,
+  useLazyQuery,
+  useMutation,
+  useApolloClient
+} from "@apollo/react-hooks";
+import {
+  HashRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+  useHistory
+} from "react-router-dom";
 import client from "./client";
 import * as R from "ramda";
 import * as docs from "./documents";
@@ -30,17 +41,28 @@ const JoinForm = ({ handleSubmit }) => {
   console.log("name", name);
   return (
     <form onSubmit={e => handleSubmit(e, { name, code })}>
-      <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
-      <input value={code} onChange={e => setCode(e.target.value)} placeholder="Room Code" />
+      <input
+        value={name}
+        onChange={e => setName(e.target.value)}
+        placeholder="Name"
+      />
+      <input
+        value={code}
+        onChange={e => setCode(e.target.value)}
+        placeholder="Room Code"
+      />
       <button>submit</button>
     </form>
   );
 };
 
 const Users = ({ name }) => {
-  const { data, subscribeToMore, loading } = useQuery(docs.USERS_IN_ROOM_QUERY, {
-    variables: { roomName: name }
-  });
+  const { data, subscribeToMore, loading } = useQuery(
+    docs.USERS_IN_ROOM_QUERY,
+    {
+      variables: { roomName: name }
+    }
+  );
   useEffect(() => {
     if (!loading) {
       subscribeToMore({
@@ -95,7 +117,11 @@ const Room = ({
         variables: { roomId: data.id },
         updateQuery: (prev, { subscriptionData }) => {
           if (!subscriptionData.data) return prev;
-          return L.set(["room", 0, "users"], subscriptionData.data.room_by_pk.users, prev);
+          return L.set(
+            ["room", 0, "users"],
+            subscriptionData.data.room_by_pk.users,
+            prev
+          );
         }
       });
     }
@@ -171,7 +197,9 @@ const Main = () => {
 
 const StateProvider = ({ children }) => {
   const [user, setUser] = useState();
-  return <Context.Provider value={{ user, setUser }}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={{ user, setUser }}>{children}</Context.Provider>
+  );
 };
 
 const Routes = () => {
@@ -179,7 +207,11 @@ const Routes = () => {
   return (
     <>
       <Route path="/" exact component={Main} />
-      <ProtectedRoute path="/game/:name" component={Room} loggedIn={user ? true : false} />
+      <ProtectedRoute
+        path="/game/:name"
+        component={Room}
+        loggedIn={user ? true : false}
+      />
     </>
   );
 };
@@ -188,7 +220,7 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <StateProvider>
-        <Router>
+        <Router basename="/">
           <Switch>
             <Routes />
           </Switch>
