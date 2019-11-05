@@ -1,19 +1,19 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "fc3791275eeb1cd559f3d9c4ed0f4034",
+    "revision": "c69ce7c4193d638068d3072d8f1e6189",
     "url": "/graphql-game/index.html"
   },
   {
-    "revision": "0433cf42b202c591ae7f",
+    "revision": "f90932c60b24adb3c6b6",
     "url": "/graphql-game/static/css/main.9b1431d8.chunk.css"
   },
   {
-    "revision": "1285e0aee9abeb1d9666",
-    "url": "/graphql-game/static/js/2.2362516a.chunk.js"
+    "revision": "48d1d8522f3a291feffe",
+    "url": "/graphql-game/static/js/2.a6382445.chunk.js"
   },
   {
-    "revision": "0433cf42b202c591ae7f",
-    "url": "/graphql-game/static/js/main.1a1126f4.chunk.js"
+    "revision": "f90932c60b24adb3c6b6",
+    "url": "/graphql-game/static/js/main.e3097ade.chunk.js"
   },
   {
     "revision": "c9e20193fa096d0a4d9d",
