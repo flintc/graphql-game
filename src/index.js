@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { ApolloProvider } from "react-apollo";
 import {
   useQuery,
+  useSubscription,
   useLazyQuery,
   useMutation,
   useApolloClient
@@ -20,6 +21,13 @@ import * as R from "ramda";
 import * as docs from "./documents";
 import * as L from "partial.lenses";
 import "./styles.css";
+
+const generateCode = () =>
+  Math.random()
+    .toString(36)
+    .replace(/[^a-z]+/g, "")
+    .substr(0, 4)
+    .toUpperCase();
 
 const Context = React.createContext();
 
@@ -50,6 +58,21 @@ const JoinForm = ({ handleSubmit }) => {
         value={code}
         onChange={e => setCode(e.target.value)}
         placeholder="Room Code"
+      />
+      <button>submit</button>
+    </form>
+  );
+};
+
+const CreateForm = ({ handleSubmit }) => {
+  const [name, setName] = useState(null);
+  const code = generateCode();
+  return (
+    <form onSubmit={e => handleSubmit(e, { name, code })}>
+      <input
+        value={name}
+        onChange={e => setName(e.target.value)}
+        placeholder="Name"
       />
       <button>submit</button>
     </form>
@@ -87,14 +110,78 @@ const Users = ({ name }) => {
   );
 };
 
-const Question = ({ name }) => {
-  const { user } = useContext(Context);
+const computeScore = (guess, answer) => {
+  if (guess === answer) {
+    return -5;
+  }
+  return Math.abs(answer - guess);
+};
+
+const Result = ({ guess, answer }) => {
   return (
     <div>
-      <span>{user.name}'s answer:</span>
-      <form>
-        <input placeholder="Answer" />
-      </form>
+      <div>Your Answer: {guess}</div>
+      <div>Correct Answer: {answer}</div>
+      <div>Score: {computeScore(guess, answer)}</div>
+    </div>
+  );
+};
+const Question = ({ id }) => {
+  const { user } = useContext(Context);
+  const [value, setValue] = useState(null);
+  const responseSubscription = useSubscription(
+    docs.RESPONSE_FOR_QUESTION_SUBSCRIPTION,
+    {
+      variables: {
+        questionId: id,
+        userId: user.id
+      }
+    }
+  );
+  const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
+  console.log("respSubsc", responseSubscription);
+  if (responseSubscription.loading) {
+    return "Loading...";
+  }
+  if (!responseSubscription.data.response.length) {
+    return (
+      <div>
+        <h3>Question id: {id}</h3>
+        <h3>User ID: {user.id}</h3>
+        <span>{user.name}'s answer:</span>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            submitResponse({
+              variables: {
+                userId: user.id,
+                questionId: id,
+                value
+              }
+            });
+          }}
+        >
+          <input
+            placeholder="Answer"
+            onChange={e => setValue(e.target.value)}
+            value={value}
+          />
+          <button>submit</button>
+        </form>
+      </div>
+    );
+  }
+  if (responseSubscription.data.response[0].question.answer) {
+    return (
+      <Result
+        guess={responseSubscription.data.response[0].value}
+        answer={responseSubscription.data.response[0].question.answer}
+      />
+    );
+  }
+  return (
+    <div>
+      <span>Current Answer: {responseSubscription.data.response[0].value}</span>
     </div>
   );
 };
@@ -132,9 +219,9 @@ const Room = ({
   return (
     <div>
       <h1>{data.name}</h1>
-      <h3>{data.id}</h3>
-      <h3>{data.questions[0].name}</h3>
-      <Question />
+      <h3>Room ID: {data.id}</h3>
+      {data.questions.length && <h3>{data.questions[0].name}</h3>}
+      {data.questions.length && <Question id={data.questions[0].id} />}
       <Users name={name} />
     </div>
   );
@@ -146,10 +233,9 @@ const Main = () => {
   const [userName, setUserName] = useState();
   const [room, setRoom] = useState({});
   const history = useHistory();
-  const [createRoom] = useMutation(docs.CREATE_ROOM_MUTATION);
   const [joinRoom, joinRoomResp] = useMutation(docs.JOIN_ROOM_MUTATION);
   const [roomByName, roomByNameResp] = useLazyQuery(docs.ROOM_BY_NAME_QUERY);
-
+  const [createRoom, createRoomResp] = useMutation(docs.CREATE_ROOM_MUTATION);
   useEffect(() => {
     if (!roomByNameResp.loading) {
       if (roomByNameResp.data && roomByNameResp.data.room.length) {
@@ -175,23 +261,34 @@ const Main = () => {
       history.push(`/game/${user.room.name}`);
     }
   }, [user, history]);
+
+  useEffect(() => {
+    if (createRoomResp.data) {
+      setUser(createRoomResp.data.insert_user.returning[0]);
+    }
+  }, [createRoomResp]);
+
   const handleSubmit = (e, { name, code }) => {
     e.preventDefault();
     if (state === "join") {
       roomByName({ variables: { name: code } });
       setUserName(name);
+    } else if (state === "create") {
+      createRoom({ variables: { userName: name, roomName: code } });
     }
   };
+
   if (!state) {
     return (
       <div>
-        <button>create</button>
+        <button onClick={() => setState("create")}>create</button>
         <button onClick={() => setState("join")}>join</button>
       </div>
     );
   } else if (state === "join") {
     return <JoinForm handleSubmit={handleSubmit} />;
-  } else {
+  } else if (state === "create") {
+    return <CreateForm handleSubmit={handleSubmit} />;
   }
 };
 

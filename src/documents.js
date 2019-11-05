@@ -90,13 +90,77 @@ export const ROOM_BY_NAME_QUERY = gql`
     }
   }
 `;
-export const CREATE_ROOM_MUTATION = gql`
-  mutation CreateRoom($roomName: String, $userName: String) {
-    insert_room(objects: [{ name: $roomName, users: { data: [{ name: $userName }] } }]) {
+
+// export const CREATE_ROOM_MUTATION = gql`
+//   mutation CreateRoom($roomName: String, $userName: String) {
+//     insert_room(
+//       objects: [{ name: $roomName, users: { data: [{ name: $userName }] } }]
+//     ) {
+//       returning {
+//         id
+//       }
+//       affected_rows
+//     }
+//   }
+// `;
+
+export const GET_RESPONSE_FOR_QUESTION_QUERY = gql`
+  query GetAnswer($questionId: uuid, $userId: uuid) {
+    response(
+      limit: 1
+      where: { question_id: { _eq: $questionId }, owner_id: { _eq: $userId } }
+    ) {
+      id
+      value
+    }
+  }
+`;
+
+export const SUBMIT_RESPONSE_FOR_QUESTION = gql`
+  mutation SubmitAnswer($questionId: uuid, $userId: uuid, $value: Int) {
+    insert_response(
+      objects: [{ question_id: $questionId, owner_id: $userId, value: $value }]
+    ) {
+      affected_rows
       returning {
         id
+        value
       }
+    }
+  }
+`;
+
+export const RESPONSE_FOR_QUESTION_SUBSCRIPTION = gql`
+  subscription SubscribeToAnswer($questionId: uuid, $userId: uuid) {
+    response(
+      where: { question_id: { _eq: $questionId }, owner_id: { _eq: $userId } }
+      order_by: { created_at: desc }
+      limit: 1
+    ) {
+      id
+      value
+      question {
+        name
+        answer
+      }
+    }
+  }
+`;
+
+export const CREATE_ROOM_MUTATION = gql`
+  mutation CreateRoomAndUser($userName: String, $roomName: String) {
+    insert_user(
+      objects: [{ name: $userName, room: { data: { name: $roomName } } }]
+    ) {
       affected_rows
+      returning {
+        id
+        name
+        room {
+          name
+          id
+        }
+      }
     }
   }
 `;
