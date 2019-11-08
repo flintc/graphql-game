@@ -1,47 +1,28 @@
-import React, { useState, useEffect, useContext } from "react";
-import ReactDOM from "react-dom";
-
-import { ApolloProvider } from "react-apollo";
 import {
-  useQuery,
-  useSubscription,
   useLazyQuery,
   useMutation,
-  useApolloClient
+  useSubscription
 } from "@apollo/react-hooks";
+import * as L from "partial.lenses";
+import React, { useContext, useEffect, useState } from "react";
+import { ApolloProvider } from "react-apollo";
+import ReactDOM from "react-dom";
 import {
   HashRouter as Router,
   Route,
   Switch,
-  Redirect,
   useHistory
 } from "react-router-dom";
 import client from "./client";
-import * as R from "ramda";
 import * as docs from "./documents";
-import * as L from "partial.lenses";
+import ProtectedRoute from "./ProtectedRoute";
 import "./styles.css";
+import { computeScore, generateCode } from "./utils";
 
-const generateCode = () =>
-  Math.random()
-    .toString(36)
-    .replace(/[^a-z]+/g, "")
-    .substr(0, 4)
-    .toUpperCase();
+const searchUrl = title =>
+  `https://kha9mwfrdb.execute-api.us-east-1.amazonaws.com/dev/search/${title}`;
 
 const Context = React.createContext();
-
-const ProtectedRoute = ({ component: Comp, loggedIn, path, ...rest }) => {
-  return (
-    <Route
-      path={path}
-      {...rest}
-      render={props => {
-        return loggedIn ? <Comp {...props} /> : <Redirect to="/" />;
-      }}
-    />
-  );
-};
 
 const JoinForm = ({ handleSubmit }) => {
   const [code, setCode] = useState(null);
@@ -79,42 +60,14 @@ const CreateForm = ({ handleSubmit }) => {
   );
 };
 
-const Users = ({ name }) => {
-  const { data, subscribeToMore, loading } = useQuery(
-    docs.USERS_IN_ROOM_QUERY,
-    {
-      variables: { roomName: name }
-    }
-  );
-  useEffect(() => {
-    if (!loading) {
-      subscribeToMore({
-        document: docs.USERS_IN_ROOM_SUBSCRIPTION,
-        variables: { roomName: name },
-        updateQuery: (prev, { subscriptionData: { data } }) => {
-          if (!data) return prev;
-          return L.set(["user"], data.user, prev);
-        }
-      });
-    }
-  }, [loading, name, subscribeToMore]);
-  if (loading) {
-    return "Loading...";
-  }
+const Users = ({ data }) => {
   return (
     <ul>
-      {data.user.map(user => {
+      {data.map(user => {
         return <li key={user.id}>{user.name}</li>;
       })}
     </ul>
   );
-};
-
-const computeScore = (guess, answer) => {
-  if (guess === answer) {
-    return -5;
-  }
-  return Math.abs(answer - guess);
 };
 
 const Result = ({ guess, answer }) => {
@@ -126,27 +79,20 @@ const Result = ({ guess, answer }) => {
     </div>
   );
 };
-const Question = ({ id }) => {
+
+const ExistingQuestion = ({ data, roundOver }) => {
   const { user } = useContext(Context);
   const [value, setValue] = useState(null);
-  const responseSubscription = useSubscription(
-    docs.RESPONSE_FOR_QUESTION_SUBSCRIPTION,
-    {
-      variables: {
-        questionId: id,
-        userId: user.id
-      }
-    }
-  );
   const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
-  console.log("respSubsc", responseSubscription);
-  if (responseSubscription.loading) {
-    return "Loading...";
-  }
-  if (!responseSubscription.data.response.length) {
+  const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
+  const userResponse = L.get(
+    [L.whereEq({ owner: { id: user.id } })],
+    data.responses
+  );
+  if (!userResponse) {
     return (
       <div>
-        <h3>Question id: {id}</h3>
+        <h3>Question id: {data.id}</h3>
         <h3>User ID: {user.id}</h3>
         <span>{user.name}'s answer:</span>
         <form
@@ -155,7 +101,7 @@ const Question = ({ id }) => {
             submitResponse({
               variables: {
                 userId: user.id,
-                questionId: id,
+                questionId: data.id,
                 value
               }
             });
@@ -171,17 +117,84 @@ const Question = ({ id }) => {
       </div>
     );
   }
-  if (responseSubscription.data.response[0].question.answer) {
+  if (data.answer && roundOver) {
     return (
-      <Result
-        guess={responseSubscription.data.response[0].value}
-        answer={responseSubscription.data.response[0].question.answer}
-      />
+      <>
+        <Result
+          guess={userResponse.value}
+          answer={data.answer.score.rottenTomatoes}
+        />
+        <button
+          onClick={() => {
+            nextRound({ variables: { roomId: data.room.id } });
+          }}
+        >
+          next round
+        </button>
+      </>
     );
   }
   return (
     <div>
-      <span>Current Answer: {responseSubscription.data.response[0].value}</span>
+      <span>Current Answer: {userResponse.value}</span>
+      <button>end round</button>
+    </div>
+  );
+};
+
+const Question = ({ data, nUsers, roomId }) => {
+  const [question, setQuestion] = useState(null);
+  const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
+  const [roundOver, setRoundOver] = useState(false);
+  console.log("data.responses", data);
+  useEffect(() => {
+    if (data && nUsers === data.responses.length) {
+      setRoundOver(true);
+    } else {
+      setRoundOver(false);
+    }
+  }, [data]);
+  if (data) {
+    console.log("data.responses", data.responses);
+    return (
+      <>
+        <h3>Question: {data.name}</h3>
+        <h4>Question State: {data.state}</h4>
+        <ExistingQuestion data={data} roundOver={roundOver} />
+      </>
+    );
+  }
+  const handleSubmit = e => {
+    e.preventDefault();
+    fetch(searchUrl(question))
+      .then(async resp => {
+        const json = await resp.json();
+        console.log("here2", json);
+        submitQuestion({
+          variables: {
+            roomId: roomId,
+            description: json.description,
+            imageUrl: json.poster,
+            name: json.title,
+            answer: json.reception
+          }
+        });
+        setQuestion(null);
+      })
+      .catch(err => {
+        console.error("error!", err);
+      });
+  };
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input
+          placeholder="Question..."
+          value={question}
+          onChange={e => setQuestion(e.target.value)}
+        />
+        <button>submit</button>
+      </form>
     </div>
   );
 };
@@ -191,38 +204,24 @@ const Room = ({
     params: { name }
   }
 }) => {
-  const resp = useQuery(docs.ROOM_QUERY, {
-    variables: {
-      name
-    }
+  const resp = useSubscription(docs.SUBSCRIBE_TO_ROOM_BY_NAME, {
+    variables: { name }
   });
-  const data = resp.data && resp.data.room[0];
-  useEffect(() => {
-    if (resp.data) {
-      resp.subscribeToMore({
-        document: docs.SUBSCRIBE_TO_ROOM,
-        variables: { roomId: data.id },
-        updateQuery: (prev, { subscriptionData }) => {
-          if (!subscriptionData.data) return prev;
-          return L.set(
-            ["room", 0, "users"],
-            subscriptionData.data.room_by_pk.users,
-            prev
-          );
-        }
-      });
-    }
-  }, [resp, data]);
   if (resp.loading) {
     return "Loading...";
   }
+  const data = resp.data.room[0];
   return (
     <div>
       <h1>{data.name}</h1>
       <h3>Room ID: {data.id}</h3>
-      {data.questions.length && <h3>{data.questions[0].name}</h3>}
-      {data.questions.length && <Question id={data.questions[0].id} />}
-      <Users name={name} />
+      <h4>State: {data.state}</h4>
+      <Question
+        data={data.questions[data.round]}
+        roomId={data.id}
+        nUsers={data.users.length}
+      />
+      <Users data={data.users} />
     </div>
   );
 };

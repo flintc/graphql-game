@@ -82,6 +82,39 @@ export const SUBSCRIBE_TO_ROOM = gql`
   }
 `;
 
+export const SUBSCRIBE_TO_ROOM_BY_NAME = gql`
+  subscription SubscribeToRoom($name: String) {
+    room(where: { name: { _eq: $name } }) {
+      id
+      state
+      name
+      round
+      questions(order_by: { created_at: asc }) {
+        id
+        name
+        state
+        created_at
+        answer
+        room {
+          id
+          round
+        }
+        responses {
+          value
+          owner {
+            id
+            name
+          }
+        }
+      }
+      users {
+        id
+        name
+      }
+    }
+  }
+`;
+
 export const ROOM_BY_NAME_QUERY = gql`
   query FindRoomByName($name: String) {
     room(where: { name: { _eq: $name } }) {
@@ -160,6 +193,43 @@ export const CREATE_ROOM_MUTATION = gql`
           name
           id
         }
+      }
+    }
+  }
+`;
+export const SUBMIT_QUESTION_MUTATION = gql`
+  mutation SubmitQuestion(
+    $roomId: uuid!
+    $name: String
+    $description: String
+    $imageUrl: String
+    $answer: json
+  ) {
+    insert_question(
+      objects: [
+        {
+          room_id: $roomId
+          name: $name
+          description: $description
+          imageUrl: $imageUrl
+          answer: $answer
+        }
+      ]
+    ) {
+      affected_rows
+      returning {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const NEXT_ROUND_MUTATION = gql`
+  mutation NextRound($roomId: uuid) {
+    update_room(_inc: { round: 1 }, where: { id: { _eq: $roomId } }) {
+      returning {
+        id
       }
     }
   }
