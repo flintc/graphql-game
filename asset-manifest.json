@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/graphql-game/static/css/main.9b1431d8.chunk.css",
-    "main.js": "/graphql-game/static/js/main.20ee454d.chunk.js",
-    "main.js.map": "/graphql-game/static/js/main.20ee454d.chunk.js.map",
+    "main.css": "/graphql-game/static/css/main.e0056b10.chunk.css",
+    "main.js": "/graphql-game/static/js/main.60a8c2b8.chunk.js",
+    "main.js.map": "/graphql-game/static/js/main.60a8c2b8.chunk.js.map",
     "runtime~main.js": "/graphql-game/static/js/runtime~main.eb655c35.js",
     "runtime~main.js.map": "/graphql-game/static/js/runtime~main.eb655c35.js.map",
-    "static/js/2.5247b858.chunk.js": "/graphql-game/static/js/2.5247b858.chunk.js",
-    "static/js/2.5247b858.chunk.js.map": "/graphql-game/static/js/2.5247b858.chunk.js.map",
+    "static/js/2.9e613991.chunk.js": "/graphql-game/static/js/2.9e613991.chunk.js",
+    "static/js/2.9e613991.chunk.js.map": "/graphql-game/static/js/2.9e613991.chunk.js.map",
     "index.html": "/graphql-game/index.html",
-    "precache-manifest.96faf6f5147097818209ba09f1170bd2.js": "/graphql-game/precache-manifest.96faf6f5147097818209ba09f1170bd2.js",
+    "precache-manifest.dae7c0aa0c8df1c630b82d5257a46f39.js": "/graphql-game/precache-manifest.dae7c0aa0c8df1c630b82d5257a46f39.js",
     "service-worker.js": "/graphql-game/service-worker.js",
-    "static/css/main.9b1431d8.chunk.css.map": "/graphql-game/static/css/main.9b1431d8.chunk.css.map"
+    "static/css/main.e0056b10.chunk.css.map": "/graphql-game/static/css/main.e0056b10.chunk.css.map"
   }
 }
