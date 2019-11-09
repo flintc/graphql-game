@@ -16,7 +16,7 @@ import {
 import client from "./client";
 import * as docs from "./documents";
 import ProtectedRoute from "./ProtectedRoute";
-import "./styles.css";
+import "./styles/tailwind.css";
 import { computeScore, generateCode } from "./utils";
 
 const searchUrl = title =>
@@ -49,14 +49,29 @@ const CreateForm = ({ handleSubmit }) => {
   const [name, setName] = useState(null);
   const code = generateCode();
   return (
-    <form onSubmit={e => handleSubmit(e, { name, code })}>
-      <input
-        value={name}
-        onChange={e => setName(e.target.value)}
-        placeholder="Name"
-      />
-      <button>submit</button>
-    </form>
+    <div className="w-full max-w-xs">
+      <form
+        onSubmit={e => handleSubmit(e, { name, code })}
+        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+      >
+        <div className="mb-4">
+          <label
+            htmlFor="name-input"
+            className="block text-gray-700 text-sm font-bold mb-2"
+          >
+            NAME
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder="Name"
+          />
+        </div>
+
+        <button className="btn">submit</button>
+      </form>
+    </div>
   );
 };
 
@@ -279,9 +294,19 @@ const Main = () => {
 
   if (!state) {
     return (
-      <div>
-        <button onClick={() => setState("create")}>create</button>
-        <button onClick={() => setState("join")}>join</button>
+      <div className="flex justify-center">
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-2 rounded focus:outline-none focus:shadow-outline"
+          onClick={() => setState("create")}
+        >
+          create
+        </button>
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-2 rounded focus:outline-none focus:shadow-outline"
+          onClick={() => setState("join")}
+        >
+          join
+        </button>
       </div>
     );
   } else if (state === "join") {
