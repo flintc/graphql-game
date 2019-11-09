@@ -4,6 +4,7 @@ import {
   useSubscription
 } from "@apollo/react-hooks";
 import * as L from "partial.lenses";
+import * as R from "ramda";
 import React, { useContext, useEffect, useState } from "react";
 import { ApolloProvider } from "react-apollo";
 import ReactDOM from "react-dom";
@@ -17,6 +18,7 @@ import client from "./client";
 import * as docs from "./documents";
 import ProtectedRoute from "./ProtectedRoute";
 import "./styles/tailwind.css";
+import "./styles/custom.css";
 import { computeScore, generateCode } from "./utils";
 
 const searchUrl = title =>
@@ -30,17 +32,32 @@ const JoinForm = ({ handleSubmit }) => {
   console.log("name", name);
   return (
     <form onSubmit={e => handleSubmit(e, { name, code })}>
-      <input
-        value={name}
-        onChange={e => setName(e.target.value)}
-        placeholder="Name"
-      />
-      <input
-        value={code}
-        onChange={e => setCode(e.target.value)}
-        placeholder="Room Code"
-      />
-      <button>submit</button>
+      <div className="form-field" j>
+        <label htmlFor="name-input" className="form-label">
+          NAME
+        </label>
+        <input
+          id="name-input"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Name"
+        />
+      </div>
+      <div className="form-field">
+        <label htmlFor="room-input" className="form-label">
+          ROOM
+        </label>
+        <input
+          id="room-input"
+          value={code}
+          onChange={e => setCode(e.target.value)}
+          placeholder="Room Code"
+        />
+      </div>
+      <div className="btn-group">
+        <button className="btn">go back</button>
+        <button className="btn">submit</button>
+      </div>
     </form>
   );
 };
@@ -48,40 +65,53 @@ const JoinForm = ({ handleSubmit }) => {
 const CreateForm = ({ handleSubmit }) => {
   const [name, setName] = useState(null);
   const code = generateCode();
+  const history = useHistory();
   return (
-    <div className="w-full max-w-xs">
-      <form
-        onSubmit={e => handleSubmit(e, { name, code })}
-        className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
-      >
-        <div className="mb-4">
-          <label
-            htmlFor="name-input"
-            className="block text-gray-700 text-sm font-bold mb-2"
-          >
-            NAME
-          </label>
-          <input
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder="Name"
-          />
-        </div>
-
+    <form onSubmit={e => handleSubmit(e, { name, code })}>
+      <div className="form-field">
+        <label htmlFor="name-input" className="form-label">
+          NAME
+        </label>
+        <input
+          id="name-input"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          placeholder="Name"
+        />
+      </div>
+      <div className="btn-group">
+        <button
+          onClick={() => {
+            history.push("/");
+          }}
+          className="btn"
+        >
+          go back
+        </button>
         <button className="btn">submit</button>
-      </form>
-    </div>
+      </div>
+    </form>
   );
 };
 
-const Users = ({ data }) => {
+const Users = ({ data, responses }) => {
   return (
-    <ul>
+    <div>
       {data.map(user => {
-        return <li key={user.id}>{user.name}</li>;
+        const answered = L.get(
+          [L.whereEq({ owner: { id: user.id } })],
+          responses
+        );
+        const cls = answered ? "badge" : "badge-gray";
+        console.log(cls);
+        console.log("answered?", user, responses, answered);
+        return (
+          <span className={cls} key={user.id}>
+            {user.name}
+          </span>
+        );
       })}
-    </ul>
+    </div>
   );
 };
 
@@ -127,7 +157,7 @@ const ExistingQuestion = ({ data, roundOver }) => {
             onChange={e => setValue(e.target.value)}
             value={value}
           />
-          <button>submit</button>
+          <button className="btn">submit</button>
         </form>
       </div>
     );
@@ -140,6 +170,7 @@ const ExistingQuestion = ({ data, roundOver }) => {
           answer={data.answer.score.rottenTomatoes}
         />
         <button
+          className="btn"
           onClick={() => {
             nextRound({ variables: { roomId: data.room.id } });
           }}
@@ -152,7 +183,7 @@ const ExistingQuestion = ({ data, roundOver }) => {
   return (
     <div>
       <span>Current Answer: {userResponse.value}</span>
-      <button>end round</button>
+      <button className="btn">end round</button>
     </div>
   );
 };
@@ -170,7 +201,7 @@ const Question = ({ data, nUsers, roomId }) => {
     }
   }, [data]);
   if (data) {
-    console.log("data.responses", data.responses);
+    //console.log("data.responses", data.responses);
     return (
       <>
         <h3>Question: {data.name}</h3>
@@ -202,30 +233,22 @@ const Question = ({ data, nUsers, roomId }) => {
   };
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Question..."
-          value={question}
-          onChange={e => setQuestion(e.target.value)}
-        />
-        <button>submit</button>
+      <form className="flex flex-row" onSubmit={handleSubmit}>
+        <div className="flex flex-row">
+          <input
+            placeholder="Search movie titles..."
+            value={question}
+            className="attached-right shadow-none"
+            onChange={e => setQuestion(e.target.value)}
+          />
+          <button className="btn attached-left">submit</button>
+        </div>
       </form>
     </div>
   );
 };
 
-const Room = ({
-  match: {
-    params: { name }
-  }
-}) => {
-  const resp = useSubscription(docs.SUBSCRIBE_TO_ROOM_BY_NAME, {
-    variables: { name }
-  });
-  if (resp.loading) {
-    return "Loading...";
-  }
-  const data = resp.data.room[0];
+const Room = ({ data }) => {
   return (
     <div>
       <h1>{data.name}</h1>
@@ -236,9 +259,26 @@ const Room = ({
         roomId={data.id}
         nUsers={data.users.length}
       />
-      <Users data={data.users} />
+      <Users
+        data={data.users}
+        responses={R.propOr([], "responses", data.questions[data.round])}
+      />
     </div>
   );
+};
+
+const RoomPage = ({
+  match: {
+    params: { name }
+  }
+}) => {
+  const resp = useSubscription(docs.SUBSCRIBE_TO_ROOM_BY_NAME, {
+    variables: { name }
+  });
+  if (resp.loading) {
+    return "Loading...";
+  }
+  return <Room data={resp.data.room[0]} />;
 };
 
 const Main = () => {
@@ -294,19 +334,24 @@ const Main = () => {
 
   if (!state) {
     return (
-      <div className="flex justify-center">
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-2 rounded focus:outline-none focus:shadow-outline"
-          onClick={() => setState("create")}
-        >
-          create
-        </button>
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 m-2 rounded focus:outline-none focus:shadow-outline"
-          onClick={() => setState("join")}
-        >
-          join
-        </button>
+      <div className="flex flex-col justify-center items-center">
+        <div className=" pb-5/6 rounded-lg">
+          <img
+            className="object-cover rounded-lg shadow-md"
+            src="https://i.kinja-img.com/gawker-media/image/upload/s--vMJWT-nB--/c_scale,f_auto,fl_progressive,q_80,w_800/mdc4jnl2amnpmnajblxn.jpg"
+          />
+        </div>
+        <div className="p-6 bg-white relative  -mt-10 rounded-lg shadow-lg z-0">
+          <h1>Do you want to play a game?</h1>
+          <div className="btn-group">
+            <button className="btn" onClick={() => setState("create")}>
+              create
+            </button>
+            <button className="btn" onClick={() => setState("join")}>
+              join
+            </button>
+          </div>
+        </div>
       </div>
     );
   } else if (state === "join") {
@@ -323,17 +368,55 @@ const StateProvider = ({ children }) => {
   );
 };
 
+const Components = () => {
+  const users = [
+    { name: "Carol", id: "carol-id" },
+    { name: "Bob", id: "bob-id" }
+  ];
+  return (
+    <Context.Provider value={{ user: { id: "user-id", name: "Frank" } }}>
+      <Route path="/components/join" component={JoinForm} />
+      <Route path="/components/create" component={CreateForm} />
+      <Route path="/components/users">
+        <Users data={users} />
+      </Route>
+      <Route path="/components/question">
+        <ExistingQuestion data={{ id: "some-id" }} />
+      </Route>
+      <Route path="/components/room">
+        <Room
+          data={{
+            questions: [
+              {
+                name: "The Terminal",
+                responses: [{ owner: { id: "carol-id" } }]
+              }
+            ],
+            round: 0,
+            users
+          }}
+        />
+      </Route>
+    </Context.Provider>
+  );
+};
+
 const Routes = () => {
   const { user } = useContext(Context);
   return (
-    <>
-      <Route path="/" exact component={Main} />
+    <div className="app">
+      <Route path="/" exact>
+        <div className="form-container">
+          <Main />
+        </div>
+      </Route>
+      <Components />
       <ProtectedRoute
         path="/game/:name"
-        component={Room}
+        component={RoomPage}
         loggedIn={user ? true : false}
       />
-    </>
+    </div>
   );
 };
 
