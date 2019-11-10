@@ -96,7 +96,7 @@ const CreateForm = ({ handleSubmit }) => {
 
 const Users = ({ data, responses }) => {
   return (
-    <div className="fixed bottom-0 w-screen overflow-auto whitespace-no-wrap pb-2 px-4 text-center">
+    <div className="fixed bottom-0 left-0 w-screen overflow-auto whitespace-no-wrap pb-2 px-4 text-center">
       {data.map(user => {
         const answered = L.get(
           [L.whereEq({ owner: { id: user.id } })],
@@ -203,12 +203,7 @@ const ExistingQuestion = ({ data, roundOver, onEndGame }) => {
       </>
     );
   }
-  return (
-    <div>
-      <span>Current Answer: {userResponse.value}</span>
-      <button className="btn">end round</button>
-    </div>
-  );
+  return <span>Current Answer: {userResponse.value}</span>;
 };
 
 const Question = ({ data, nUsers, roomId }) => {
