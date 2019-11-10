@@ -96,13 +96,13 @@ const CreateForm = ({ handleSubmit }) => {
 
 const Users = ({ data, responses }) => {
   return (
-    <div>
+    <div className="w-screen flex flex-row justify-between absolute bottom-0 left-0 pb-0 overflow-x-auto">
       {data.map(user => {
         const answered = L.get(
           [L.whereEq({ owner: { id: user.id } })],
           responses
         );
-        const cls = answered ? "badge" : "badge-gray";
+        const cls = answered ? "badge" : "badge-gray ";
         console.log(cls);
         console.log("answered?", user, responses, answered);
         return (
@@ -136,29 +136,32 @@ const ExistingQuestion = ({ data, roundOver }) => {
   );
   if (!userResponse) {
     return (
-      <div>
-        <h3>Question id: {data.id}</h3>
-        <h3>User ID: {user.id}</h3>
-        <span>{user.name}'s answer:</span>
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            submitResponse({
-              variables: {
-                userId: user.id,
-                questionId: data.id,
-                value
-              }
-            });
-          }}
-        >
-          <input
-            placeholder="Answer"
-            onChange={e => setValue(e.target.value)}
-            value={value}
-          />
-          <button className="btn">submit</button>
-        </form>
+      <div className="shadow rounded-lg border shadow-2xl bg-gray-600">
+        <img className="rounded-t-lg w-full" src={data.imageUrl} />
+        <div className="border-t rounded-b-lg p-2">
+          <h1 className="text-white">{data.name}</h1>
+          <form
+            className="flex flex-row"
+            onSubmit={e => {
+              e.preventDefault();
+              submitResponse({
+                variables: {
+                  userId: user.id,
+                  questionId: data.id,
+                  value
+                }
+              });
+            }}
+          >
+            <input
+              placeholder="Enter your guess..."
+              value={value}
+              className="attached-right shadow-none"
+              onChange={e => setValue(e.target.value)}
+            />
+            <button className="btn attached-left">submit</button>
+          </form>
+        </div>
       </div>
     );
   }
@@ -199,16 +202,9 @@ const Question = ({ data, nUsers, roomId }) => {
     } else {
       setRoundOver(false);
     }
-  }, [data]);
+  }, [data, nUsers]);
   if (data) {
-    //console.log("data.responses", data.responses);
-    return (
-      <>
-        <h3>Question: {data.name}</h3>
-        <h4>Question State: {data.state}</h4>
-        <ExistingQuestion data={data} roundOver={roundOver} />
-      </>
-    );
+    return <ExistingQuestion data={data} roundOver={roundOver} />;
   }
   const handleSubmit = e => {
     e.preventDefault();
@@ -250,10 +246,7 @@ const Question = ({ data, nUsers, roomId }) => {
 
 const Room = ({ data }) => {
   return (
-    <div>
-      <h1>{data.name}</h1>
-      <h3>Room ID: {data.id}</h3>
-      <h4>State: {data.state}</h4>
+    <div className="px-12 pt-4 pb-10">
       <Question
         data={data.questions[data.round]}
         roomId={data.id}
@@ -320,7 +313,7 @@ const Main = () => {
     if (createRoomResp.data) {
       setUser(createRoomResp.data.insert_user.returning[0]);
     }
-  }, [createRoomResp]);
+  }, [createRoomResp, setUser]);
 
   const handleSubmit = (e, { name, code }) => {
     e.preventDefault();
@@ -334,23 +327,15 @@ const Main = () => {
 
   if (!state) {
     return (
-      <div className="flex flex-col justify-center items-center">
-        <div className=" pb-5/6 rounded-lg">
-          <img
-            className="object-cover rounded-lg shadow-md"
-            src="https://i.kinja-img.com/gawker-media/image/upload/s--vMJWT-nB--/c_scale,f_auto,fl_progressive,q_80,w_800/mdc4jnl2amnpmnajblxn.jpg"
-          />
-        </div>
-        <div className="p-6 bg-white relative  -mt-10 rounded-lg shadow-lg z-0">
-          <h1>Do you want to play a game?</h1>
-          <div className="btn-group">
-            <button className="btn" onClick={() => setState("create")}>
-              create
-            </button>
-            <button className="btn" onClick={() => setState("join")}>
-              join
-            </button>
-          </div>
+      <div className="px-10">
+        <h1>Do you want to play a game?</h1>
+        <div className="btn-group">
+          <button className="btn" onClick={() => setState("create")}>
+            create
+          </button>
+          <button className="btn" onClick={() => setState("join")}>
+            join
+          </button>
         </div>
       </div>
     );
@@ -371,6 +356,10 @@ const StateProvider = ({ children }) => {
 const Components = () => {
   const users = [
     { name: "Carol", id: "carol-id" },
+    { name: "Bob", id: "bob-id" },
+    { name: "Bob", id: "bob-id" },
+    { name: "Bob", id: "bob-id" },
+    { name: "Bob", id: "bob-id" },
     { name: "Bob", id: "bob-id" }
   ];
   return (
@@ -386,9 +375,15 @@ const Components = () => {
       <Route path="/components/room">
         <Room
           data={{
+            name: "ABCD",
             questions: [
               {
-                name: "The Terminal",
+                //name: "The Terminal",
+                //imageUrl:
+                //  "https://upload.wikimedia.org/wikipedia/en/8/86/Movie_poster_the_terminal.jpg",
+                name: "The Matrix",
+                imageUrl:
+                  "https://upload.wikimedia.org/wikipedia/en/c/c1/The_Matrix_Poster.jpg",
                 responses: [{ owner: { id: "carol-id" } }]
               }
             ],
@@ -406,9 +401,7 @@ const Routes = () => {
   return (
     <div className="app">
       <Route path="/" exact>
-        <div className="form-container">
-          <Main />
-        </div>
+        <Main />
       </Route>
       <Components />
       <ProtectedRoute

@@ -2,8 +2,12 @@ body {
   @apply bg-gray-200
 }
 
+.landing-continaer {
+  @apply p-6 bg-white relative -mt-10 rounded-lg shadow-lg z-0
+}
+
 .app {
-  @apply flex justify-center w-screen
+  @apply flex justify-center w-screen items-center h-full overflow-y-hidden
 }
 
 .btn {
@@ -19,11 +23,11 @@ body {
 }
 
 .attached-left {
-  @apply rounded-l-none ml-0 h-full my-0
+  @apply rounded-l-none ml-0 my-0
 }
 
 .attached-right {
-  @apply rounded-r-none mr-0 h-full my-0
+  @apply rounded-r-none mr-0 my-0
 }
 
 .btn-group>.btn {
