@@ -95,8 +95,11 @@ export const SUBSCRIBE_TO_ROOM_BY_NAME = gql`
         state
         created_at
         answer
+        imageUrl
+        description
         room {
           id
+          name
           round
         }
         responses {

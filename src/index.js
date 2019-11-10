@@ -127,7 +127,7 @@ const Result = ({ guess, answer }) => {
   );
 };
 
-const ExistingQuestion = ({ data, roundOver }) => {
+const ExistingQuestion = ({ data, roundOver, onEndGame }) => {
   const { user } = useContext(Context);
   const [value, setValue] = useState(null);
   const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
@@ -137,17 +137,23 @@ const ExistingQuestion = ({ data, roundOver }) => {
     data.responses
   );
   if (!userResponse) {
+    console.log("q data", data);
     return (
-      <div className="relative showit shadow rounded-lg border shadow-2xl bg-white w-8/12 sm:w-2/3 lg:w-1/2 xl:w-1/3 pb-4">
-        <img className="blurme rounded-t-lg w-full" src={data.imageUrl} />
-        <p
-          className="absolute top-0 text-gray-800 text-lg showme rounded-t-lg w-full"
-          style={{ height: "75%", overflowY: "scroll" }}
-        >
-          {data.description}
-        </p>
-
-        <div className="rounded-b-lg p-2" style={{ height: "20%" }}>
+      <div className="shadow rounded-lg border shadow-2xl bg-white w-8/12 sm:w-2/3 lg:w-1/2 xl:w-1/3 pb-4">
+        <div className="showit relative" style={{ height: "calc(55vh)" }}>
+          <img
+            className="blurme absolute top-0 object-cover rounded-t-lg w-full"
+            src={data.imageUrl}
+            style={{ height: "calc(55vh)" }}
+          />
+          <p
+            className="p-4 absolute top-0 text-gray-800 text-lg showme rounded-t-lg w-full"
+            style={{ height: "100%", overflowY: "scroll" }}
+          >
+            {data.description}
+          </p>
+        </div>
+        <div className="rounded-b-lg p-2">
           <h1 className="text-gray-700">{data.name}</h1>
           <form
             className="flex flex-row w-full "
@@ -181,14 +187,19 @@ const ExistingQuestion = ({ data, roundOver }) => {
           guess={userResponse.value}
           answer={data.answer.score.rottenTomatoes}
         />
-        <button
-          className="btn"
-          onClick={() => {
-            nextRound({ variables: { roomId: data.room.id } });
-          }}
-        >
-          next round
-        </button>
+        <div className="btn-group">
+          <button
+            className="btn"
+            onClick={() => {
+              nextRound({ variables: { roomId: data.room.id } });
+            }}
+          >
+            next round
+          </button>
+          <button className="btn" onClick={onEndGame}>
+            end game
+          </button>
+        </div>
       </>
     );
   }
@@ -201,10 +212,14 @@ const ExistingQuestion = ({ data, roundOver }) => {
 };
 
 const Question = ({ data, nUsers, roomId }) => {
+  const history = useHistory();
   const [question, setQuestion] = useState(null);
   const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
   const [roundOver, setRoundOver] = useState(false);
   console.log("data.responses", data);
+  const onEndGame = () => {
+    history.push(`/game/${data.room.name}/score`);
+  };
   useEffect(() => {
     if (data && nUsers === data.responses.length) {
       setRoundOver(true);
@@ -213,7 +228,13 @@ const Question = ({ data, nUsers, roomId }) => {
     }
   }, [data, nUsers]);
   if (data) {
-    return <ExistingQuestion data={data} roundOver={roundOver} />;
+    return (
+      <ExistingQuestion
+        data={data}
+        roundOver={roundOver}
+        onEndGame={onEndGame}
+      />
+    );
   }
   const handleSubmit = e => {
     e.preventDefault();
@@ -261,12 +282,38 @@ const Room = ({ data }) => {
         roomId={data.id}
         nUsers={data.users.length}
       />
+      <Score data={data.questions} />
       <Users
         data={data.users}
         responses={R.propOr([], "responses", data.questions[data.round])}
       />
     </div>
   );
+};
+
+const Score = ({ data }) => {
+  const { user } = useContext(Context);
+  const scores = data.map(question => {
+    const guess = L.get(
+      ["responses", L.whereEq({ owner: { id: user.id } }), "value"],
+      question
+    );
+    const answer = L.get(["answer", "score", "rottenTomatoes"], question);
+    if (R.all(R.complement(R.isNil), [answer, guess])) {
+      console.log("score....", guess, answer);
+      return computeScore(guess, answer);
+    }
+  });
+  return `score: ${R.sum(R.filter(R.identity, scores))}`;
+};
+
+const ScorePage = ({
+  match: {
+    params: { name }
+  }
+}) => {
+  const { user } = useContext(Context);
+  return "here";
 };
 
 const RoomPage = ({
@@ -418,6 +465,11 @@ const Routes = () => {
       <ProtectedRoute
         path="/game/:name"
         component={RoomPage}
+        loggedIn={user ? true : false}
+      />
+      <ProtectedRoute
+        path="/game/:name/score"
+        component={ScorePage}
         loggedIn={user ? true : false}
       />
     </div>
