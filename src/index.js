@@ -96,13 +96,15 @@ const CreateForm = ({ handleSubmit }) => {
 
 const Users = ({ data, responses }) => {
   return (
-    <div className="w-screen flex flex-row justify-between absolute bottom-0 left-0 pb-0 overflow-x-auto">
+    <div className="fixed bottom-0 w-screen overflow-auto whitespace-no-wrap pb-2 px-4 text-center">
       {data.map(user => {
         const answered = L.get(
           [L.whereEq({ owner: { id: user.id } })],
           responses
         );
-        const cls = answered ? "badge" : "badge-gray ";
+        const cls = answered
+          ? "badge px-6 py-2 mr-4 inline-block"
+          : "badge-gray px-6 py-2 mr-4 inline-block";
         console.log(cls);
         console.log("answered?", user, responses, answered);
         return (
@@ -136,12 +138,19 @@ const ExistingQuestion = ({ data, roundOver }) => {
   );
   if (!userResponse) {
     return (
-      <div className="shadow rounded-lg border shadow-2xl bg-gray-600">
-        <img className="rounded-t-lg w-full" src={data.imageUrl} />
-        <div className="border-t rounded-b-lg p-2">
-          <h1 className="text-white">{data.name}</h1>
+      <div className="relative showit shadow rounded-lg border shadow-2xl bg-white w-8/12 sm:w-2/3 lg:w-1/2 xl:w-1/3 pb-4">
+        <img className="blurme rounded-t-lg w-full" src={data.imageUrl} />
+        <p
+          className="absolute top-0 text-gray-800 text-lg showme rounded-t-lg w-full"
+          style={{ height: "75%", overflowY: "scroll" }}
+        >
+          {data.description}
+        </p>
+
+        <div className="rounded-b-lg p-2" style={{ height: "20%" }}>
+          <h1 className="text-gray-700">{data.name}</h1>
           <form
-            className="flex flex-row"
+            className="flex flex-row w-full "
             onSubmit={e => {
               e.preventDefault();
               submitResponse({
@@ -246,7 +255,7 @@ const Question = ({ data, nUsers, roomId }) => {
 
 const Room = ({ data }) => {
   return (
-    <div className="px-12 pt-4 pb-10">
+    <div className="flex flex-col justify-center items-center w-full pb-0">
       <Question
         data={data.questions[data.round]}
         roomId={data.id}
@@ -378,12 +387,14 @@ const Components = () => {
             name: "ABCD",
             questions: [
               {
-                //name: "The Terminal",
-                //imageUrl:
-                //  "https://upload.wikimedia.org/wikipedia/en/8/86/Movie_poster_the_terminal.jpg",
+                // name: "The Terminal",
+                // imageUrl:
+                //   "https://upload.wikimedia.org/wikipedia/en/8/86/Movie_poster_the_terminal.jpg",
                 name: "The Matrix",
                 imageUrl:
                   "https://upload.wikimedia.org/wikipedia/en/c/c1/The_Matrix_Poster.jpg",
+                description:
+                  'The Matrix is a 1999 science fiction action film[3][4] written and directed by the Wachowskis.[a] It stars Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss, Hugo Weaving, and Joe Pantoliano and is the first installment in the Matrix franchise. It depicts a dystopian future in which humanity is unknowingly trapped inside a simulated reality, the Matrix, created by intelligent machines to distract humans while using their bodies as an energy source.[5] When computer programmer Thomas Anderson, under the hacker alias "Neo", uncovers the truth, he "is drawn into a rebellion against the machines"[5] along with other people who have been freed from the Matrix.',
                 responses: [{ owner: { id: "carol-id" } }]
               }
             ],

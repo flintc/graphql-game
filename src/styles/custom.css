@@ -2,16 +2,41 @@ body {
   @apply bg-gray-200
 }
 
+#root {
+  @apply h-screen
+}
+
 .landing-continaer {
   @apply p-6 bg-white relative -mt-10 rounded-lg shadow-lg z-0
 }
 
 .app {
-  @apply flex justify-center w-screen items-center h-full overflow-y-hidden
+  @apply flex justify-center w-screen items-center h-full
 }
 
 .btn {
   @apply bg-indigo-500 text-white font-bold py-2 px-4 m-2 rounded
+}
+
+.img-with-description:hover {
+  -webkit-filter: blur(20px);
+  /* Safari 6.0 - 9.0 */
+  filter: blur(5px) opacity(0.45);
+}
+
+.showme {
+  display: none;
+}
+
+.showit:hover .showme {
+  display: block;
+  z-index: 1001
+}
+
+.showit:hover .blurme {
+  -webkit-filter: blur(20px);
+  /* Safari 6.0 - 9.0 */
+  filter: blur(5px) opacity(0.45);
 }
 
 .btn:hover {
