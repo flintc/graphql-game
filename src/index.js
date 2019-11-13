@@ -145,14 +145,14 @@ const MovieSearch = ({ onSelect = console.log }) => {
         value={value}
         onChange={e => setValue(e.target.value)}
       />
-      <div className="absolute">
+      <div className="absolute bg-white text-gray-600 opacity-75 rounded-lg shadow-xl">
         <ul>
           {results.slice(0, 15).map((result, ix) => {
             return (
               <li
                 onClick={() => onSelect(result.link.replace("/wiki/", ""))}
                 key={ix}
-                className="hover:bg-indigo-500"
+                className="hover:bg-indigo-600 w-full hover:text-white px-2"
               >
                 {result.title} ({result.year})
               </li>
