@@ -145,19 +145,21 @@ const MovieSearch = ({ onSelect = console.log }) => {
         value={value}
         onChange={e => setValue(e.target.value)}
       />
-      <ul>
-        {results.slice(0, 15).map((result, ix) => {
-          return (
-            <li
-              onClick={() => onSelect(result.link.replace("/wiki/", ""))}
-              key={ix}
-              className="hover:bg-indigo-500"
-            >
-              {result.title} ({result.year})
-            </li>
-          );
-        })}
-      </ul>
+      <div className="absolute">
+        <ul>
+          {results.slice(0, 15).map((result, ix) => {
+            return (
+              <li
+                onClick={() => onSelect(result.link.replace("/wiki/", ""))}
+                key={ix}
+                className="hover:bg-indigo-500"
+              >
+                {result.title} ({result.year})
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 };
