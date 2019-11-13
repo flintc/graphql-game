@@ -145,7 +145,11 @@ const MovieSearch = ({ onSelect = console.log }) => {
         value={value}
         onChange={e => setValue(e.target.value)}
       />
-      <div className="absolute bg-gray-100 text-gray-600 rounded-lg shadow-xl">
+      <div
+        className={`absolute bg-gray-100 text-gray-600 rounded-lg shadow-xl h-64 overflow-y-scroll w-64 ${
+          results.length === 0 ? "hidden" : "block"
+        }`}
+      >
         <ul>
           {results.slice(0, 15).map((result, ix) => {
             return (
