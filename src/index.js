@@ -19,6 +19,7 @@ import * as docs from "./documents";
 import ProtectedRoute from "./ProtectedRoute";
 import "./styles/tailwind.css";
 import "./styles/custom.css";
+import movies from "./movies";
 import { computeScore, generateCode } from "./utils";
 
 const searchUrl = title =>
@@ -113,6 +114,50 @@ const Users = ({ data, responses }) => {
           </span>
         );
       })}
+    </div>
+  );
+};
+
+const MovieSearch = ({ onSelect = console.log }) => {
+  const [value, setValue] = useState();
+  const results = R.sortWith(
+    [
+      R.ascend(x => (x.title.length === value.length ? 0 : 1)),
+      R.descend(R.prop("year"))
+    ],
+    L.collect(
+      [
+        L.satisfying(
+          R.where({
+            title: x => x && value && R.toLower(x).includes(R.toLower(value))
+            //year: R.equals(2006)
+            //cast: x => x && R.contains("Brad Pitt", x)
+          })
+        )
+      ],
+      movies
+    )
+  );
+  return (
+    <div>
+      <input
+        placeholder="Search movie titles..."
+        value={value}
+        onChange={e => setValue(e.target.value)}
+      />
+      <ul>
+        {results.slice(0, 15).map((result, ix) => {
+          return (
+            <li
+              onClick={() => onSelect(result.link.replace("/wiki/", ""))}
+              key={ix}
+              className="hover:bg-indigo-500"
+            >
+              {result.title} ({result.year})
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 };
@@ -231,9 +276,8 @@ const Question = ({ data, nUsers, roomId }) => {
       />
     );
   }
-  const handleSubmit = e => {
-    e.preventDefault();
-    fetch(searchUrl(question))
+  const handleSelected = title => {
+    fetch(searchUrl(title))
       .then(async resp => {
         const json = await resp.json();
         console.log("here2", json);
@@ -246,27 +290,12 @@ const Question = ({ data, nUsers, roomId }) => {
             answer: json.reception
           }
         });
-        setQuestion(null);
       })
       .catch(err => {
         console.error("error!", err);
       });
   };
-  return (
-    <div>
-      <form className="flex flex-row" onSubmit={handleSubmit}>
-        <div className="flex flex-row">
-          <input
-            placeholder="Search movie titles..."
-            value={question}
-            className="attached-right shadow-none"
-            onChange={e => setQuestion(e.target.value)}
-          />
-          <button className="btn attached-left">submit</button>
-        </div>
-      </form>
-    </div>
-  );
+  return <MovieSearch onSelect={handleSelected} />;
 };
 
 const Room = ({ data }) => {
@@ -423,6 +452,7 @@ const Components = () => {
       <Route path="/components/question">
         <ExistingQuestion data={{ id: "some-id" }} />
       </Route>
+      <Route path="/components/search" component={MovieSearch} />
       <Route path="/components/room">
         <Room
           data={{
