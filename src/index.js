@@ -19,250 +19,21 @@ import * as docs from "./documents";
 import ProtectedRoute from "./ProtectedRoute";
 import "./styles/tailwind.css";
 import "./styles/custom.css";
-import movies from "./movies";
-import { computeScore, generateCode } from "./utils";
+import { computeScore } from "./utils";
+import RoomJoinForm from "./components/RoomJoinForm";
+import RoomCreateForm from "./components/RoomCreateForm";
+import UserList from "./components/UserList";
+import MovieSearchInput from "./components/MovieSearchInput";
+import RoundQuestionCard from "./components/RoundQuestionCard";
+import { StateContext } from "./app-state";
 
 const searchUrl = title =>
   `https://kha9mwfrdb.execute-api.us-east-1.amazonaws.com/dev/search/${title}`;
 
-const Context = React.createContext();
-
-const JoinForm = ({ handleSubmit }) => {
-  const [code, setCode] = useState(null);
-  const [name, setName] = useState(null);
-  console.log("name", name);
-  return (
-    <form onSubmit={e => handleSubmit(e, { name, code })}>
-      <div className="form-field" j>
-        <label htmlFor="name-input" className="form-label">
-          NAME
-        </label>
-        <input
-          id="name-input"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Name"
-        />
-      </div>
-      <div className="form-field">
-        <label htmlFor="room-input" className="form-label">
-          ROOM
-        </label>
-        <input
-          id="room-input"
-          value={code}
-          onChange={e => setCode(e.target.value)}
-          placeholder="Room Code"
-        />
-      </div>
-      <div className="btn-group">
-        <button className="btn">go back</button>
-        <button className="btn">submit</button>
-      </div>
-    </form>
-  );
-};
-
-const CreateForm = ({ handleSubmit }) => {
-  const [name, setName] = useState(null);
-  const code = generateCode();
-  const history = useHistory();
-  return (
-    <form onSubmit={e => handleSubmit(e, { name, code })}>
-      <div className="form-field">
-        <label htmlFor="name-input" className="form-label">
-          NAME
-        </label>
-        <input
-          id="name-input"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          placeholder="Name"
-        />
-      </div>
-      <div className="btn-group">
-        <button
-          onClick={() => {
-            history.push("/");
-          }}
-          className="btn"
-        >
-          go back
-        </button>
-        <button className="btn">submit</button>
-      </div>
-    </form>
-  );
-};
-
-const Users = ({ data, responses }) => {
-  return (
-    <div className="fixed bottom-0 left-0 w-screen overflow-auto whitespace-no-wrap pb-2 px-4 text-center">
-      {data.map(user => {
-        const answered = L.get(
-          [L.whereEq({ owner: { id: user.id } })],
-          responses
-        );
-        const cls = answered
-          ? "badge px-6 py-2 mr-4 inline-block"
-          : "badge-gray px-6 py-2 mr-4 inline-block";
-        console.log(cls);
-        console.log("answered?", user, responses, answered);
-        return (
-          <span className={cls} key={user.id}>
-            {user.name}
-          </span>
-        );
-      })}
-    </div>
-  );
-};
-
-const MovieSearch = ({ onSelect = console.log }) => {
-  const [value, setValue] = useState();
-  const results = R.sortWith(
-    [
-      R.ascend(x => (x.title.length === value.length ? 0 : 1)),
-      R.descend(R.prop("year"))
-    ],
-    L.collect(
-      [
-        L.satisfying(
-          R.where({
-            title: x => x && value && R.toLower(x).includes(R.toLower(value))
-            //year: R.equals(2006)
-            //cast: x => x && R.contains("Brad Pitt", x)
-          })
-        )
-      ],
-      movies
-    )
-  );
-  return (
-    <div>
-      <input
-        placeholder="Search movie titles..."
-        value={value}
-        onChange={e => setValue(e.target.value)}
-      />
-      <div
-        className={`absolute bg-gray-100 text-gray-600 rounded-lg shadow-xl h-64 overflow-y-scroll w-64 ${
-          results.length === 0 ? "hidden" : "block"
-        }`}
-      >
-        <ul>
-          {results.slice(0, 15).map((result, ix) => {
-            return (
-              <li
-                onClick={() => onSelect(result.link.replace("/wiki/", ""))}
-                key={ix}
-                className="hover:bg-indigo-600 w-full hover:text-white px-2"
-              >
-                {result.title} ({result.year})
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </div>
-  );
-};
-
-const Result = ({ guess, answer }) => {
-  return (
-    <div>
-      <div>Your Answer: {guess}</div>
-      <div>Correct Answer: {answer}</div>
-      <div>Score: {computeScore(guess, answer)}</div>
-    </div>
-  );
-};
-
-const ExistingQuestion = ({ data, roundOver, onEndGame }) => {
-  const { user } = useContext(Context);
-  const [value, setValue] = useState(null);
-  const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
-  const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
-  const userResponse = L.get(
-    [L.whereEq({ owner: { id: user.id } })],
-    data.responses
-  );
-  if (!userResponse) {
-    console.log("q data", data);
-    return (
-      <div className="shadow rounded-lg border shadow-2xl bg-white w-8/12 sm:w-2/3 lg:w-1/2 xl:w-1/3 pb-4">
-        <div className="showit relative" style={{ height: "calc(55vh)" }}>
-          <img
-            className="blurme absolute top-0 object-cover rounded-t-lg w-full"
-            src={data.imageUrl}
-            style={{ height: "calc(55vh)" }}
-          />
-          <p
-            className="p-4 absolute top-0 text-gray-800 text-lg showme rounded-t-lg w-full"
-            style={{ height: "100%", overflowY: "scroll" }}
-          >
-            {data.description}
-          </p>
-        </div>
-        <div className="rounded-b-lg p-2">
-          <h1 className="text-gray-700">{data.name}</h1>
-          <form
-            className="flex flex-row w-full "
-            onSubmit={e => {
-              e.preventDefault();
-              submitResponse({
-                variables: {
-                  userId: user.id,
-                  questionId: data.id,
-                  value
-                }
-              });
-            }}
-          >
-            <input
-              placeholder="Enter your guess..."
-              value={value}
-              className="attached-right shadow-none"
-              onChange={e => setValue(e.target.value)}
-            />
-            <button className="btn attached-left">submit</button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-  if (data.answer && roundOver) {
-    return (
-      <>
-        <Result
-          guess={userResponse.value}
-          answer={data.answer.score.rottenTomatoes}
-        />
-        <div className="btn-group">
-          <button
-            className="btn"
-            onClick={() => {
-              nextRound({ variables: { roomId: data.room.id } });
-            }}
-          >
-            next round
-          </button>
-          <button className="btn" onClick={onEndGame}>
-            end game
-          </button>
-        </div>
-      </>
-    );
-  }
-  return <span>Current Answer: {userResponse.value}</span>;
-};
-
 const Question = ({ data, nUsers, roomId }) => {
   const history = useHistory();
-  const [question, setQuestion] = useState(null);
   const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
   const [roundOver, setRoundOver] = useState(false);
-  console.log("data.responses", data);
   const onEndGame = () => {
     history.push(`/game/${data.room.name}/score`);
   };
@@ -275,7 +46,7 @@ const Question = ({ data, nUsers, roomId }) => {
   }, [data, nUsers]);
   if (data) {
     return (
-      <ExistingQuestion
+      <RoundQuestionCard
         data={data}
         roundOver={roundOver}
         onEndGame={onEndGame}
@@ -286,7 +57,6 @@ const Question = ({ data, nUsers, roomId }) => {
     fetch(searchUrl(title))
       .then(async resp => {
         const json = await resp.json();
-        console.log("here2", json);
         submitQuestion({
           variables: {
             roomId: roomId,
@@ -301,7 +71,7 @@ const Question = ({ data, nUsers, roomId }) => {
         console.error("error!", err);
       });
   };
-  return <MovieSearch onSelect={handleSelected} />;
+  return <MovieSearchInput onSelect={handleSelected} />;
 };
 
 const Room = ({ data }) => {
@@ -313,7 +83,7 @@ const Room = ({ data }) => {
         nUsers={data.users.length}
       />
       <Score data={data.questions} />
-      <Users
+      <UserList
         data={data.users}
         responses={R.propOr([], "responses", data.questions[data.round])}
       />
@@ -322,7 +92,7 @@ const Room = ({ data }) => {
 };
 
 const Score = ({ data }) => {
-  const { user } = useContext(Context);
+  const { user } = useContext(StateContext);
   const scores = data.map(question => {
     const guess = L.get(
       ["responses", L.whereEq({ owner: { id: user.id } }), "value"],
@@ -342,7 +112,7 @@ const ScorePage = ({
     params: { name }
   }
 }) => {
-  const { user } = useContext(Context);
+  const { user } = useContext(StateContext);
   return "here";
 };
 
@@ -362,7 +132,7 @@ const RoomPage = ({
 
 const Main = () => {
   const [state, setState] = useState();
-  const { user, setUser } = useContext(Context);
+  const { user, setUser } = useContext(StateContext);
   const [userName, setUserName] = useState();
   const [room, setRoom] = useState({});
   const history = useHistory();
@@ -426,16 +196,18 @@ const Main = () => {
       </div>
     );
   } else if (state === "join") {
-    return <JoinForm handleSubmit={handleSubmit} />;
+    return <RoomJoinForm handleSubmit={handleSubmit} />;
   } else if (state === "create") {
-    return <CreateForm handleSubmit={handleSubmit} />;
+    return <RoomCreateForm handleSubmit={handleSubmit} />;
   }
 };
 
 const StateProvider = ({ children }) => {
   const [user, setUser] = useState();
   return (
-    <Context.Provider value={{ user, setUser }}>{children}</Context.Provider>
+    <StateContext.Provider value={{ user, setUser }}>
+      {children}
+    </StateContext.Provider>
   );
 };
 
@@ -449,16 +221,16 @@ const Components = () => {
     { name: "Bob", id: "bob-id" }
   ];
   return (
-    <Context.Provider value={{ user: { id: "user-id", name: "Frank" } }}>
-      <Route path="/components/join" component={JoinForm} />
-      <Route path="/components/create" component={CreateForm} />
+    <StateContext.Provider value={{ user: { id: "user-id", name: "Frank" } }}>
+      <Route path="/components/join" component={RoomJoinForm} />
+      <Route path="/components/create" component={RoomCreateForm} />
       <Route path="/components/users">
-        <Users data={users} />
+        <UserList data={users} />
       </Route>
       <Route path="/components/question">
-        <ExistingQuestion data={{ id: "some-id" }} />
+        <RoundQuestionCard data={{ id: "some-id" }} />
       </Route>
-      <Route path="/components/search" component={MovieSearch} />
+      <Route path="/components/search" component={MovieSearchInput} />
       <Route path="/components/room">
         <Room
           data={{
@@ -481,12 +253,12 @@ const Components = () => {
           }}
         />
       </Route>
-    </Context.Provider>
+    </StateContext.Provider>
   );
 };
 
 const Routes = () => {
-  const { user } = useContext(Context);
+  const { user } = useContext(StateContext);
   return (
     <div className="app">
       <Route path="/" exact>
