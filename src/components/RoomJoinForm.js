@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 
-const RoomJoinForm = ({ handleSubmit }) => {
+const RoomJoinForm = ({ handleSubmit, handleCancel }) => {
   const [code, setCode] = useState(null);
   const [name, setName] = useState(null);
-  console.log("name", name);
   return (
     <form onSubmit={e => handleSubmit(e, { name, code })}>
       <div className="form-field" j>
@@ -29,7 +28,9 @@ const RoomJoinForm = ({ handleSubmit }) => {
         />
       </div>
       <div className="btn-group">
-        <button className="btn">go back</button>
+        <button className="btn" type="button" onClick={handleCancel}>
+          go back
+        </button>
         <button className="btn">submit</button>
       </div>
     </form>

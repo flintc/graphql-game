@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { generateCode } from "../utils";
 
-const RoomCreateForm = ({ handleSubmit }) => {
+const RoomCreateForm = ({ handleSubmit, handleCancel }) => {
   const [name, setName] = useState(null);
   const code = generateCode();
   const history = useHistory();
@@ -28,7 +28,9 @@ const RoomCreateForm = ({ handleSubmit }) => {
         >
           go back
         </button>
-        <button className="btn">submit</button>
+        <button className="btn" type="button" onClick={handleCancel}>
+          submit
+        </button>
       </div>
     </form>
   );

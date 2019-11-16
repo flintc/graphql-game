@@ -26,6 +26,8 @@ import UserList from "./components/UserList";
 import MovieSearchInput from "./components/MovieSearchInput";
 import RoundQuestionCard from "./components/RoundQuestionCard";
 import { StateContext } from "./app-state";
+import RoomCreatePage from "./pages/RoomCreatePage";
+import RoomJoinPage from "./pages/RoomJoinPage";
 
 const searchUrl = title =>
   `https://kha9mwfrdb.execute-api.us-east-1.amazonaws.com/dev/search/${title}`;
@@ -107,15 +109,6 @@ const Score = ({ data }) => {
   return `score: ${R.sum(R.filter(R.identity, scores))}`;
 };
 
-const ScorePage = ({
-  match: {
-    params: { name }
-  }
-}) => {
-  const { user } = useContext(StateContext);
-  return "here";
-};
-
 const RoomPage = ({
   match: {
     params: { name }
@@ -132,78 +125,37 @@ const RoomPage = ({
 
 const Main = () => {
   const [state, setState] = useState();
-  const { user, setUser } = useContext(StateContext);
-  const [userName, setUserName] = useState();
-  const [room, setRoom] = useState({});
   const history = useHistory();
-  const [joinRoom, joinRoomResp] = useMutation(docs.JOIN_ROOM_MUTATION);
-  const [roomByName, roomByNameResp] = useLazyQuery(docs.ROOM_BY_NAME_QUERY);
-  const [createRoom, createRoomResp] = useMutation(docs.CREATE_ROOM_MUTATION);
   useEffect(() => {
-    if (!roomByNameResp.loading) {
-      if (roomByNameResp.data && roomByNameResp.data.room.length) {
-        setRoom(roomByNameResp.data.room[0]);
-      }
+    if (state === "join") {
+      history.push("/join");
+    } else if (state === "create") {
+      history.push("/create");
     }
-  }, [roomByNameResp]);
+  }, [state]);
+  return (
+    <div className="px-10">
+      <h1>Do you want to play a game?</h1>
+      <div className="btn-group">
+        <button className="btn" onClick={() => setState("create")}>
+          create
+        </button>
+        <button className="btn" onClick={() => setState("join")}>
+          join
+        </button>
+      </div>
+    </div>
+  );
+};
 
-  useEffect(() => {
-    if (room.id) {
-      joinRoom({ variables: { name: userName, roomId: room.id } });
-    }
-  }, [room.id, userName, joinRoom]);
-
-  useEffect(() => {
-    if (joinRoomResp.data) {
-      setUser(joinRoomResp.data.insert_user.returning[0]);
-    }
-  }, [joinRoomResp.data, setUser, history]);
-
+const StateProvider = ({ children }) => {
+  const history = useHistory();
+  const [user, setUser] = useState();
   useEffect(() => {
     if (user) {
       history.push(`/game/${user.room.name}`);
     }
-  }, [user, history]);
-
-  useEffect(() => {
-    if (createRoomResp.data) {
-      setUser(createRoomResp.data.insert_user.returning[0]);
-    }
-  }, [createRoomResp, setUser]);
-
-  const handleSubmit = (e, { name, code }) => {
-    e.preventDefault();
-    if (state === "join") {
-      roomByName({ variables: { name: code } });
-      setUserName(name);
-    } else if (state === "create") {
-      createRoom({ variables: { userName: name, roomName: code } });
-    }
-  };
-
-  if (!state) {
-    return (
-      <div className="px-10">
-        <h1>Do you want to play a game?</h1>
-        <div className="btn-group">
-          <button className="btn" onClick={() => setState("create")}>
-            create
-          </button>
-          <button className="btn" onClick={() => setState("join")}>
-            join
-          </button>
-        </div>
-      </div>
-    );
-  } else if (state === "join") {
-    return <RoomJoinForm handleSubmit={handleSubmit} />;
-  } else if (state === "create") {
-    return <RoomCreateForm handleSubmit={handleSubmit} />;
-  }
-};
-
-const StateProvider = ({ children }) => {
-  const [user, setUser] = useState();
+  }, [user]);
   return (
     <StateContext.Provider value={{ user, setUser }}>
       {children}
@@ -265,14 +217,11 @@ const Routes = () => {
         <Main />
       </Route>
       <Components />
+      <Route path="/join" component={RoomJoinPage} />
+      <Route path="/create" component={RoomCreatePage} />
       <ProtectedRoute
         path="/game/:name"
         component={RoomPage}
-        loggedIn={user ? true : false}
-      />
-      <ProtectedRoute
-        path="/game/:name/score"
-        component={ScorePage}
         loggedIn={user ? true : false}
       />
     </div>
@@ -282,13 +231,13 @@ const Routes = () => {
 function App() {
   return (
     <ApolloProvider client={client}>
-      <StateProvider>
-        <Router basename="/">
-          <Switch>
+      <Router basename="/">
+        <Switch>
+          <StateProvider>
             <Routes />
-          </Switch>
-        </Router>
-      </StateProvider>
+          </StateProvider>
+        </Switch>
+      </Router>
     </ApolloProvider>
   );
 }
