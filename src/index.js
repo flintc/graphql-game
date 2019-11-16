@@ -10,8 +10,9 @@ import RoomCreatePage from "./pages/RoomCreatePage";
 import RoomJoinPage from "./pages/RoomJoinPage";
 import RoomPage from "./pages/RoomPage";
 import ProtectedRoute from "./ProtectedRoute";
-import "./styles/custom.css";
 import "./styles/tailwind.css";
+
+import "./styles/custom.css";
 
 const Routes = () => {
   const { user } = useContext(StateContext);
