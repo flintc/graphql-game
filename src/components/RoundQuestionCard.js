@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/react-hooks";
 import * as L from "partial.lenses";
 import React, { useContext, useState } from "react";
 import * as docs from "../documents";
-import RoundResult from "./RoundResult";
+import RoundResult from "./RoundScore";
 import { StateContext } from "../app-state";
 
 const RoundQuestionCard = ({ data, roundOver, onEndGame }) => {

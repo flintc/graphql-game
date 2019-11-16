@@ -8,7 +8,7 @@ export const StateProvider = ({ children }) => {
   const [user, setUser] = useState();
   useEffect(() => {
     if (user) {
-      history.push(`/game/${user.room.name}`);
+      history.push(`/room/${user.room.name}`);
     }
   }, [user]);
   return (
