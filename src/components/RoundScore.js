@@ -1,22 +1,40 @@
 import React from "react";
 import { computeScore } from "../utils";
+import * as R from "ramda";
+import * as L from "partial.lenses";
 
-const RoundResult = ({ response, answer, responses }) => {
-  console.log("RESPONSES!", responses);
+const Score = ({ value }) => {
+  const prefix = value > 0 ? "+" : "";
+  const textColor = value > 0 ? "text-red-500" : "text-green-500";
+  return (
+    <span className={`${textColor} font-semibold`}>
+      {prefix}
+      {value}
+    </span>
+  );
+};
+
+const RoundResult = ({ name, response, answer, responses }) => {
+  const results = L.modify(
+    [L.elems],
+    x =>
+      R.mergeRight(x, {
+        score: computeScore({ response: x.value, answer })
+      }),
+    R.append({ user: "you", value: response }, responses)
+  );
   return (
     <div>
-      <div>Your Answer: {response}</div>
+      {name}: {answer}
       <ul>
-        {responses.map((r, i) => {
+        {R.sortBy(R.prop("value"), results).map((r, i) => {
           return (
             <li key={i}>
-              {r.user}'s answer: {r.value}
+              {r.user}: {r.value} <Score value={r.score} />
             </li>
           );
         })}
       </ul>
-      <div>Correct Answer: {answer}</div>
-      <div>Score: {computeScore({ response, answer })}</div>
     </div>
   );
 };

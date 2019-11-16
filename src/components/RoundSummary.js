@@ -2,6 +2,7 @@ import React from "react";
 import RoundScore from "./RoundScore";
 
 const RoundSummary = ({
+  name,
   response,
   responses,
   answer,
@@ -10,7 +11,12 @@ const RoundSummary = ({
 }) => {
   return (
     <>
-      <RoundScore response={response} answer={answer} responses={responses} />
+      <RoundScore
+        name={name}
+        response={response}
+        answer={answer}
+        responses={responses}
+      />
       <div className="btn-group">
         <button className="btn" onClick={onNextRound}>
           next round

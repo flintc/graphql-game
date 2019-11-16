@@ -43,6 +43,7 @@ const Round = ({ data, nUsers, roomId }) => {
     if (data.answer && roundOver) {
       return (
         <RoundSummary
+          name={data.name}
           response={userResponse.value}
           answer={data.answer.score.rottenTomatoes}
           responses={responses}
