@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/react-hooks";
 import * as L from "partial.lenses";
 import React, { useContext, useState } from "react";
 import * as docs from "../documents";
-import RoundResult from "./RoundScore";
+import RoundScore from "./RoundScore";
 import { StateContext } from "../app-state";
 
 const RoundQuestionCard = ({ data, roundOver, onEndGame }) => {
@@ -61,7 +61,7 @@ const RoundQuestionCard = ({ data, roundOver, onEndGame }) => {
   if (data.answer && roundOver) {
     return (
       <>
-        <RoundResult
+        <RoundScore
           guess={userResponse.value}
           answer={data.answer.score.rottenTomatoes}
         />
