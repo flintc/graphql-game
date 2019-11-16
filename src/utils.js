@@ -5,9 +5,9 @@ export const generateCode = () =>
     .substr(0, 4)
     .toUpperCase();
 
-export const computeScore = (guess, answer) => {
-  if (guess === answer) {
+export const computeScore = ({ response, answer }) => {
+  if (response === answer) {
     return -5;
   }
-  return Math.abs(answer - guess);
+  return Math.abs(answer - response);
 };
