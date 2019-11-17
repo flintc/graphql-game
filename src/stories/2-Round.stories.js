@@ -8,8 +8,11 @@ export const summary = () => {
     <RoundSummary
       name={"Dummy Movie"}
       response={10}
-      answer={10}
-      responses={[{ user: "foo", value: 50 }]}
+      answer={68}
+      responses={[
+        { user: "foo", value: 50 },
+        { user: "bar", value: 70 }
+      ]}
     />
   );
 };

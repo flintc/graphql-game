@@ -21,6 +21,7 @@
     "react-dom": "16.8.6",
     "react-router-dom": "5.1.2",
     "react-scripts": "3.0.1",
+    "react-spring": "^8.0.27",
     "subscriptions-transport-ws": "0.9.16"
   },
   "devDependencies": {
