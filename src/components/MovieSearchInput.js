@@ -15,8 +15,6 @@ const MovieSearchInput = ({ onSelect = console.log }) => {
         L.satisfying(
           R.where({
             title: x => x && value && R.toLower(x).includes(R.toLower(value))
-            //year: R.equals(2006)
-            //cast: x => x && R.contains("Brad Pitt", x)
           })
         )
       ],

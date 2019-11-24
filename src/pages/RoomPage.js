@@ -1,6 +1,6 @@
 import { useSubscription } from "@apollo/react-hooks";
 import * as L from "partial.lenses";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { StateContext } from "../app-state";
 import Room from "../components/Room";
 import * as docs from "../documents";
@@ -11,6 +11,7 @@ const RoomPage = ({
   }
 }) => {
   const { user } = useContext(StateContext);
+  const [roundOver, setRoundOver] = useState(false);
   const resp = useSubscription(docs.SUBSCRIBE_TO_ROOM_BY_NAME, {
     variables: { name }
   });
@@ -27,14 +28,19 @@ const RoomPage = ({
       }
     })
   ])(room.questions);
+  const round = room.questions[room.round];
   return (
     <Room>
       <Room.Round
-        data={room.questions[room.round]}
+        data={round}
         roomId={room.id}
         nUsers={room.users.length}
+        roundOver={roundOver}
+        setRoundOver={setRoundOver}
       />
-      <Room.Score data={questions} />
+      {!(L.get("answer", round) && roundOver) && (
+        <Room.Score data={questions} />
+      )}
       <Room.UserList
         data={room.users}
         responses={R.propOr([], "responses", room.questions[room.round])}

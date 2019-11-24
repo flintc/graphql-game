@@ -8,9 +8,9 @@ import RoundQuestionCard from "./RoundQuestionCard";
 import RoundSummary from "./RoundSummary";
 import { collectResults } from "../utils";
 
-const Round = ({ data, nUsers, roomId }) => {
+const Round = ({ data, nUsers, roomId, roundOver, setRoundOver }) => {
   const { user } = useContext(StateContext);
-  const [roundOver, setRoundOver] = useState(false);
+
   const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
   const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
   const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
