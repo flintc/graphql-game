@@ -13,10 +13,22 @@ const Round = ({ data, nUsers, roomId }) => {
   const [roundOver, setRoundOver] = useState(false);
   const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
   const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
+  const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
   const onNextRound = () => {
     nextRound({ variables: { roomId: data.room.id } });
   };
   const onEndGame = () => console.log("done.");
+  const onQuestionSelect = json => {
+    submitQuestion({
+      variables: {
+        roomId: roomId,
+        description: json.description,
+        imageUrl: json.poster,
+        name: json.title,
+        answer: json.reception
+      }
+    });
+  };
   useEffect(() => {
     if (data && nUsers === data.responses.length) {
       setRoundOver(true);
@@ -60,7 +72,7 @@ const Round = ({ data, nUsers, roomId }) => {
       return <span>Current Answer: {userResponse.value}</span>;
     }
   }
-  return <MovieSearch roomId={roomId} />;
+  return <MovieSearch roomId={roomId} onSelection={onQuestionSelect} />;
 };
 
 export default Round;
