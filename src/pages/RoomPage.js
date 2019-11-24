@@ -31,6 +31,7 @@ const RoomPage = ({
   const round = room.questions[room.round];
   return (
     <Room>
+      <h1 className="fixed top-0 my-2">{room.name}</h1>
       <Room.Round
         data={round}
         roomId={room.id}
