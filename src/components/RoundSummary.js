@@ -29,9 +29,9 @@ const RoundAnswer = ({ name, answer }) => {
   const { correctScoreRef } = useContext(Context);
   const props = useSpring({
     config: {
-      mass: 55 + (Math.random() - 0.5) * 100,
-      friction: 100 + (Math.random() - 0.5) * 100,
-      tension: 250 + (Math.random() - 0.5) * 100
+      mass: 55, //+ (Math.random() - 0.5) * 100,
+      friction: 100, //+ (Math.random() - 0.5) * 100,
+      tension: 250 //+ (Math.random() - 0.5) * 100
     },
     from: { answer: 0 },
     to: { answer },
