@@ -10,7 +10,7 @@ import RoomCreatePage from "./pages/RoomCreatePage";
 import RoomJoinPage from "./pages/RoomJoinPage";
 import RoomPage from "./pages/RoomPage";
 import ProtectedRoute from "./ProtectedRoute";
-import "./styles/tailwind.css";
+import "./styles/index.css";
 
 import "./styles/custom.css";
 

@@ -6,13 +6,17 @@ import * as docs from "../documents";
 import MovieSearch from "./MovieSearch";
 import RoundQuestionCard from "./RoundQuestionCard";
 import RoundSummary from "./RoundSummary";
+import { collectResults } from "../utils";
 
 const Round = ({ data, nUsers, roomId }) => {
   const { user } = useContext(StateContext);
   const [roundOver, setRoundOver] = useState(false);
-  const onEndGame = () => console.log("done.");
-  const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
   const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
+  const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
+  const onNextRound = () => {
+    nextRound({ variables: { roomId: data.room.id } });
+  };
+  const onEndGame = () => console.log("done.");
   useEffect(() => {
     if (data && nUsers === data.responses.length) {
       setRoundOver(true);
@@ -25,31 +29,21 @@ const Round = ({ data, nUsers, roomId }) => {
     ["responses", L.whereEq({ owner: { id: user.id } })],
     data
   );
-  const responses = L.collect(
-    [
-      "responses",
-      L.filter(x => x.owner.id !== user.id),
-      L.elems,
-      L.pick({ user: ["owner", "name"], value: "value" })
-    ],
-    data
-  );
-
-  const onNextRound = () => {
-    nextRound({ variables: { roomId: data.room.id } });
-  };
-
+  const answer = L.get(["answer", "score", "rottenTomatoes"], data);
+  const collectRoundResults = collectResults(user, answer);
   if (data) {
     if (data.answer && roundOver) {
       return (
-        <RoundSummary
-          name={data.name}
-          response={userResponse.value}
-          answer={data.answer.score.rottenTomatoes}
-          responses={responses}
-          onNextRound={onNextRound}
-          onEndGame={onEndGame}
-        />
+        <RoundSummary>
+          <RoundSummary.Answer name={data.name} answer={answer} />
+          <RoundSummary.Ranking
+            responses={collectRoundResults(data.responses)}
+          />
+          <RoundSummary.BtnGroup
+            onNextRound={onNextRound}
+            onEndGame={onEndGame}
+          />
+        </RoundSummary>
       );
     } else if (!userResponse) {
       return (
