@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import * as R from "ramda";
 
 const RoomJoinForm = ({ handleSubmit, handleCancel }) => {
   const [code, setCode] = useState(null);
@@ -23,7 +24,7 @@ const RoomJoinForm = ({ handleSubmit, handleCancel }) => {
         <input
           id="room-input"
           value={code}
-          onChange={e => setCode(e.target.value)}
+          onChange={e => setCode(R.toUpper(e.target.value))}
           placeholder="Room Code"
         />
       </div>
