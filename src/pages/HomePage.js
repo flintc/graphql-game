@@ -1,8 +1,10 @@
 import { useHistory } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { StateContext } from "../app-state";
 
 const HomePage = () => {
   const [state, setState] = useState();
+  const { user } = useContext(StateContext);
   const history = useHistory();
   useEffect(() => {
     if (state === "join") {
@@ -13,7 +15,7 @@ const HomePage = () => {
   }, [state]);
   return (
     <div className="px-10">
-      <h1>Do you want to play a game?</h1>
+      <h1>{user ? `${user.name}, d` : "D"}o you want to play a game?</h1>
       <div className="btn-group">
         <button className="btn" onClick={() => setState("create")}>
           create

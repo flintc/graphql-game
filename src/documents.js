@@ -16,6 +16,22 @@ export const JOIN_ROOM_MUTATION = gql`
   }
 `;
 
+export const EXISTING_USER_JOIN_ROOM_MUTATION = gql`
+  mutation UpdateUserRoomId($id: uuid, $roomId: uuid) {
+    update_user(where: { id: { _eq: $id } }, _set: { room_id: $roomId }) {
+      affected_rows
+      returning {
+        id
+        name
+        room {
+          name
+          id
+        }
+      }
+    }
+  }
+`;
+
 export const USERS_IN_ROOM_SUBSCRIPTION = gql`
   subscription UsersInRoomSubscription($roomName: String) {
     user(where: { room: { name: { _eq: $roomName } } }) {
@@ -232,6 +248,19 @@ export const NEXT_ROUND_MUTATION = gql`
   mutation NextRound($roomId: uuid) {
     update_room(_inc: { round: 1 }, where: { id: { _eq: $roomId } }) {
       returning {
+        id
+      }
+    }
+  }
+`;
+
+export const USER_LOGIN = gql`
+  query FindUser($id: uuid!) {
+    user_by_pk(id: $id) {
+      name
+      id
+      room {
+        name
         id
       }
     }

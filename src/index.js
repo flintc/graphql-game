@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import RoomCreatePage from "./pages/RoomCreatePage";
 import RoomJoinPage from "./pages/RoomJoinPage";
 import RoomPage from "./pages/RoomPage";
+import UserPage from "./pages/UserPage";
 import ProtectedRoute from "./ProtectedRoute";
 import "./styles/index.css";
 
@@ -24,6 +25,7 @@ const Routes = () => {
       <ComponentsWithMocks />
       <Route path="/join" component={RoomJoinPage} />
       <Route path="/create" component={RoomCreatePage} />
+      <Route path="/login/:id" component={UserPage} />
       <ProtectedRoute
         path="/room/:name"
         component={RoomPage}

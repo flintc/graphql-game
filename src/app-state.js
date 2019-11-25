@@ -8,7 +8,12 @@ export const StateProvider = ({ children }) => {
   const [user, setUser] = useState();
   useEffect(() => {
     if (user) {
-      history.push(`/room/${user.room.name}`);
+      console.log("user changed", user);
+      if (user.room) {
+        history.push(`/room/${user.room.name}`);
+      } else {
+        history.push("/");
+      }
     }
   }, [user]);
   return (
