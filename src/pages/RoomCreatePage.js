@@ -1,19 +1,51 @@
 import { useMutation } from "@apollo/react-hooks";
 import * as R from "ramda";
+import * as L from "partial.lenses";
 import { default as React, useContext, useEffect, useState } from "react";
 import RoomCreateForm from "../components/RoomCreateForm";
 import { StateContext } from "../app-state";
 import * as docs from "../documents";
 import { useHistory } from "react-router-dom";
+import { generateCode } from "../utils";
 
 const RoomCreatePage = () => {
   const history = useHistory();
-  const { setUser } = useContext(StateContext);
+  const { user, setUser } = useContext(StateContext);
   const [state, setState] = useState({
     userName: undefined,
     roomCode: undefined
   });
   const [createRoom, roomCreated] = useMutation(docs.CREATE_ROOM_MUTATION);
+  const [createRoomExistingUser, roomCreatedExistingUser] = useMutation(
+    docs.INSERT_ROOM_EXISTING_USER
+  );
+
+  useEffect(() => {
+    if (user && !user.room) {
+      createRoomExistingUser({
+        variables: {
+          userName: user.name,
+          userId: user.id,
+          roomName: generateCode()
+        }
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (roomCreatedExistingUser.data) {
+      setUser(
+        L.set(
+          "room",
+          R.pick(
+            ["name", "id"],
+            roomCreatedExistingUser.data.insert_room.returning[0]
+          )
+        )
+      );
+    }
+  }, [roomCreatedExistingUser.data]);
+
   useEffect(() => {
     if (state.userName && state.roomCode) {
       createRoom({

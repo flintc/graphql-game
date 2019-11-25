@@ -216,6 +216,7 @@ export const CREATE_ROOM_MUTATION = gql`
     }
   }
 `;
+
 export const SUBMIT_QUESTION_MUTATION = gql`
   mutation SubmitQuestion(
     $roomId: uuid!
@@ -262,6 +263,60 @@ export const USER_LOGIN = gql`
       room {
         name
         id
+      }
+    }
+  }
+`;
+
+export const INSERT_ROOM_EXISTING_USER = gql`
+  mutation InsertRoomExistingUser(
+    $userName: String
+    $userId: uuid!
+    $roomName: String
+  ) {
+    insert_room(
+      objects: [
+        {
+          name: $roomName
+          users: {
+            data: [{ id: $userId, name: $userName }]
+            on_conflict: { constraint: user_pkey, update_columns: [room_id] }
+          }
+        }
+      ]
+    ) {
+      returning {
+        name
+        id
+        users {
+          name
+          id
+        }
+      }
+    }
+  }
+`;
+
+export const INSERT_ROOM_NEW_USER = gql`
+  mutation InsertRoomNewUser($userName: String, $roomName: String) {
+    insert_room(
+      objects: [
+        {
+          name: $roomName
+          users: {
+            data: [{ name: $userName }]
+            on_conflict: { constraint: user_pkey, update_columns: [room_id] }
+          }
+        }
+      ]
+    ) {
+      returning {
+        name
+        id
+        users {
+          name
+          id
+        }
       }
     }
   }
