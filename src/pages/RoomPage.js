@@ -35,7 +35,13 @@ const RoomPage = ({
     <Room>
       <span className="fixed top-0 my-2 inline-flex">
         <h1>
-          {room.name} - <Link to={`/#/login/${user.id}`}>login link</Link>
+          {room.name} -{" "}
+          <Link
+            className="text-blue-700 hover:text-blue-400"
+            to={`/#/login/${user.id}`}
+          >
+            login link
+          </Link>
         </h1>
       </span>
       <Room.Round
