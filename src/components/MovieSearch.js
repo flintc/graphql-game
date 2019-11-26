@@ -6,56 +6,58 @@ const searchUrl = title =>
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "selected": {
-      return { ...state, selection: action.payload };
+    case "FETCH": {
+      return { ...state, value: "loading", selection: action.payload };
     }
-    case "noScore": {
+    case "FAILURE_NOT_FOUND": {
       return {
         ...state,
-        error: "Score not found. Please select a different movie."
+        value: "failure",
+        message: "Score not found. Please select a different movie."
       };
     }
-    case "searchError": {
-      return { ...state, error: "Something went wrong. Please try again." };
+    case "FAILURE_ERROR": {
+      return {
+        ...state,
+        value: "failure",
+        message: "Something went wrong. Please try again."
+      };
     }
-    case "clearError": {
-      return { response: null, selection: null, error: null };
+    case "RETRY": {
+      return { value: "idle", response: null, selection: null, error: null };
     }
-    case "searchSuccess": {
-      return { ...state, response: action.payload };
+    case "SUCCESS": {
+      return { ...state, value: "success", response: action.payload };
     }
   }
 };
 
 const MovieSearch = ({ onSelection }) => {
-  const [state, dispatch] = useReducer(reducer, {});
+  const [current, dispatch] = useReducer(reducer, {});
   useEffect(() => {
-    if (state.selection && !state.response && !state.error) {
-      fetch(searchUrl(state.selection))
+    if (current.value === "loading") {
+      fetch(searchUrl(current.selection))
         .then(async resp => {
           const json = await resp.json();
           if (json.reception.score.rottenTomatoes) {
-            dispatch({ type: "searchSuccess", payload: json });
+            dispatch({ type: "SUCCESS", payload: json });
           } else {
-            dispatch({ type: "noScore" });
+            dispatch({ type: "FAILURE_NOT_FOUND" });
           }
         })
         .catch(err => {
           console.error("error!", err);
-          dispatch({ type: "searchError" });
+          dispatch({ type: "FAILURE_ERROR" });
         });
-    } else if (state.response) {
-      onSelection(state.response);
+    } else if (current.value === "success") {
+      onSelection(current.response);
     }
-  }, [state]);
-  if (state.error) {
+  }, [current]);
+  if (current.value == "failure") {
     return (
       <div>
-        <h3>{state.error}</h3>
-        <button
-          className="btn"
-          onClick={() => dispatch({ type: "clearError" })}
-        >
+        <h3>{current.message}</h3>
+        <button className="btn" onClick={() => dispatch({ type: "RETRY" })}>
           try again
         </button>
       </div>
@@ -63,7 +65,8 @@ const MovieSearch = ({ onSelection }) => {
   }
   return (
     <MovieSearchInput
-      onSelect={title => dispatch({ type: "selected", payload: title })}
+      state={current.value}
+      onSelect={title => dispatch({ type: "FETCH", payload: title })}
     />
   );
 };
