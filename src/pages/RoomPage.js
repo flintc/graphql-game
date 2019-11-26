@@ -5,6 +5,7 @@ import { StateContext } from "../app-state";
 import Room from "../components/Room";
 import * as docs from "../documents";
 import * as R from "ramda";
+import { Link } from "@reach/router";
 const RoomPage = ({
   match: {
     params: { name }
@@ -29,9 +30,14 @@ const RoomPage = ({
     })
   ])(room.questions);
   const round = room.questions[room.round];
+  //const users = L.collect([L.elems, ])
   return (
     <Room>
-      <h1 className="fixed top-0 my-2">{room.name}</h1>
+      <span className="fixed top-0 my-2 inline-flex">
+        <h1>
+          {room.name} - <Link to={`/#/login/${user.id}`}>login link</Link>
+        </h1>
+      </span>
       <Room.Round
         data={round}
         roomId={room.id}

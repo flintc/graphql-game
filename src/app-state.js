@@ -14,7 +14,7 @@ export const StateProvider = ({ children }) => {
         history.push("/");
       }
     }
-  }, [user]);
+  }, [user, history]);
   return (
     <StateContext.Provider value={{ user, setUser }}>
       {children}

@@ -1,12 +1,12 @@
 import { useMutation } from "@apollo/react-hooks";
 import * as L from "partial.lenses";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { StateContext } from "../app-state";
 import * as docs from "../documents";
+import { collectResults } from "../utils";
 import MovieSearch from "./MovieSearch";
 import RoundQuestionCard from "./RoundQuestionCard";
 import RoundSummary from "./RoundSummary";
-import { collectResults } from "../utils";
 
 const Round = ({ data, nUsers, roomId, roundOver, setRoundOver }) => {
   const { user } = useContext(StateContext);
@@ -36,7 +36,7 @@ const Round = ({ data, nUsers, roomId, roundOver, setRoundOver }) => {
     } else {
       setRoundOver(false);
     }
-  }, [data, nUsers]);
+  }, [data, nUsers, setRoundOver]);
 
   const userResponse = L.get(
     ["responses", L.whereEq({ owner: { id: user.id } })],

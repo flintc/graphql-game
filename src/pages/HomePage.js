@@ -12,7 +12,7 @@ const HomePage = () => {
     } else if (state === "create") {
       history.push("/create");
     }
-  }, [state]);
+  }, [state, history]);
   return (
     <div className="px-10">
       <h1>{user ? `${user.name}, d` : "D"}o you want to play a game?</h1>

@@ -16,6 +16,7 @@ const RoundQuestionCard = ({
           className="blurme absolute top-0 object-cover rounded-t-lg w-full"
           src={imgSrc}
           style={{ height: "calc(55vh)" }}
+          alt="movie poster"
         />
         <p
           className="p-4 absolute top-0 text-gray-800 text-lg showme rounded-t-lg w-full"

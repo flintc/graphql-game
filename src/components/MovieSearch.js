@@ -29,6 +29,9 @@ const reducer = (state, action) => {
     case "SUCCESS": {
       return { ...state, value: "success", response: action.payload };
     }
+    default: {
+      return state;
+    }
   }
 };
 
@@ -52,8 +55,8 @@ const MovieSearch = ({ onSelection }) => {
     } else if (current.value === "success") {
       onSelection(current.response);
     }
-  }, [current]);
-  if (current.value == "failure") {
+  }, [current, onSelection]);
+  if (current.value === "failure") {
     return (
       <div>
         <h3>{current.message}</h3>

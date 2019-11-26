@@ -45,7 +45,7 @@ const RoomJoinPage = () => {
     if (state.roomCode) {
       queryRoom({ variables: { name: state.roomCode } });
     }
-  }, [state.roomCode]);
+  }, [state.roomCode, queryRoom]);
 
   useEffect(() => {
     if (!roomQuery.loading) {
@@ -67,7 +67,7 @@ const RoomJoinPage = () => {
     if (userData) {
       setUser(userData);
     }
-  }, [userData]);
+  }, [userData, setUser]);
 
   const handleSubmit = (e, { name, code }) => {
     e.preventDefault();

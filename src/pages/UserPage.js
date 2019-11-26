@@ -15,7 +15,7 @@ const RoomPage = ({
     if (data && !error) {
       setUser(data.user_by_pk);
     }
-  }, [data]);
+  }, [data, setUser, error]);
   if (loading) {
     return "Loggin in...";
   }

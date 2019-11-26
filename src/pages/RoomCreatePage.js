@@ -30,7 +30,7 @@ const RoomCreatePage = () => {
         }
       });
     }
-  }, [user]);
+  }, [user, createRoomExistingUser]);
 
   useEffect(() => {
     if (roomCreatedExistingUser.data) {
@@ -44,7 +44,7 @@ const RoomCreatePage = () => {
         )
       );
     }
-  }, [roomCreatedExistingUser.data]);
+  }, [roomCreatedExistingUser.data, setUser]);
 
   useEffect(() => {
     if (state.userName && state.roomCode) {

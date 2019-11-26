@@ -1,8 +1,6 @@
-import React, { useRef, useContext, useState } from "react";
-import { useSpring, animated, useChain, useTrail, config } from "react-spring";
 import * as R from "ramda";
-import * as L from "partial.lenses";
-import { computeScore } from "../utils";
+import React, { useContext, useRef, useState } from "react";
+import { animated, config, useChain, useSpring, useTrail } from "react-spring";
 
 const Context = React.createContext({ done: true });
 
