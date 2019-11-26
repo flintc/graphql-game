@@ -5,6 +5,31 @@ import { StateContext } from "../app-state";
 import * as docs from "../documents";
 import RoomJoinForm from "../components/RoomJoinForm";
 import { useHistory } from "react-router-dom";
+import * as L from "partial.lenses";
+
+const useExistingUserLogic = ({ userId, roomId }) => {
+  const [userJoinRoom, resp] = useMutation(
+    docs.EXISTING_USER_JOIN_ROOM_MUTATION
+  );
+  useEffect(() => {
+    if (roomId) {
+      userJoinRoom({ variables: { id: userId, roomId: roomId } });
+    }
+  }, [roomId, userId, userJoinRoom]);
+  return L.get(["data", "update_user", "returning", 0], resp);
+};
+
+const useNewUserLogic = ({ userName, roomId }) => {
+  const [createUserAndJoinRoom, resp] = useMutation(docs.JOIN_ROOM_MUTATION);
+  useEffect(() => {
+    if (roomId && userName) {
+      createUserAndJoinRoom({
+        variables: { name: userName, roomId: roomId }
+      });
+    }
+  }, [roomId, userName, createUserAndJoinRoom]);
+  return L.get(["data", "insert_user", "returning", 0], resp);
+};
 
 const RoomJoinPage = () => {
   const history = useHistory();
@@ -15,12 +40,6 @@ const RoomJoinPage = () => {
     roomId: undefined
   });
   const [queryRoom, roomQuery] = useLazyQuery(docs.ROOM_BY_NAME_QUERY);
-  const [createUserAndJoinRoom, userCreatedAndRoomJoined] = useMutation(
-    docs.JOIN_ROOM_MUTATION
-  );
-  const [userJoinRoom, userRoomJoined] = useMutation(
-    docs.EXISTING_USER_JOIN_ROOM_MUTATION
-  );
 
   useEffect(() => {
     if (state.roomCode) {
@@ -36,27 +55,19 @@ const RoomJoinPage = () => {
     }
   }, [roomQuery]);
 
-  useEffect(() => {
-    if (!user && state.roomId && state.userName) {
-      createUserAndJoinRoom({
-        variables: { name: state.userName, roomId: state.roomId }
-      });
-    } else if (user && state.roomId) {
-      userJoinRoom({ variables: { id: user.id, roomId: state.roomId } });
-    }
-  }, [state.roomId, state.userName, createUserAndJoinRoom]);
+  const newUserData = useNewUserLogic(state);
+  const existingUserData = useExistingUserLogic({
+    userId: L.get("id", user),
+    ...state
+  });
+
+  const userData = user ? existingUserData : newUserData;
 
   useEffect(() => {
-    if (userCreatedAndRoomJoined.data) {
-      setUser(userCreatedAndRoomJoined.data.insert_user.returning[0]);
+    if (userData) {
+      setUser(userData);
     }
-  }, [userCreatedAndRoomJoined.data, setUser]);
-
-  useEffect(() => {
-    if (userRoomJoined.data) {
-      setUser(userRoomJoined.data.update_user.returning[0]);
-    }
-  }, [userRoomJoined.data, setUser]);
+  }, [userData]);
 
   const handleSubmit = (e, { name, code }) => {
     e.preventDefault();
