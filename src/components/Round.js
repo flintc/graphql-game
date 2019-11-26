@@ -17,6 +17,7 @@ const Round = ({ data, nUsers, roomId, roundOver, setRoundOver }) => {
   const onNextRound = () => {
     nextRound({ variables: { roomId: data.room.id } });
   };
+  // TODO: handle game end, game summary and then have user leave room
   const onEndGame = () => console.log("done.");
   const onQuestionSelect = json => {
     submitQuestion({

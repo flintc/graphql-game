@@ -62,7 +62,6 @@ const RoomCreatePage = () => {
 
   const handleSubmit = (e, { name, code }) => {
     e.preventDefault();
-    console.log("here/");
     setState(R.mergeLeft({ userName: name, roomCode: code }));
   };
 

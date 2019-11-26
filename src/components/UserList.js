@@ -12,8 +12,6 @@ const UserList = ({ data, responses }) => {
         const cls = answered
           ? "badge px-6 py-2 mr-4 inline-block"
           : "badge-gray px-6 py-2 mr-4 inline-block";
-        console.log(cls);
-        console.log("answered?", user, responses, answered);
         return (
           <span className={cls} key={user.id}>
             {user.name}

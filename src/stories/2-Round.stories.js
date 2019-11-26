@@ -35,10 +35,7 @@ export const round = () => {
     <RoundSummary>
       <RoundSummary.Answer name={"Dummy Movie"} answer={54} />
       <RoundSummary.Ranking responses={collectResults(user, 54, responses)} />
-      <RoundSummary.BtnGroup
-        onNextRound={console.log}
-        onEndGame={console.log}
-      />
+      <RoundSummary.BtnGroup onNextRound={console.log} onEndGame={} />
     </RoundSummary>
   );
 };

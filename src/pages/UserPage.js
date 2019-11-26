@@ -13,7 +13,6 @@ const RoomPage = ({
   });
   useEffect(() => {
     if (data && !error) {
-      console.log("logging in user...", data);
       setUser(data.user_by_pk);
     }
   }, [data]);

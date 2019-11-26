@@ -25,7 +25,6 @@ export const collectResults = R.curry((user, answer, responses) =>
         score: [
           "value",
           x => {
-            console.log("x", x);
             return computeScore({ response: x, answer });
           }
         ]
