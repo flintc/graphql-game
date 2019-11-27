@@ -12,7 +12,7 @@ const useExistingUserLogic = ({ userId, roomId }) => {
     docs.EXISTING_USER_JOIN_ROOM_MUTATION
   );
   useEffect(() => {
-    if (roomId) {
+    if (roomId && userId) {
       userJoinRoom({ variables: { id: userId, roomId: roomId } });
     }
   }, [roomId, userId, userJoinRoom]);

@@ -17,7 +17,7 @@ export const JOIN_ROOM_MUTATION = gql`
 `;
 
 export const EXISTING_USER_JOIN_ROOM_MUTATION = gql`
-  mutation UpdateUserRoomId($id: uuid, $roomId: uuid) {
+  mutation UpdateUserRoomId($id: uuid!, $roomId: uuid) {
     update_user(where: { id: { _eq: $id } }, _set: { room_id: $roomId }) {
       affected_rows
       returning {
