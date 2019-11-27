@@ -41,7 +41,7 @@ const RoomPage = ({
             className="text-blue-700 hover:text-blue-400"
             to={`/#/login/${user.id}`}
           >
-            login link
+            your login link
           </Link>
         </h1>
       </span>
