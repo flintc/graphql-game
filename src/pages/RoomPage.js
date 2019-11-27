@@ -1,11 +1,13 @@
-import { useSubscription } from "@apollo/react-hooks";
+import { useMutation, useSubscription } from "@apollo/react-hooks";
+import { Link } from "@reach/router";
 import * as L from "partial.lenses";
-import React, { useContext, useState } from "react";
+import * as R from "ramda";
+import React, { useContext, useEffect, useState } from "react";
 import { StateContext } from "../app-state";
+import MovieSearch from "../components/MovieSearch";
 import Room from "../components/Room";
 import * as docs from "../documents";
-import * as R from "ramda";
-import { Link } from "@reach/router";
+
 const RoomPage = ({
   match: {
     params: { name }
@@ -16,10 +18,34 @@ const RoomPage = ({
   const resp = useSubscription(docs.SUBSCRIBE_TO_ROOM_BY_NAME, {
     variables: { name }
   });
+  const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
+  const onQuestionSelect = json => {
+    submitQuestion({
+      variables: {
+        roomId: room.id,
+        description: json.description,
+        imageUrl: json.poster,
+        name: json.title,
+        answer: json.reception
+      }
+    });
+  };
+  const room = L.get(["data", "room", 0], resp);
+  const round = L.get(["questions", R.propOr(0, "round", room)], room);
+
+  useEffect(() => {
+    if (
+      round &&
+      L.get(["users", "length"], room) === L.get(["responses", "length"], round)
+    ) {
+      setRoundOver(true);
+    } else {
+      setRoundOver(false);
+    }
+  }, [round, room, setRoundOver]);
   if (resp.loading) {
     return "Loading...";
   }
-  const room = resp.data.room[0];
   const questions = L.collect([
     L.elems,
     L.pick({
@@ -29,9 +55,14 @@ const RoomPage = ({
       }
     })
   ])(room.questions);
-  const round = room.questions[room.round];
-  // TODO: maybe transform users to include bool for hasAnswer in the component instead of
+  const userResponse = L.get(
+    ["responses", L.whereEq({ owner: { id: user.id } })],
+    round
+  );
+
+  // TODO: lift logic that transforms users to include bool for hasAnswer in the component instead of
   // Room.UserList, that way we don't have to pass down responses
+
   return (
     <Room>
       <span className="fixed top-0 my-2 inline-flex">
@@ -45,15 +76,22 @@ const RoomPage = ({
           </Link>
         </h1>
       </span>
-      <Room.Round
-        data={round}
-        roomId={room.id}
-        nUsers={room.users.length}
-        roundOver={roundOver}
-        setRoundOver={setRoundOver}
-      />
-      {!(L.get("answer", round) && roundOver) && (
-        <Room.Score data={questions} />
+      {round ? (
+        <Room.Round
+          data={round}
+          roomId={room.id}
+          userResponse={userResponse}
+          nUsers={room.users.length}
+          roundOver={roundOver}
+          setRoundOver={setRoundOver}
+        />
+      ) : (
+        <>
+          <MovieSearch roomId={room.id} onSelection={onQuestionSelect} />{" "}
+          {!(L.get("answer", round) && userResponse && roundOver) && (
+            <Room.Score data={questions} />
+          )}
+        </>
       )}
       <Room.UserList
         data={room.users}
