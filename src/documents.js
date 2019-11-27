@@ -16,6 +16,22 @@ export const JOIN_ROOM_MUTATION = gql`
   }
 `;
 
+export const EXISTING_USER_JOIN_ROOM_MUTATION = gql`
+  mutation UpdateUserRoomId($id: uuid!, $roomId: uuid) {
+    update_user(where: { id: { _eq: $id } }, _set: { room_id: $roomId }) {
+      affected_rows
+      returning {
+        id
+        name
+        room {
+          name
+          id
+        }
+      }
+    }
+  }
+`;
+
 export const USERS_IN_ROOM_SUBSCRIPTION = gql`
   subscription UsersInRoomSubscription($roomName: String) {
     user(where: { room: { name: { _eq: $roomName } } }) {
@@ -95,8 +111,11 @@ export const SUBSCRIBE_TO_ROOM_BY_NAME = gql`
         state
         created_at
         answer
+        imageUrl
+        description
         room {
           id
+          name
           round
         }
         responses {
@@ -197,6 +216,7 @@ export const CREATE_ROOM_MUTATION = gql`
     }
   }
 `;
+
 export const SUBMIT_QUESTION_MUTATION = gql`
   mutation SubmitQuestion(
     $roomId: uuid!
@@ -230,6 +250,73 @@ export const NEXT_ROUND_MUTATION = gql`
     update_room(_inc: { round: 1 }, where: { id: { _eq: $roomId } }) {
       returning {
         id
+      }
+    }
+  }
+`;
+
+export const USER_LOGIN = gql`
+  query FindUser($id: uuid!) {
+    user_by_pk(id: $id) {
+      name
+      id
+      room {
+        name
+        id
+      }
+    }
+  }
+`;
+
+export const INSERT_ROOM_EXISTING_USER = gql`
+  mutation InsertRoomExistingUser(
+    $userName: String
+    $userId: uuid!
+    $roomName: String
+  ) {
+    insert_room(
+      objects: [
+        {
+          name: $roomName
+          users: {
+            data: [{ id: $userId, name: $userName }]
+            on_conflict: { constraint: user_pkey, update_columns: [room_id] }
+          }
+        }
+      ]
+    ) {
+      returning {
+        name
+        id
+        users {
+          name
+          id
+        }
+      }
+    }
+  }
+`;
+
+export const INSERT_ROOM_NEW_USER = gql`
+  mutation InsertRoomNewUser($userName: String, $roomName: String) {
+    insert_room(
+      objects: [
+        {
+          name: $roomName
+          users: {
+            data: [{ name: $userName }]
+            on_conflict: { constraint: user_pkey, update_columns: [room_id] }
+          }
+        }
+      ]
+    ) {
+      returning {
+        name
+        id
+        users {
+          name
+          id
+        }
       }
     }
   }
