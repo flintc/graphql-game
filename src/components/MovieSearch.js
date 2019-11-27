@@ -29,6 +29,9 @@ const reducer = (state, action) => {
     case "SUCCESS": {
       return { ...state, value: "success", response: action.payload };
     }
+    case "SUBMITTED": {
+      return { ...state, value: "idle" };
+    }
     default: {
       return state;
     }
@@ -49,11 +52,11 @@ const MovieSearch = ({ onSelection }) => {
           }
         })
         .catch(err => {
-          console.error("error!", err);
           dispatch({ type: "FAILURE_ERROR" });
         });
     } else if (current.value === "success") {
       onSelection(current.response);
+      dispatch({ type: "SUBMITTED" });
     }
   }, [current, onSelection]);
   if (current.value === "failure") {

@@ -30,7 +30,8 @@ const RoomPage = ({
     })
   ])(room.questions);
   const round = room.questions[room.round];
-  //const users = L.collect([L.elems, ])
+  // TODO: maybe transform users to include bool for hasAnswer in the component instead of
+  // Room.UserList, that way we don't have to pass down responses
   return (
     <Room>
       <span className="fixed top-0 my-2 inline-flex">
