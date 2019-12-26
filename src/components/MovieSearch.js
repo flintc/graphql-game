@@ -1,7 +1,8 @@
 import React, { useEffect, useReducer } from "react";
 import MovieSearchInput from "./MovieSearchInput";
 
-const searchUrl = title => `${process.env.SEARCH_URL || ""}/search/${title}`;
+const searchUrl = title =>
+  `${process.env.REACT_APP_SEARCH_URL || ""}/search/${title}`;
 
 const reducer = (state, action) => {
   switch (action.type) {
