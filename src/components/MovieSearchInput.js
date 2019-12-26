@@ -1,7 +1,7 @@
 import * as L from "partial.lenses";
 import * as R from "ramda";
 import React, { useState } from "react";
-import movies from "../movies";
+import movies from "../movies_old";
 
 const MovieSearchInput = ({ onSelect = console.log }) => {
   const [value, setValue] = useState();
@@ -37,7 +37,8 @@ const MovieSearchInput = ({ onSelect = console.log }) => {
           {results.slice(0, 15).map((result, ix) => {
             return (
               <li
-                onClick={() => onSelect(result.link.replace("/wiki/", ""))}
+                //onClick={() => onSelect(result.link.replace("/wiki/", ""))}
+                onClick={() => onSelect(result.title)}
                 key={ix}
                 className="hover:bg-indigo-600 w-full hover:text-white px-2"
               >

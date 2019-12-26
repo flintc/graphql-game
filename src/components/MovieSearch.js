@@ -1,8 +1,7 @@
 import React, { useEffect, useReducer } from "react";
 import MovieSearchInput from "./MovieSearchInput";
 
-const searchUrl = title =>
-  `https://kha9mwfrdb.execute-api.us-east-1.amazonaws.com/dev/search/${title}`;
+const searchUrl = title => `/search/${title}`;
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -52,6 +51,7 @@ const MovieSearch = ({ onSelection }) => {
           }
         })
         .catch(err => {
+          console.log("error!", err);
           dispatch({ type: "FAILURE_ERROR" });
         });
     } else if (current.value === "success") {
