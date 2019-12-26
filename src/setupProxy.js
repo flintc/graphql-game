@@ -3,7 +3,7 @@ module.exports = function(app) {
   app.use(
     "/search",
     proxy({
-      target: process.env.SEARCH_URL,
+      target: process.env.SEARCH_PROXY_TARGET,
       changeOrigin: true
     })
   );
