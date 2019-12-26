@@ -1,7 +1,7 @@
 import * as L from "partial.lenses";
 import * as R from "ramda";
 import React, { useState } from "react";
-import movies from "../movies_old";
+import movies from "../movies";
 
 const MovieSearchInput = ({ onSelect = console.log }) => {
   const [value, setValue] = useState();
