@@ -43,12 +43,7 @@ const MovieSearch = ({ onSelection }) => {
   useEffect(() => {
     if (current.value === "loading") {
       console.log("selection??", current);
-      fetch(searchUrl(current.selection), {
-        headers: {
-          "Content-Type": "application/json"
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        }
-      })
+      fetch(searchUrl(current.selection))
         .then(async resp => {
           const json = await resp.json();
           if (json.reception.score.rottenTomatoes) {
