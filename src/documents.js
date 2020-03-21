@@ -32,9 +32,39 @@ export const EXISTING_USER_JOIN_ROOM_MUTATION = gql`
   }
 `;
 
+export const ROOM_ROUND_SUBSCRIPTION = gql`
+  subscription RoomRoundSubscription($roomName: String) {
+    room(where: { name: { _eq: $roomName } }) {
+      id
+      name
+      round
+    }
+  }
+`;
+
 export const USERS_IN_ROOM_SUBSCRIPTION = gql`
   subscription UsersInRoomSubscription($roomName: String) {
     user(where: { room: { name: { _eq: $roomName } } }) {
+      id
+      name
+    }
+  }
+`;
+export const RESPONSES_FOR_QUESTION_SUBSCRIPTION = gql`
+  subscription UsersInRoomSubscription($questionId: uuid) {
+    response(where: { question: { id: { _eq: $questionId } } }) {
+      id
+      value
+      owner {
+        id
+      }
+    }
+  }
+`;
+
+export const QUESTIONS_IN_ROOM_SUBSCRIPTION = gql`
+  subscription UsersInRoomSubscription($roomName: String) {
+    question(where: { room: { name: { _eq: $roomName } } }) {
       id
       name
     }
@@ -123,6 +153,9 @@ export const SUBSCRIBE_TO_ROOM_BY_NAME = gql`
           owner {
             id
             name
+          }
+          question {
+            id
           }
         }
       }
