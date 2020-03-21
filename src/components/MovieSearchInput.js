@@ -37,8 +37,8 @@ const MovieSearchInput = ({ onSelect = console.log }) => {
           {results.slice(0, 15).map((result, ix) => {
             return (
               <li
-                //onClick={() => onSelect(result.link.replace("/wiki/", ""))}
-                onClick={() => onSelect(result.title)}
+                onClick={() => onSelect(result.link.replace("/wiki/", ""))}
+                // onClick={() => onSelect(result)}
                 key={ix}
                 className="hover:bg-indigo-600 w-full hover:text-white px-2"
               >

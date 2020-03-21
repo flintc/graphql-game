@@ -2,7 +2,7 @@ import React, { useEffect, useReducer } from "react";
 import MovieSearchInput from "./MovieSearchInput";
 
 const searchUrl = title =>
-  `${process.env.REACT_APP_SEARCH_URL || ""}/search/${title}`;
+  `${process.env.REACT_APP_SEARCH_URL || ""}/parse/${title}`;
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -42,7 +42,13 @@ const MovieSearch = ({ onSelection }) => {
   const [current, dispatch] = useReducer(reducer, {});
   useEffect(() => {
     if (current.value === "loading") {
-      fetch(searchUrl(current.selection))
+      console.log("selection??", current);
+      fetch(searchUrl(current.selection), {
+        headers: {
+          "Content-Type": "application/json"
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      })
         .then(async resp => {
           const json = await resp.json();
           if (json.reception.score.rottenTomatoes) {
