@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/graphql-game/static/css/main.e447c576.chunk.css",
-    "main.js": "/graphql-game/static/js/main.9984eab3.chunk.js",
-    "main.js.map": "/graphql-game/static/js/main.9984eab3.chunk.js.map",
+    "main.js": "/graphql-game/static/js/main.1b53f42d.chunk.js",
+    "main.js.map": "/graphql-game/static/js/main.1b53f42d.chunk.js.map",
     "runtime~main.js": "/graphql-game/static/js/runtime~main.eb655c35.js",
     "runtime~main.js.map": "/graphql-game/static/js/runtime~main.eb655c35.js.map",
     "static/js/2.d8449c10.chunk.js": "/graphql-game/static/js/2.d8449c10.chunk.js",
     "static/js/2.d8449c10.chunk.js.map": "/graphql-game/static/js/2.d8449c10.chunk.js.map",
     "index.html": "/graphql-game/index.html",
-    "precache-manifest.e43cf2701f8a42c3c14c2197287831e5.js": "/graphql-game/precache-manifest.e43cf2701f8a42c3c14c2197287831e5.js",
+    "precache-manifest.f4478538bc9bc90a32522aaeaf97c75d.js": "/graphql-game/precache-manifest.f4478538bc9bc90a32522aaeaf97c75d.js",
     "service-worker.js": "/graphql-game/service-worker.js",
     "static/css/main.e447c576.chunk.css.map": "/graphql-game/static/css/main.e447c576.chunk.css.map"
   }
