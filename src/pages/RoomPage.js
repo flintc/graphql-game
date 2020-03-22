@@ -7,6 +7,12 @@ import { StateContext } from "../app-state";
 import MovieSearch from "../components/MovieSearch";
 import Room from "../components/Room";
 import * as docs from "../documents";
+import { useMachine } from "@xstate/react";
+import { useApolloClient } from "react-apollo";
+import { gameMachine } from "../gameMachine";
+import RoundQuestionCard from "../components/RoundQuestionCard";
+import RoundSummary from "../components/RoundSummary";
+import { collectResults } from "../utils";
 
 const RoomPage = ({
   match: {
@@ -14,15 +20,22 @@ const RoomPage = ({
   }
 }) => {
   const { user } = useContext(StateContext);
-  const [roundOver, setRoundOver] = useState(false);
-  const resp = useSubscription(docs.SUBSCRIBE_TO_ROOM_BY_NAME, {
-    variables: { name }
-  });
+  const client = useApolloClient();
+  const [current, send] = useMachine(
+    gameMachine.withContext({
+      ...gameMachine.context,
+      client,
+      roomName: name,
+      userId: user.id
+    }),
+    { devTools: true }
+  );
   const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
+  const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
   const onQuestionSelect = json => {
     submitQuestion({
       variables: {
-        roomId: room.id,
+        roomId: current.context.id,
         description: json.description,
         imageUrl: json.poster,
         name: json.title,
@@ -30,44 +43,20 @@ const RoomPage = ({
       }
     });
   };
-  const room = L.get(["data", "room", 0], resp);
-  const round = L.get(["questions", R.propOr(0, "round", room)], room);
-
-  useEffect(() => {
-    if (
-      round &&
-      L.get(["users", "length"], room) === L.get(["responses", "length"], round)
-    ) {
-      setRoundOver(true);
-    } else {
-      setRoundOver(false);
-    }
-  }, [round, room, setRoundOver]);
-  if (resp.loading) {
-    return "Loading...";
-  }
-  const questions = L.collect([
-    L.elems,
-    L.pick({
-      answer: ["answer", "score", "rottenTomatoes"],
-      response: {
-        value: ["responses", L.whereEq({ owner: { id: user.id } }), "value"]
-      }
-    })
-  ])(room.questions);
-  const userResponse = L.get(
-    ["responses", L.whereEq({ owner: { id: user.id } })],
-    round
-  );
-
-  // TODO: lift logic that transforms users to include bool for hasAnswer in the component instead of
-  // Room.UserList, that way we don't have to pass down responses
-
+  const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
+  const onNextRound = () => {
+    send("NEXT_ROUND");
+    nextRound({ variables: { roomId: current.context.question.room.id } });
+  };
+  // TODO: handle game end, game summary and then have user leave room
+  const onEndGame = () => console.log("done.");
   return (
     <Room>
+      <h1>{JSON.stringify(current.value)}</h1>
+      <h1>{current.context.id}</h1>
       <span className="fixed top-0 my-2 inline-flex">
         <h1>
-          {room.name} -{" "}
+          {current.context.name} -{" "}
           <Link
             className="text-blue-700 hover:text-blue-400"
             to={`/#/login/${user.id}`}
@@ -76,27 +65,45 @@ const RoomPage = ({
           </Link>
         </h1>
       </span>
-      {round ? (
-        <Room.Round
-          data={round}
-          roomId={room.id}
-          userResponse={userResponse}
-          nUsers={room.users.length}
-          roundOver={roundOver}
-          setRoundOver={setRoundOver}
-        />
-      ) : (
+      {current.matches("selecting") && (
         <>
-          <MovieSearch roomId={room.id} onSelection={onQuestionSelect} />{" "}
-          {!(L.get("answer", round) && userResponse && roundOver) && (
-            <Room.Score data={questions} />
-          )}
+          <MovieSearch
+            roomId={current.context.id}
+            onSelection={onQuestionSelect}
+          />
+          {`score: ${current.context.score}`}
         </>
       )}
-      <Room.UserList
-        data={room.users}
-        responses={R.propOr([], "responses", room.questions[room.round])}
-      />
+      {current.matches("answering") && (
+        <RoundQuestionCard
+          name={current.context.question.name}
+          description={current.context.question.description}
+          id={current.context.question.id}
+          userId={user.id}
+          imgSrc={current.context.question.imageUrl}
+          onSubmit={submitResponse}
+        />
+      )}
+      {current.matches("roundSummary") && (
+        <RoundSummary>
+          <RoundSummary.Answer
+            name={current.context.question.name}
+            answer={current.context.question.answer.score.rottenTomatoes}
+          />
+          <RoundSummary.Ranking
+            responses={collectResults(
+              user,
+              current.context.question.answer.score.rottenTomatoes,
+              current.context.responses
+            )}
+          />
+          <RoundSummary.BtnGroup
+            onNextRound={onNextRound}
+            onEndGame={onEndGame}
+          />
+        </RoundSummary>
+      )}
+      <Room.UserList data={current.context.users} />
     </Room>
   );
 };

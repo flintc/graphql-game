@@ -24,14 +24,14 @@ const stateObservable = ctx => {
     filter(value => value.questions[value.round]),
     map(value => R.assoc("question", value.questions[value.round], value))
   );
-
+  const roomId = roomObservable.pipe(
+    distinctUntilChanged(R.eqBy(R.prop("id"))),
+    map(toEvent("ROOM_ID", { id: ["id"], name: ["name"] }))
+  );
   const users = roomObservable.pipe(
-    distinctUntilChanged(R.eqBy(R.path(["users", "length"]))),
-    map(
-      toEvent("PLAYERS_UPDATE", {
-        data: "users"
-      })
-    )
+    map(L.collect(["users", L.elems, R.pick(["id", "name"])])),
+    distinctUntilChanged(R.eqBy(R.length)),
+    map(value => ({ type: "PLAYERS_UPDATE", users: value }))
   );
   const roundChange = roomObservable.pipe(
     distinctUntilChanged(R.eqBy(R.prop("round"))),
@@ -49,6 +49,20 @@ const stateObservable = ctx => {
         question: ["question"]
       })
     )
+  );
+  const newResponse = roundObservable.pipe(
+    map(L.get(["question", "responses"])),
+    filter(R.length),
+    map(value => {
+      console.log("?????", value);
+      return value;
+    }),
+    distinctUntilChanged(R.eqBy(R.length)),
+    scan((prev, current) => {
+      console.log("??????", prev, current, R.difference(current, prev));
+      return R.difference(current, prev);
+    }),
+    map(toEvent("NEW_RESPONSE", { response: [0] }))
   );
   const ownedByUser = L.whereEq({
     owner: { id: ctx.userId }
@@ -71,7 +85,15 @@ const stateObservable = ctx => {
     ),
     map(toEvent("ROUND_OVER"))
   );
-  return merge(roundChange, questionSelected, answered, roundOver, users);
+  return merge(
+    roomId,
+    roundChange,
+    questionSelected,
+    newResponse,
+    answered,
+    roundOver,
+    users
+  );
 };
 
 export const gameMachine = Machine({
@@ -79,9 +101,17 @@ export const gameMachine = Machine({
   invoke: {
     src: stateObservable
   },
+  context: {
+    score: 0,
+    users: [],
+    responses: []
+  },
   states: {
     initializing: {
       on: {
+        ROOM_ID: {
+          actions: assign({ id: (_, e) => e.id, name: (_, e) => e.name })
+        },
         ROUND_CHANGED: {
           actions: [assign({ round: (ctx, e) => e.round })],
           target: "selecting"
@@ -91,7 +121,10 @@ export const gameMachine = Machine({
     selecting: {
       on: {
         QUESTION_SELECTED: {
-          actions: [(ctx, e) => console.log("question selected", e)],
+          actions: [
+            (ctx, e) => console.log("question selected", e),
+            assign({ question: (_, e) => e.question })
+          ],
           target: "answering"
         }
       }
@@ -101,12 +134,41 @@ export const gameMachine = Machine({
         ANSWERED: {
           actions: assign({ answer: (ctx, e) => e.answer }),
           target: "answered"
+        },
+        NEW_RESPONSE: {
+          actions: [
+            assign({
+              responses: (ctx, e) => R.append(e.response, ctx.responses),
+              users: (ctx, e) =>
+                L.modify(
+                  L.whereEq({ id: e.response.owner.id }),
+                  R.assoc("answered", true),
+                  ctx.users
+                )
+            })
+          ]
         }
       }
     },
     answered: {
       on: {
         ROUND_OVER: {
+          actions: [
+            assign({
+              score: (ctx, e) => {
+                console.log(
+                  "...",
+                  typeof ctx.answer,
+                  typeof ctx.question.answer.rottenTomatoes
+                );
+                const diff = Math.abs(
+                  ctx.answer - ctx.question.answer.score.rottenTomatoes
+                );
+                console.log("---", diff);
+                return ctx.score + (diff === 0 ? -5 : diff);
+              }
+            })
+          ],
           target: "roundSummary"
         }
       }
@@ -114,6 +176,7 @@ export const gameMachine = Machine({
     roundSummary: {
       on: {
         ROUND_CHANGED: "selecting",
+        NEXT_ROUND: "initializing",
         GAME_OVER: "gameSummary"
       }
     },
@@ -123,7 +186,7 @@ export const gameMachine = Machine({
     PLAYERS_UPDATE: {
       actions: [
         (ctx, e) => console.log("MY PLAYERS UPDATE", e),
-        assign({ players: (ctx, e) => e.data })
+        assign({ users: (ctx, e) => e.users })
       ]
     }
   }

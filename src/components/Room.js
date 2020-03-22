@@ -1,6 +1,4 @@
 import React from "react";
-import RoomScore from "./RoomScore";
-import Round from "./Round";
 import UserList from "../components/UserList";
 
 const Room = ({ children }) => {
@@ -11,7 +9,5 @@ const Room = ({ children }) => {
   );
 };
 
-Room.Round = Round;
-Room.Score = RoomScore;
 Room.UserList = UserList;
 export default Room;
