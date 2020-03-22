@@ -5,7 +5,6 @@ import * as R from "ramda";
 import React, { useContext, useEffect, useState } from "react";
 import { StateContext } from "../app-state";
 import MovieSearch from "../components/MovieSearch";
-import Room from "../components/Room";
 import * as docs from "../documents";
 import { useMachine } from "@xstate/react";
 import { useApolloClient } from "react-apollo";
@@ -13,6 +12,7 @@ import { gameMachine } from "../gameMachine";
 import RoundQuestionCard from "../components/RoundQuestionCard";
 import RoundSummary from "../components/RoundSummary";
 import { collectResults } from "../utils";
+import UserList from "../components/UserList";
 
 const RoomPage = ({
   match: {
@@ -51,7 +51,7 @@ const RoomPage = ({
   // TODO: handle game end, game summary and then have user leave room
   const onEndGame = () => console.log("done.");
   return (
-    <Room>
+    <div className="flex flex-col justify-center items-center w-full pb-0">
       <h1>{JSON.stringify(current.value)}</h1>
       <h1>{current.context.id}</h1>
       <span className="fixed top-0 my-2 inline-flex">
@@ -103,8 +103,8 @@ const RoomPage = ({
           />
         </RoundSummary>
       )}
-      <Room.UserList data={current.context.users} />
-    </Room>
+      <UserList data={current.context.users} />
+    </div>
   );
 };
 
