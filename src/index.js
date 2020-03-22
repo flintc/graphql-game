@@ -13,6 +13,18 @@ import ProtectedRoute from "./ProtectedRoute";
 import "./styles/index.css";
 
 import "./styles/custom.css";
+// import { Machine } from "xstate";
+
+// const appMachine = Machine({
+//   initial: "guest",
+//   states: {
+//     guest: {
+//       on: {
+
+//       }
+//     }
+//   }
+// });
 
 const Routes = () => {
   const { user } = useContext(StateContext);

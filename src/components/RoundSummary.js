@@ -44,14 +44,14 @@ const RoundAnswer = ({ name, answer }) => {
 };
 const RoundResponses = ({ responses }) => {
   const sortedResults = R.sortBy(R.prop("score"), responses);
-  const { trailsRef, setDone } = useContext(Context);
+  // const { trailsRef, setDone } = useContext(Context);
   const trail = useTrail(sortedResults.length, {
     config: config.molasses,
     transform: "translate3d(0px,0,0)",
     opacity: 1,
-    from: { transform: "translate3d(150px,0,0)", opacity: 0 },
-    ref: trailsRef,
-    onRest: () => setDone(true)
+    from: { transform: "translate3d(150px,0,0)", opacity: 0 }
+    // ref: trailsRef,
+    // onRest: () => setDone(true)
   });
 
   return (

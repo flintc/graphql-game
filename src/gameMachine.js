@@ -1,12 +1,9 @@
-import React from "react";
-import { Machine, assign } from "xstate";
-import { from, merge } from "rxjs";
-import { map, filter, take, scan, distinctUntilChanged } from "rxjs/operators";
-import * as docs from "./documents";
-import gql from "graphql-tag";
-import Observable from "zen-observable";
-import * as R from "ramda";
 import * as L from "partial.lenses";
+import * as R from "ramda";
+import { from, merge } from "rxjs";
+import { distinctUntilChanged, filter, map, scan } from "rxjs/operators";
+import { assign, Machine } from "xstate";
+import * as docs from "./documents";
 
 const toEvent = (eventType, mapFn = {}) => value => ({
   type: eventType,
@@ -96,98 +93,138 @@ const stateObservable = ctx => {
   );
 };
 
-export const gameMachine = Machine({
-  initial: "initializing",
-  invoke: {
-    src: stateObservable
+export const config = {
+  services: {
+    stateObservable
   },
-  context: {
-    score: 0,
-    users: [],
-    responses: []
-  },
-  states: {
-    initializing: {
-      on: {
-        ROOM_ID: {
-          actions: assign({ id: (_, e) => e.id, name: (_, e) => e.name })
-        },
-        ROUND_CHANGED: {
-          actions: [assign({ round: (ctx, e) => e.round })],
-          target: "selecting"
-        }
+  actions: {
+    calculateScore: assign({
+      score: (ctx, e) => {
+        console.log(
+          "...",
+          typeof ctx.answer,
+          typeof ctx.question.answer.rottenTomatoes
+        );
+        const diff = Math.abs(
+          ctx.answer - ctx.question.answer.score.rottenTomatoes
+        );
+        console.log("---", diff);
+        return ctx.score + (diff === 0 ? -5 : diff);
       }
+    }),
+    setRoomData: assign({
+      id: (_, e) => e.id,
+      name: (_, e) => e.name
+    }),
+    setQuestion: assign({ question: (_, e) => e.question }),
+    setAnswer: assign({ answer: (ctx, e) => e.answer }),
+    setRound: assign({ round: (ctx, e) => e.round }),
+    setUsers: assign({ users: (ctx, e) => e.users }),
+    appendResponse: assign({
+      responses: (ctx, e) => R.append(e.response, ctx.responses)
+    }),
+    updateUserAnsweredState: assign({
+      users: (ctx, e) =>
+        L.modify(
+          L.whereEq({ id: e.response.owner.id }),
+          R.assoc("answered", true),
+          ctx.users
+        )
+    })
+  }
+};
+
+export const gameMachine = Machine(
+  {
+    initial: "initializing",
+    invoke: {
+      src: "stateObservable"
     },
-    selecting: {
-      on: {
-        QUESTION_SELECTED: {
-          actions: [
-            (ctx, e) => console.log("question selected", e),
-            assign({ question: (_, e) => e.question })
-          ],
-          target: "answering"
+    context: {
+      score: 0,
+      users: [],
+      responses: []
+    },
+    states: {
+      initializing: {
+        id: "initializing",
+        on: {
+          ROOM_ID: {
+            actions: "setRoomData"
+          },
+          ROUND_CHANGED: {
+            actions: ["setRound"],
+            target: "#selecting"
+          }
         }
-      }
-    },
-    answering: {
-      on: {
-        ANSWERED: {
-          actions: assign({ answer: (ctx, e) => e.answer }),
-          target: "answered"
-        },
-        NEW_RESPONSE: {
-          actions: [
-            assign({
-              responses: (ctx, e) => R.append(e.response, ctx.responses),
-              users: (ctx, e) =>
-                L.modify(
-                  L.whereEq({ id: e.response.owner.id }),
-                  R.assoc("answered", true),
-                  ctx.users
-                )
-            })
-          ]
+      },
+      selecting: {
+        id: "selecting",
+        on: {
+          QUESTION_SELECTED: {
+            actions: ["setQuestion"],
+            target: "#selected"
+          }
         }
-      }
-    },
-    answered: {
-      on: {
-        ROUND_OVER: {
-          actions: [
-            assign({
-              score: (ctx, e) => {
-                console.log(
-                  "...",
-                  typeof ctx.answer,
-                  typeof ctx.question.answer.rottenTomatoes
-                );
-                const diff = Math.abs(
-                  ctx.answer - ctx.question.answer.score.rottenTomatoes
-                );
-                console.log("---", diff);
-                return ctx.score + (diff === 0 ? -5 : diff);
+      },
+      selected: {
+        id: "selected",
+        initial: "answering",
+        states: {
+          answering: {
+            id: "answering",
+            on: {
+              ANSWERED: {
+                actions: "setAnswer",
+                target: "#answered"
+              },
+              NEW_RESPONSE: {
+                actions: ["appendResponse", "updateUserAnsweredState"]
               }
-            })
-          ],
-          target: "roundSummary"
+            }
+          },
+          answered: {
+            id: "answered",
+            on: {
+              ROUND_OVER: {
+                actions: ["calculateScore"],
+                target: "#revealing"
+              }
+            }
+          },
+          revealing: {
+            id: "revealing",
+            after: {
+              17000: "#roundSummary"
+            }
+          },
+          roundSummary: {
+            id: "roundSummary",
+            on: {
+              ROUND_CHANGED: "#selecting",
+              NEXT_ROUND: "#initializing",
+              GAME_OVER: "#gameSummary"
+            }
+          }
         }
-      }
+      },
+      gameSummary: { id: "gameSummary" }
     },
-    roundSummary: {
-      on: {
-        ROUND_CHANGED: "selecting",
-        NEXT_ROUND: "initializing",
-        GAME_OVER: "gameSummary"
+    on: {
+      PLAYERS_UPDATE: {
+        actions: ["setUsers"]
       }
-    },
-    gameSummary: {}
+    }
   },
-  on: {
-    PLAYERS_UPDATE: {
-      actions: [
-        (ctx, e) => console.log("MY PLAYERS UPDATE", e),
-        assign({ users: (ctx, e) => e.users })
-      ]
+  config
+);
+
+export const mockConfig = {
+  services: {
+    stateObservable: ctx => send => {
+      console.log("here??");
+      send({ type: "ROOM_ID", id: "foo", name: "FAKE" });
+      send({ type: "ROUND_CHANGED", round: 0 });
     }
   }
-});
+};

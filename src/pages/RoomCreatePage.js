@@ -57,6 +57,10 @@ const RoomCreatePage = () => {
   useEffect(() => {
     if (roomCreated.data) {
       setUser(roomCreated.data.insert_user.returning[0]);
+      localStorage.setItem(
+        "userId",
+        roomCreated.data.insert_user.returning[0].id
+      );
     }
   }, [roomCreated, setUser]);
 

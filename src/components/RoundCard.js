@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { animated, useSpring, config, useChain } from "react-spring";
-
+import "./RoundCard.css";
 const FinalResult = ({ yourScore, criticsScore, transform, opacity = 1 }) => {
   return (
     <div class="rounded-lg my-2 flex justify-center items-center text-gray-600 leading-tight">
@@ -91,7 +91,7 @@ const Title = ({ name, year }) => {
 };
 
 const Content = ({ children }) => {
-  return <p className="text-gray-800 px-4 text-lg">{children}</p>;
+  return <p className="text-gray-800 px-4 text-lg overflow-auto">{children}</p>;
 };
 
 const Input = ({ onSubmit }) => {
@@ -113,21 +113,29 @@ const Input = ({ onSubmit }) => {
 
 const RoundCard = ({ imgSrc, children }) => {
   return (
-    <div
-      class="bg-cover bg-top bg-fixed"
-      style={{
-        backgroundImage: `url(${imgSrc})`
-      }}
-    >
-      <div class="text-white h-screen"></div>
+    <div className="bar overflow-auto">
       <div
-        class="-my-32 p-4 bg-white rounded-lg shadow-inner min-h-screen"
+        className="bg-cover bg-center bg-scroll fixed top-0 left-0 w-full h-full"
         style={{
-          boxShadow:
-            " 0 -20px 25px -5px rgba(0, 0, 0, .1), 0 -10px 10px -5px rgba(0, 0, 0, .04)"
+          zIndex: -10,
+          backgroundImage: `url(${imgSrc})`
         }}
-      >
-        {children}
+      ></div>
+      <div>
+        <div class="text-white h-64"></div>
+        <div class="text-white h-64"></div>
+        <div class="text-white h-64"></div>
+        <div class="text-white h-64"></div>
+        <div class="text-white h-48"></div>
+        <div
+          className="bar p-4 bg-white rounded-lg shadow-inner min-h-screen block"
+          style={{
+            boxShadow:
+              " 0 -20px 25px -5px rgba(0, 0, 0, .1), 0 -10px 10px -5px rgba(0, 0, 0, .04)"
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

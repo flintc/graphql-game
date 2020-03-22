@@ -1,19 +1,17 @@
-import { useMutation, useSubscription } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/react-hooks";
 import { Link } from "@reach/router";
-import * as L from "partial.lenses";
+import { useMachine } from "@xstate/react";
 import * as R from "ramda";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
+import { useApolloClient } from "react-apollo";
 import { StateContext } from "../app-state";
 import MovieSearch from "../components/MovieSearch";
-import * as docs from "../documents";
-import { useMachine } from "@xstate/react";
-import { useApolloClient } from "react-apollo";
-import { gameMachine } from "../gameMachine";
-import RoundQuestionCard from "../components/RoundQuestionCard";
+import RoundCard from "../components/RoundCard";
 import RoundSummary from "../components/RoundSummary";
-import { collectResults } from "../utils";
 import UserList from "../components/UserList";
-
+import * as docs from "../documents";
+import { config, gameMachine } from "../gameMachine";
+import { collectResults } from "../utils";
 const RoomPage = ({
   match: {
     params: { name }
@@ -22,16 +20,20 @@ const RoomPage = ({
   const { user } = useContext(StateContext);
   const client = useApolloClient();
   const [current, send] = useMachine(
-    gameMachine.withContext({
-      ...gameMachine.context,
-      client,
-      roomName: name,
-      userId: user.id
-    }),
+    gameMachine
+      .withContext({
+        ...gameMachine.context,
+        client,
+        roomName: name,
+        userId: user.id
+      })
+      .withConfig(R.mergeDeepRight(config, {})),
     { devTools: true }
   );
   const [submitQuestion] = useMutation(docs.SUBMIT_QUESTION_MUTATION);
-  const [submitResponse] = useMutation(docs.SUBMIT_RESPONSE_FOR_QUESTION);
+  const [submitResponseMutation] = useMutation(
+    docs.SUBMIT_RESPONSE_FOR_QUESTION
+  );
   const onQuestionSelect = json => {
     submitQuestion({
       variables: {
@@ -43,6 +45,15 @@ const RoomPage = ({
       }
     });
   };
+  const submitResponse = value => {
+    submitResponseMutation({
+      variables: {
+        userId: user.id,
+        questionId: current.context.question.id,
+        value
+      }
+    });
+  };
   const [nextRound] = useMutation(docs.NEXT_ROUND_MUTATION);
   const onNextRound = () => {
     send("NEXT_ROUND");
@@ -50,7 +61,66 @@ const RoomPage = ({
   };
   // TODO: handle game end, game summary and then have user leave room
   const onEndGame = () => console.log("done.");
-  return (
+  return current.matches("selected") ? (
+    <RoundCard imgSrc={current.context.question.imageUrl}>
+      <RoundCard.Header>
+        <RoundCard.Title name={current.context.question.name} year={1990} />
+        {current.matches("selected.answering") && (
+          <RoundCard.Input onSubmit={submitResponse} />
+        )}
+        {current.matches("selected.answered") && (
+          <RoundCard.Result
+            yourScore={current.context.answer}
+            criticsScore="?"
+          />
+        )}
+        {current.matches("selected.revealing") && (
+          <RoundCard.AnimatedResult
+            yourScore={current.context.answer}
+            criticsScore={current.context.question.answer.score.rottenTomatoes}
+          />
+        )}
+        {current.matches("selected.roundSummary") && (
+          <>
+            <RoundCard.Result
+              yourScore={current.context.answer}
+              criticsScore={
+                current.context.question.answer.score.rottenTomatoes
+              }
+            />
+            <div className="btn-group">
+              <button className="btn" onClick={onNextRound}>
+                next round
+              </button>
+              <button className="btn" onClick={onEndGame}>
+                end game
+              </button>
+            </div>
+          </>
+        )}
+      </RoundCard.Header>
+      <RoundCard.Content>
+        {current.matches("selected.roundSummary") ? (
+          current.context.question.answer.text
+        ) : current.matches("selected.revealing") ? (
+          <>
+            <div className="text-white">
+              {current.context.question.answer.text}
+            </div>
+            <RoundSummary.Ranking
+              responses={collectResults(
+                user,
+                current.context.question.answer.score.rottenTomatoes,
+                current.context.responses
+              )}
+            />
+          </>
+        ) : (
+          current.context.question.description
+        )}
+      </RoundCard.Content>
+    </RoundCard>
+  ) : (
     <div className="flex flex-col justify-center items-center w-full pb-0">
       <h1>{JSON.stringify(current.value)}</h1>
       <h1>{current.context.id}</h1>
@@ -74,35 +144,7 @@ const RoomPage = ({
           {`score: ${current.context.score}`}
         </>
       )}
-      {current.matches("answering") && (
-        <RoundQuestionCard
-          name={current.context.question.name}
-          description={current.context.question.description}
-          id={current.context.question.id}
-          userId={user.id}
-          imgSrc={current.context.question.imageUrl}
-          onSubmit={submitResponse}
-        />
-      )}
-      {current.matches("roundSummary") && (
-        <RoundSummary>
-          <RoundSummary.Answer
-            name={current.context.question.name}
-            answer={current.context.question.answer.score.rottenTomatoes}
-          />
-          <RoundSummary.Ranking
-            responses={collectResults(
-              user,
-              current.context.question.answer.score.rottenTomatoes,
-              current.context.responses
-            )}
-          />
-          <RoundSummary.BtnGroup
-            onNextRound={onNextRound}
-            onEndGame={onEndGame}
-          />
-        </RoundSummary>
-      )}
+
       <UserList data={current.context.users} />
     </div>
   );
