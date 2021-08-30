@@ -1,9 +1,24 @@
 import { AnimateSharedLayout } from "framer-motion";
 import { QueryClient, QueryClientProvider } from "react-query";
+import dynamic from "next/dynamic";
+// import {
+//   useUserSubscription,
+//   // clientConfig,
+// } from "../client/subscriptionClient";
+// import { withUrqlClient } from "next-urql";
 import "../styles/globals.css";
+import { withApollo } from "../client/withApolloClient";
+
+// const SubscriptionProvider = dynamic(
+//   () => import("../client/subscriptionClient"),
+//   { ssr: false }
+// );
 const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }) {
+  // const [out] = useUserSubscription();
+  // console.log("useUserSubscription", useUserSubscription, out);
+  console.log("here");
   return (
     <QueryClientProvider client={queryClient}>
       <div className="relative flex flex-col h-full">
@@ -25,4 +40,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+export default withApollo({ ssr: true })(MyApp);
