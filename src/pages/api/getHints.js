@@ -1,8 +1,7 @@
 import axios from "axios";
 import _ from "lodash";
 import cheerio from "cheerio";
-
-const RT_REGEX = /(http\:|https\:)\/\/(w{3}.)?rottentomatoes.com/g;
+import { client } from "../../lib/queryClient";
 
 async function getLinkInfo(url, imdbId) {
   const foo = url.split("/");
@@ -20,12 +19,14 @@ async function getLinkInfo(url, imdbId) {
     if (!Array.isArray(pages[0].extlinks)) {
       return null;
     }
-
     let rtExtlinks = [];
     for (let x of pages[0].extlinks) {
       if (x["*"].includes(imdbId)) {
         for (let y of pages[0].extlinks) {
-          if (y["*"].match(RT_REGEX)) {
+          if (
+            y["*"].includes("https://www.rottentomatoes") ||
+            y["*"].includes("https://rottentomatoes")
+          ) {
             rtExtlinks.push(y["*"]);
           }
         }
@@ -39,7 +40,9 @@ async function getLinkInfo(url, imdbId) {
   }
 }
 
-async function getRtScores(title, imdbId) {
+async function getHints(title, imdbId) {
+  // const foo = await client.get("/")
+  // client
   const resp = await axios.get("https://en.wikipedia.org/w/api.php", {
     params: {
       action: "opensearch",
@@ -49,7 +52,8 @@ async function getRtScores(title, imdbId) {
   });
   for (let x of resp.data[1]) {
     let rtExtlinks = await getLinkInfo(x, imdbId);
-    if (rtExtlinks?.length) {
+
+    if (rtExtlinks) {
       const page = await axios.get(rtExtlinks[0].replace(/s[0-9]+\/$/g, ""));
       const $ = cheerio.load(page.data);
       let criticsConsensus = "";
@@ -63,39 +67,10 @@ async function getRtScores(title, imdbId) {
           criticsConsensus += x.data;
         }
       });
-      const audienceScore = parseInt(
-        page.data
-          .match(/(?:audienceScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const tomatometerScore = parseInt(
-        page.data
-          .match(/(?:tomatometerScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const audienceAll = parseInt(
-        page.data
-          .match(/(?:audienceAll\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const foo = page.data.match(
-        /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
-      )?.[0];
-      const tomatometerAllCritics = parseInt(
-        _.last(
-          page.data
-            .match(
-              /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
-            )?.[0]
-            ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)
-        )
-      );
+      console.log("criticsConsensus", criticsConsensus);
 
       return {
-        audienceScore,
-        tomatometerScore,
-        audienceAll,
-        tomatometerAllCritics,
+        criticsConsensus,
       };
     }
   }
@@ -103,10 +78,9 @@ async function getRtScores(title, imdbId) {
 
 export default async function handler(req, res) {
   const { title, imdbId } = req.query;
-
-  const scores = await getRtScores(title, imdbId);
-  if (!scores) {
-    return res.status(404).send("No scores found");
+  const hints = await getHints(title, imdbId);
+  if (!hints) {
+    return res.status(500).send("Unable to get hints");
   }
-  return res.status(200).json(scores);
+  return res.status(200).json(hints);
 }

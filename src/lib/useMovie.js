@@ -10,9 +10,20 @@ export const useMovie = (movieId) => {
       return resp.data;
     },
     {
-      staleTime: 100 * 60 * 1000,
+      staleTime: 1000 * 60 * 1000,
       enabled: movieId !== undefined,
-      initialData: props,
+    }
+  );
+  const movieKeywords = useQuery(
+    ["movie", "keywords", movieId],
+    async ({ queryKey }) => {
+      const [, , movieId] = queryKey;
+      const resp = await client.get("/movie/" + movieId + "/keywords");
+      return resp.data;
+    },
+    {
+      staleTime: 1000 * 60 * 1000,
+      enabled: movieId !== undefined,
     }
   );
   return movieDetails;

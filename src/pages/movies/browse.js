@@ -1,9 +1,8 @@
-import { discoverMovies } from "../client/queryClient";
+import { discoverMovies } from "../../lib/queryClient";
 import { gql, useSubscription } from "@apollo/client";
 
 export const getServerSideProps = async (ctx) => {
   const resp = await discoverMovies(ctx.params);
-  console.log("movies getServerSideProps", resp);
   return { props: resp };
 };
 
@@ -35,13 +34,18 @@ const USER_SUBSCIPTION = gql`
 
 export default function MoviesPage({ results }) {
   const out = useSubscription(USER_SUBSCIPTION);
-  console.log("useSubscription", out);
   return (
     <div>
       hello!
       {/* {JSON.stringify(props)} */}
       {results.map((result) => {
-        return <div>{result.title}</div>;
+        return <div key={result.title}>{result.title}</div>;
+      })}
+      {results.map((result) => {
+        return <div key={`${result.title}-1`}>{result.title}</div>;
+      })}
+      {results.map((result) => {
+        return <div key={`${result.title}-2`}>{result.title}</div>;
       })}
     </div>
   );

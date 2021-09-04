@@ -1,8 +1,7 @@
 import axios from "axios";
 import _ from "lodash";
+import { client } from "../../lib/queryClient";
 import cheerio from "cheerio";
-
-const RT_REGEX = /(http\:|https\:)\/\/(w{3}.)?rottentomatoes.com/g;
 
 async function getLinkInfo(url, imdbId) {
   const foo = url.split("/");
@@ -25,7 +24,10 @@ async function getLinkInfo(url, imdbId) {
     for (let x of pages[0].extlinks) {
       if (x["*"].includes(imdbId)) {
         for (let y of pages[0].extlinks) {
-          if (y["*"].match(RT_REGEX)) {
+          if (
+            y["*"].includes("https://www.rottentomatoes") ||
+            y["*"].includes("https://rottentomatoes")
+          ) {
             rtExtlinks.push(y["*"]);
           }
         }
@@ -49,20 +51,9 @@ async function getRtScores(title, imdbId) {
   });
   for (let x of resp.data[1]) {
     let rtExtlinks = await getLinkInfo(x, imdbId);
-    if (rtExtlinks?.length) {
+
+    if (rtExtlinks) {
       const page = await axios.get(rtExtlinks[0].replace(/s[0-9]+\/$/g, ""));
-      const $ = cheerio.load(page.data);
-      let criticsConsensus = "";
-      $(
-        ".container #what-to-know *[data-qa='critics-consensus']"
-      )?.[0].children.forEach((x) => {
-        if (x.type === "tag" && x.name === "em") {
-          criticsConsensus += "[Movie Name]";
-        }
-        if (x.type === "text") {
-          criticsConsensus += x.data;
-        }
-      });
       const audienceScore = parseInt(
         page.data
           .match(/(?:audienceScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
@@ -90,7 +81,6 @@ async function getRtScores(title, imdbId) {
             ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)
         )
       );
-
       return {
         audienceScore,
         tomatometerScore,
@@ -102,11 +92,43 @@ async function getRtScores(title, imdbId) {
 }
 
 export default async function handler(req, res) {
-  const { title, imdbId } = req.query;
+  const { imdbId } = req.query;
 
-  const scores = await getRtScores(title, imdbId);
-  if (!scores) {
-    return res.status(404).send("No scores found");
+  if (!imdbId.startsWith("nm")) {
+    return res.status(400).send("invalid imdbId");
   }
-  return res.status(200).json(scores);
+  const page = await axios.get(`https://www.imdb.com/name/${imdbId}`);
+  const $ = cheerio.load(page.data);
+  const links = $(".knownfor-title a");
+  const tmdbResponses = [];
+  $(links).each(function (i, link) {
+    const title = $(link).text().trim().replace("\n", "");
+    const imdbId = $(link).attr("href").split("/")[2];
+    if (title.length) {
+      const resp = client.get(`/find/${imdbId}`, {
+        params: {
+          external_source: "imdb_id",
+        },
+      });
+      tmdbResponses.push(resp);
+    }
+  });
+  const resolvedTmdbResponses = await Promise.all(tmdbResponses);
+  const knownFor = resolvedTmdbResponses.map((resp) => {
+    if (resp.data.movie_results.length) {
+      return {
+        media_type: "movie",
+        imdb_id: imdbId,
+        ...resp.data.movie_results[0],
+      };
+    } else if (resp.data.tv_results.length) {
+      return {
+        media_type: "tv",
+        imdb_id: imdbId,
+        ...resp.data.tv_results[0],
+      };
+    }
+  });
+
+  return res.status(200).json(_.filter(knownFor, (x) => !_.isNil(x)));
 }
