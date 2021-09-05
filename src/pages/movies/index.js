@@ -9,6 +9,7 @@ import _ from "lodash";
 import { useQueryParams } from "../../lib/useQueryParams";
 import { useMovieBrowse } from "../../lib/useMovieBrowse";
 import { useQuery } from "react-query";
+import { motion, AnimatePresence } from "framer-motion";
 
 // export const getServerSideProps = async (ctx) => {
 //   if (_.isNil(ctx.query.search)) {
@@ -52,7 +53,7 @@ const MovieLink = ({ movie }) => {
         scroll={false}
       >
         <a>
-          {movie.title} (Film - {movie.release_date.split("-")[0]})
+          {movie.title} (Film - {movie?.release_date?.split("-")[0]})
           <img
             style={{ width: "80px", height: "120px" }}
             src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
@@ -71,7 +72,7 @@ const TvLink = ({ movie }) => {
         scroll={false}
       >
         <a>
-          {movie.name} (TV Series - {movie.first_air_date.split("-")[0]})
+          {movie.name} (TV Series - {movie?.first_air_date?.split("-")?.[0]})
           <img
             style={{ width: "80px", height: "120px" }}
             src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
@@ -175,10 +176,22 @@ export default function MoviesPage({ search, results, ...rest }) {
 
   return (
     <div>
-      <input placeholder="Search The Movie Database" {...inputProps} />
-      {!_.isNil(queryParams.search) && (
-        <button onClick={onCancel}>cancel</button>
-      )}
+      <motion.div layoutId="foo" layout className="flex gap-2 px-1 flex-nowrap">
+        <motion.input placeholder="Search The Movie Database" {...inputProps} />
+        <AnimatePresence>
+          {!_.isNil(queryParams.search) && (
+            <motion.button
+              className="text-gray-11 px-1 py-0.5"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              onClick={onCancel}
+            >
+              cancel
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </motion.div>
       {_.isNil(queryParams.search) ? (
         // <MoviesBrowse />
         <MoviesBrowseCategories />

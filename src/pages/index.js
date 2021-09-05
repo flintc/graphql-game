@@ -16,9 +16,10 @@ const START_GAME = gql`
 
 const CreateOrJoin = () => {
   return (
-    <div>
+    <div className="dark-theme">
       <Link href={{ pathname: "/create" }}>Create</Link>
-      <button>Join</button>
+      <button className="button">Join</button>
+      <button className="bg-blue-1">another button</button>
     </div>
   );
 };

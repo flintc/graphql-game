@@ -1,4 +1,4 @@
-import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/App.css";
 import Header from "../components/Header";
 import { withApollo } from "../lib/withApolloClient";
@@ -11,6 +11,7 @@ import {
   useUserSubscription,
 } from "../user-subscription";
 import Head from "next/head";
+import { AnimateSharedLayout } from "framer-motion";
 
 const ROUTES_TO_RETAIN = ["/movies"];
 
@@ -93,12 +94,42 @@ function MyApp({ Component, pageProps }) {
               name="viewport"
               content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
             />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+              if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-theme')
+                document.documentElement.classList.add('dark')
+
+              } else {
+                document.documentElement.classList.remove('dark-theme')
+                document.documentElement.classList.remove('dark')
+
+              }
+
+              // Whenever the user explicitly chooses light mode
+              localStorage.theme = 'light'
+
+              // Whenever the user explicitly chooses dark mode
+              localStorage.theme = 'dark'
+
+              // Whenever the user explicitly chooses to respect the OS preference
+              localStorage.removeItem('theme')
+              `,
+              }}
+            />
           </Head>
-          <Header />
-          <CurrentState />
-          <ScrollPosition Component={Component} pageProps={pageProps} />
-          {/* <Component {...pageProps} /> */}
-          <Header />
+          <AnimateSharedLayout type="crossfade">
+            <div>
+              <Header />
+
+              {/* <Header /> */}
+              {/* <CurrentState /> */}
+
+              <ScrollPosition Component={Component} pageProps={pageProps} />
+              {/* <Component {...pageProps} /> */}
+            </div>
+          </AnimateSharedLayout>
         </UserSubcriptionProvider>
       </UserProvider>
     </QueryClientProvider>

@@ -1,6 +1,6 @@
-import Router from 'next/router'
+import Router from "next/router";
 
-import { Button } from "react-bootstrap";
+// import { Button } from "react-bootstrap";
 
 const Login = () => {
   return (
@@ -11,16 +11,16 @@ const Login = () => {
         </div>
         <div className="overlay-message">Please login to continue</div>
         <div className="overlay-action">
-          <Button
+          <button
             id="qsLoginBtn"
             variant="primary"
             className="btn-margin loginBtn"
             onClick={() => {
-              Router.push('/api/login');
+              Router.push("/api/login");
             }}
           >
             Log In
-          </Button>
+          </button>
         </div>
       </div>
     </div>

@@ -21,15 +21,15 @@ const filterSearchResults = (result) => {
 
 function KnownForSearchResult({ result, onGuess }) {
   return (
-    <div>
+    <div className="py-1 text-sm text-gray-12 dark:text-gray-11">
       <button onClick={onGuess}>
         {["movie"].includes(result.media_type) ? (
           <span>
-            {result.title} ({result.release_date?.split("-")?.[0]}){" "}
+            {result.title} ({result?.release_date?.split("-")?.[0]}){""}
           </span>
         ) : ["tv"].includes(result.media_type) ? (
           <span>
-            {result.name} ({result.first_air_date?.split("-")?.[0]})
+            {result.name} ({result?.first_air_date?.split("-")?.[0]})
           </span>
         ) : null}
       </button>
@@ -50,7 +50,8 @@ function KnownForTitle({ result }) {
       {showHints >= 1 ? (
         <>
           <span>
-            ( {(result.release_date || result.first_air_date).split("-")[0]} ){" "}
+            ( {(result?.release_date || result?.first_air_date)?.split("-")[0]}
+            {""}){""}
           </span>
         </>
       ) : (
@@ -59,13 +60,13 @@ function KnownForTitle({ result }) {
       {showHints >= 2 ? (
         <>
           <span>
-            ({" "}
+            ({""}
             {result.media_type === "tv"
               ? "TV Show"
               : result.media_type === "movie"
               ? "Film"
-              : "unknown"}{" "}
-            ){" "}
+              : "unknown"}
+            {""}){""}
           </span>
         </>
       ) : (
@@ -85,44 +86,24 @@ function KnownForTitle({ result }) {
         <button onClick={() => setShowHints((x) => x + 1)}>reveal hints</button>
       )}
       {showHints === 3 && (
-        <div>{data.keywords.map((x) => x.name).join(" - ")}</div>
+        <div>{data.keywords.map((x) => x.name).join(" -")}</div>
       )}
     </div>
   );
 }
 
-function KnownForGuessing({ titles }) {
+function KnownForSearch({ setGuessed }) {
   const { data, inputProps, onCancel } = useMovieSearch();
-  const [guessed, setGuessed] = useState(
-    _.zipObject(
-      titles.map((x) => x.id),
-      Array(titles.length).fill(false)
-    )
-  );
   return (
-    <div>
-      <div>
-        <ul>
-          {titles.map((movie) => (
-            <li key={movie.id}>
-              {guessed[movie.id] ? (
-                <Link
-                  href={{
-                    pathname: `/movies/[id]`,
-                    query: { id: movie.id },
-                  }}
-                >
-                  <a>{movie.title || movie.name}</a>
-                </Link>
-              ) : (
-                <KnownForTitle result={movie} />
-              )}
-            </li>
-          ))}
-        </ul>
-        <input placeholder="Search The Movie Database" {...inputProps} />
-        <div>
-          <ul>
+    <div className="relative px-4">
+      <input
+        className=""
+        placeholder="Search The Movie Database"
+        {...inputProps}
+      />
+      {data?.results?.length && (
+        <div className="absolute z-50 top-full">
+          <ul className="z-50 px-4 py-2 mt-1 rounded-lg shadow-md bg-gray-1 dark:bg-gray-4">
             {data?.results?.filter(filterSearchResults).map((result) => {
               return (
                 <KnownForSearchResult
@@ -140,6 +121,54 @@ function KnownForGuessing({ titles }) {
             })}
           </ul>
         </div>
+      )}
+    </div>
+  );
+}
+
+function KnownForGuessing({ titles }) {
+  // const { data, inputProps, onCancel } = useMovieSearch();
+  const [guessed, setGuessed] = useState(
+    _.zipObject(
+      titles.map((x) => x.id),
+      Array(titles.length).fill(false)
+    )
+  );
+  console.log("...", titles);
+  return (
+    <div>
+      <KnownForSearch setGuessed={setGuessed} />
+      <div className="relative">
+        <ul className="grid grid-cols-2 gap-4 px-4 py-2">
+          {titles.map((movie) => (
+            <li
+              key={movie.id}
+              className="relative overflow-hidden z-10 rounded-lg aspect-h-4 aspect-w-3.5"
+            >
+              <img
+                src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
+                className={[
+                  // "rounded-lg",
+                  "transition duration-1000",
+                  guessed[movie.id] ? "" :"blur-xl",
+                ].join(` `)}
+              />
+
+              {/* {guessed[movie.id] ? (
+                <Link
+                  href={{
+                    pathname: `/movies/[id]`,
+                    query: { id: movie.id },
+                  }}
+                >
+                  <a>{movie.title || movie.name}</a>
+                </Link>
+              ) : (
+                <KnownForTitle result={movie} />
+              )} */}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -170,7 +199,18 @@ export default function KnownFor({ person }) {
 
   return (
     <div>
-      <h1>{data.name}</h1>
+      <div className="flex items-center gap-1 px-4 py-2">
+        {/* <div className="aspect-w-3 aspect-h-4"> */}
+        <div className="w-20 h-20 overflow-hidden rounded-full">
+          <img
+            className="object-cover object-top scale-[98%]"
+            src={`https://image.tmdb.org/t/p/original/${data.profile_path}`}
+          />
+        </div>
+
+        {/* </div> */}
+        <h1 className="px-4 text-3xl text-gray-12">{data.name}</h1>
+      </div>
       <KnownForAnswer person={data} />
     </div>
   );

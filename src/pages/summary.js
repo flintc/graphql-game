@@ -6,7 +6,7 @@ export default function Summary() {
     <div>
       <h1>Summary</h1>
       <div>
-        {user.room.questions.map((question) => {
+        {user.room?.questions?.map((question) => {
           return (
             <div key={question.id}>
               <h2>{question.title}</h2>

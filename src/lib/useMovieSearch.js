@@ -70,7 +70,7 @@ export const useMovieSearch = () => {
   );
   const onCancel = React.useCallback(() => {
     inputRef.current.value = "";
-    setParams({});
+    // setParams({});
     router.push(
       {
         pathname: router.pathname,
