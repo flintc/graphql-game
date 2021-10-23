@@ -13,6 +13,8 @@ import {
 import Head from "next/head";
 import { AnimateSharedLayout, AnimatePresence } from "framer-motion";
 
+//
+
 const ROUTES_TO_RETAIN = ["/movies"];
 
 const ScrollPosition = ({ Component, pageProps }) => {
