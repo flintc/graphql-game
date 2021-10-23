@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useMovieScore } from "../../lib/useMovieScore";
 import { useMovie } from "../../lib/useMovie";
+import { useGenres } from "../../lib/useGenres";
 import { useMovieReviews } from "../../lib/useMovieReviews";
 import fetch from "isomorphic-unfetch";
 import { useUserSubscription } from "../../user-subscription";
@@ -8,6 +9,7 @@ import { useMutation } from "react-query";
 import Link from "next/link";
 import { GENRE_LUT } from "../../constants";
 import { useKeywords } from "../../lib/useKeywords";
+import { motion } from "framer-motion";
 
 function SelectMovie({ movie }) {
   const user = useUserSubscription();
@@ -22,22 +24,29 @@ function SelectMovie({ movie }) {
       }),
     });
   });
-  const out = useMovieReviews(movie.id);
+  // const out = useMovieReviews(movie.id);
   return (
-    <div>
+    <div className="mt-1">
       {/* {["loading", "idle"].includes(status) && <p>Loading...</p>} */}
       {/* {["error"].includes(status) && (
         <div>Unable to get scores for this title</div>
       )} */}
-      {status === "success" && user.room ? (
-        <button
-          onClick={() => {
-            selectQuestionMutation.mutate();
-          }}
-          disabled={selectQuestionMutation.status === "loading"}
-        >
-          Select
-        </button>
+      {user.room ? (
+        status === "loading" ? (
+          "Fetching score..."
+        ) : status === "error" ? (
+          "Failed to fetch score "
+        ) : (
+          <button
+            className="px-8 py-2 font-medium text-white rounded-lg bg-primary-9 "
+            onClick={() => {
+              selectQuestionMutation.mutate();
+            }}
+            disabled={selectQuestionMutation.status === "loading"}
+          >
+            Select
+          </button>
+        )
       ) : (
         <Link
           href={{
@@ -54,7 +63,6 @@ function SelectMovie({ movie }) {
 
 function MovieKeywords({ movie }) {
   const { data, status } = useKeywords(movie.id);
-  console.log("keyword", status, data);
   if (status === "loading") {
     return <p>Loading...</p>;
   }
@@ -69,14 +77,15 @@ function MovieKeywords({ movie }) {
         {data.keywords.map((keyword) => {
           return (
             <Link
+              key={keyword.id}
               href={{
-                pathname: "/movies/keywords/[id]",
-                query: { id: keyword.id },
+                pathname: "/movies/browse",
+                query: { with_keywords: `${keyword.id}` },
               }}
             >
-              <button className="px-1.5 py-0.5 rounded-lg bg-gray-3">
+              <a className="px-1.5 py-0.5 rounded-lg bg-gray-3">
                 {keyword.name}
-              </button>
+              </a>
             </Link>
           );
         })}
@@ -88,6 +97,7 @@ function MovieKeywords({ movie }) {
 export default function MovieDetailsPage() {
   const router = useRouter();
   const { status, data, error } = useMovie(router.query.id);
+  const genresQuery = useGenres();
   if (["idle", "loading"].includes(status)) {
     return <p>Loading...</p>;
   }
@@ -96,14 +106,6 @@ export default function MovieDetailsPage() {
   }
   return (
     <div>
-      {/* <button
-        onClick={() => {
-          router.back();
-        }}
-      >
-        Go back
-      </button> */}
-      {/* details! */}
       <div key={data.id} className="overflow-x-hidden">
         <div className="relative ">
           <div className="w-full overflow-x-hidden">
@@ -111,26 +113,26 @@ export default function MovieDetailsPage() {
               {data?.genres?.map((genre) => {
                 return (
                   <span
+                    key={genre.id}
                     className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
                     style={{
-                      borderColor: `var(--${GENRE_LUT[genre.id]}10)`,
+                      borderColor: `var(--${GENRE_LUT[genre.id]}7)`,
                       backgroundColor: `var(--${GENRE_LUT[genre.id]}3)`,
-                      color: `var(--${GENRE_LUT[genre.id]}11)`,
+                      color: `var(--${GENRE_LUT[genre.id]}12)`,
                     }}
                   >
-                    {genre.name}
+                    {genresQuery?.data?.[genre.id]}
                   </span>
                 );
               })}
             </div>
           </div>
-          <img
+          <motion.img
+            layout
+            layoutId={`movie-backdrop-${data.id}`}
             className="w-full"
             src={`https://image.tmdb.org/t/p/original/${data.backdrop_path}`}
           />
-          {/* <div className="absolute bottom-0 w-full text-white bg-black bg-opacity-90">
-            <h1>{data?.title}</h1>
-          </div> */}
         </div>
         <div className="px-2 mt-2">
           <div className="flex items-end gap-3">
@@ -144,11 +146,11 @@ export default function MovieDetailsPage() {
               )}
             </h1>
           </div>
+          <SelectMovie movie={data} />
           <p className="mt-2 text-sm text-gray-11">{data?.overview}</p>
         </div>
         {/* <h1>{data.title}</h1>
         <p>{data.overview}</p> */}
-        <SelectMovie movie={data} />
         <MovieKeywords movie={data} />
       </div>
     </div>

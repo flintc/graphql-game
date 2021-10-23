@@ -10,6 +10,7 @@ const GET_USER = gql`
     user: user_by_pk(id: $userId) {
       id
       name
+      starred
       room {
         state
         id
@@ -21,7 +22,7 @@ const GET_USER = gql`
 
 // This default export is required in a new `pages/_app.js` file.
 function UserProvider({ children }) {
-  const { user, loading } = useFetchUser();
+  const { user, loading, error } = useFetchUser();
   const backendUser = useQuery(GET_USER, {
     skip: !user?.sub,
     variables: {

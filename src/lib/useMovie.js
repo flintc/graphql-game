@@ -1,7 +1,9 @@
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { client } from "./queryClient";
 
 export const useMovie = (movieId) => {
+  const queryClient = useQueryClient();
+  const foo = queryClient.getQueryData(["movie", "details", movieId]);
   const movieDetails = useQuery(
     ["movie", "details", movieId],
     async ({ queryKey }) => {

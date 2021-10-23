@@ -1,10 +1,12 @@
 import { useUserSubscription } from "../user-subscription";
+import LeaveRoomButton from "../components/LeaveRoomButton";
 
 export default function Summary() {
   const user = useUserSubscription();
   return (
     <div>
       <h1>Summary</h1>
+      {user.room && <LeaveRoomButton />}
       <div>
         {user.room?.questions?.map((question) => {
           return (

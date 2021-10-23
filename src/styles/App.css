@@ -68,10 +68,14 @@
 @import "@radix-ui/colors/sand.css";
 @import "@radix-ui/colors/sandDark.css";
 
+@import "@radix-ui/colors/blackA.css";
+@import "@radix-ui/colors/whiteA.css";
+
 html {
   /* height: 100%; */
   /* background-color: theme("colors.gray.1"); */
   @apply bg-gray-2 dark:bg-gray-1;
+  @apply text-gray-12;
 }
 html,
 body,
@@ -102,4 +106,12 @@ input {
 .button:hover {
   background-color: var(--blue5);
   border-color: var(--blue8);
+}
+
+.badge {
+  @apply border rounded-full shadow-md whitespace-nowrap;
+}
+
+.badge-xs {
+  @apply px-2 py-1 text-xs;
 }

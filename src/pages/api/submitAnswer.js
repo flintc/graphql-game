@@ -49,34 +49,33 @@ const SUBMIT_ANSWER = gql`
 
 export default async function submitAnswer(req, res) {
   const body = JSON.parse(req.body);
-  const currentStateResp = await client.query({
-    query: GET_ROOM,
-    variables: {
-      questionId: req.query.questionId,
-    },
-  });
-  const room = currentStateResp?.data?.room?.[0];
+  // const currentStateResp = await client.query({
+  //   query: GET_ROOM,
+  //   variables: {
+  //     questionId: req.query.questionId,
+  //   },
+  // });
+  // const room = currentStateResp?.data?.room?.[0];
+  // if (!room) {
+  //   return res
+  //     .status(404)
+  //     .send(`question id: ${req.query.questionId} not found`);
+  // }
+  // const question = room.questions.find((x) => x.id === req.query.questionId);
+  // const users = room.users;
+  // const responseOwnerIds = new Set(question.responses.map((x) => x.owner_id));
+  // const userIds = new Set(users.map((x) => x.id));
+  // const difference = new Set(
+  //   [...userIds].filter((x) => !responseOwnerIds.has(x))
+  // );
 
-  if (!room) {
-    return res
-      .status(404)
-      .send(`question id: ${req.query.questionId} not found`);
-  }
-  const question = room.questions.find((x) => x.id === req.query.questionId);
-  const users = room.users;
-  const responseOwnerIds = new Set(question.responses.map((x) => x.owner_id));
-  const userIds = new Set(users.map((x) => x.id));
-  const difference = new Set(
-    [...userIds].filter((x) => !responseOwnerIds.has(x))
-  );
-
-  if (responseOwnerIds.has(req.query.ownerId)) {
-    return res.status(400).send("already answered");
-  }
-  let roomState = "guessing";
-  if (difference.size === 1 && difference.has(req.query.ownerId)) {
-    roomState = "revealing";
-  }
+  // if (responseOwnerIds.has(req.query.ownerId)) {
+  //   return res.status(400).send("already answered");
+  // }
+  // let roomState = "guessing";
+  // if (difference.size === 1 && difference.has(req.query.ownerId)) {
+  //   roomState = "revealing";
+  // }
 
   const submitAnswerResp = await client.mutate({
     mutation: SUBMIT_ANSWER,
@@ -84,7 +83,7 @@ export default async function submitAnswer(req, res) {
       questionId: req.query.questionId,
       ownerId: req.query.ownerId,
       answer: body.answer,
-      roomState: roomState,
+      roomState: body.roomState,
     },
   });
 

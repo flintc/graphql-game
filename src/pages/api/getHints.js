@@ -67,7 +67,6 @@ async function getHints(title, imdbId) {
           criticsConsensus += x.data;
         }
       });
-      console.log("criticsConsensus", criticsConsensus);
 
       return {
         criticsConsensus,

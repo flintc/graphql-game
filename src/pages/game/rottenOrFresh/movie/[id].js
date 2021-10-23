@@ -47,12 +47,6 @@ export default function RottenOrFreshPage() {
   const { status, data, error } = useMovie(router.query.id);
   const [guess, setGuess] = useState(null);
   const genres = useGenres();
-  console.log(
-    "genres",
-    genres.status,
-    JSON.stringify(genres.data?.genres?.map((x) => x.id)),
-    data
-  );
   if (status === "loading") {
     return <div>Loading...</div>;
   }

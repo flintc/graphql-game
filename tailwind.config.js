@@ -25,8 +25,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: radixColorToTW("plum"),
-        gray: radixColorToTW("mauve"),
+        primary: radixColorToTW("violet"),
+        secondary: radixColorToTW("crimson"),
+        gray: radixColorToTW("gray"),
 
         tomato: radixColorToTW("tomato"),
         red: radixColorToTW("red"),

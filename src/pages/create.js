@@ -54,6 +54,7 @@ const CreateRoomForm = ({ roomCode }) => {
       <input defaultValue={roomCode} disabled />
       <input id="nickname" placeholder="Name" defaultValue={user.name} />
       <button
+        type="button"
         onClick={() => {
           router.back();
         }}

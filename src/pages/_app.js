@@ -11,7 +11,7 @@ import {
   useUserSubscription,
 } from "../user-subscription";
 import Head from "next/head";
-import { AnimateSharedLayout } from "framer-motion";
+import { AnimateSharedLayout, AnimatePresence } from "framer-motion";
 
 const ROUTES_TO_RETAIN = ["/movies"];
 
@@ -125,8 +125,10 @@ function MyApp({ Component, pageProps }) {
 
               {/* <Header /> */}
               {/* <CurrentState /> */}
+              <AnimatePresence exitBeforeEnter>
+                <ScrollPosition Component={Component} pageProps={pageProps} />
+              </AnimatePresence>
 
-              <ScrollPosition Component={Component} pageProps={pageProps} />
               {/* <Component {...pageProps} /> */}
             </div>
           </AnimateSharedLayout>

@@ -10,11 +10,16 @@ const SUBSCRIBE_TO_USER = gql`
     user: user_by_pk(id: $userId) {
       id
       name
+      starred
       room {
         state
         id
         name
         round
+        users {
+          id
+          name
+        }
         questions(order_by: { created_at: asc_nulls_last }) {
           id
           name

@@ -22,7 +22,6 @@ export const useKeywords = (movieId, media_type = "movie") => {
         keywords: movieKeywords.data.keywords || movieKeywords.data.results,
       }
     : movieKeywords.data;
-  console.log("useKeywords", movieKeywords.status, data);
 
   return {
     ...movieKeywords,

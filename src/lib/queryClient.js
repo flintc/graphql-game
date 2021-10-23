@@ -60,7 +60,7 @@ export const getTopRated = async () => {
 export const discoverMovies = async (params) => {
   const resp = await client.get("/discover/movie", {
     params: {
-      sort_by: "popularity.desc",
+      sort_by: "vote_count.desc",
       include_adult: false,
       with_original_language: "en",
       ...params,

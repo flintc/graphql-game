@@ -1,12 +1,13 @@
 import { useQuery } from "react-query";
 import { client, getGeneres } from "./queryClient";
+import _ from "lodash";
 
 export const useGenres = () => {
   const genres = useQuery(
     ["genres"],
     async () => {
       const resp = await getGeneres();
-      return resp.data;
+      return resp;
     },
     {
       staleTime: 10000 * 60 * 1000,
@@ -14,5 +15,10 @@ export const useGenres = () => {
   );
   return {
     ...genres,
+    data: genres?.data
+      ? _.fromPairs(
+          genres.data.genres.map((genre) => [Number(genre.id), genre.name])
+        )
+      : undefined,
   };
 };
