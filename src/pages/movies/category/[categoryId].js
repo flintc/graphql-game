@@ -28,6 +28,8 @@ export default function MovieDetailsPage(props) {
       {data?.results?.map((movie) => {
         return (
           <Link
+            passHref
+            key={movie.id}
             href={{
               pathname: "/movies/[id]",
               query: { id: movie.id },

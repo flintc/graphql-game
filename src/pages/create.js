@@ -87,7 +87,7 @@ const IndexPage = () => {
   if (user.room) {
     return (
       <div>
-        <div>You're already playing a game!</div>
+        <div>You&apos;re already playing a game!</div>
         <div>
           <button>Leave game</button>
           OR

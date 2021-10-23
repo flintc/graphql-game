@@ -30,7 +30,7 @@ export const useMovieSearch = () => {
         }
       }
     }
-  }, [queryParams]);
+  }, [queryParams, throttledSetParams, router.pathname, params.query]);
   const throttledSetParams = React.useMemo(
     () =>
       _.debounce(
@@ -66,7 +66,7 @@ export const useMovieSearch = () => {
         }
       );
     },
-    [router, throttledSetParams]
+    [router]
   );
   const onCancel = React.useCallback(() => {
     inputRef.current.value = "";

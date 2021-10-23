@@ -31,27 +31,32 @@ const ScrollPosition = ({ Component, pageProps }) => {
     };
   }
 
-  // Save the scroll position of current page before leaving
-  const handleRouteChangeStart = (url) => {
-    if (isRetainableRoute) {
-      retainedComponents.current[router.pathname].scrollPos = window.scrollY;
-    }
-  };
-
   // Save scroll position - requires an up-to-date router.asPath
   useEffect(() => {
+    // Save the scroll position of current page before leaving
+    const handleRouteChangeStart = (url) => {
+      if (isRetainableRoute) {
+        retainedComponents.current[router.pathname].scrollPos = window.scrollY;
+      }
+    };
     router.events.on("routeChangeStart", handleRouteChangeStart);
     return () => {
       router.events.off("routeChangeStart", handleRouteChangeStart);
     };
-  }, [router.pathname]);
+  }, [router.pathname, isRetainableRoute, router.events]);
 
   // Scroll to the saved position when we load a retained component
   useEffect(() => {
     if (isRetainableRoute && router.query.search !== undefined) {
       window.scrollTo(0, retainedComponents.current[router.pathname].scrollPos);
     }
-  }, [Component, pageProps, router.pathname]);
+  }, [
+    Component,
+    pageProps,
+    isRetainableRoute,
+    router.query.search,
+    router.pathname,
+  ]);
 
   return (
     <div>

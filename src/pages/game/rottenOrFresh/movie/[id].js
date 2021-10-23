@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useMovie } from "../../../../lib/useMovie";
@@ -27,7 +28,7 @@ function RottenOrFreshAnswer({ movie, guess }) {
   const answer = getAnswerByScoreType(data, guess["scoreType"]);
   return (
     <div>
-      <div>You're guess: {guess.value}</div>
+      <div>You&apos;re guess: {guess.value}</div>
       <div>
         Answer ({guess["scoreType"]}): {answer}
         {guess["scoreType"] === "the-spread" && (
@@ -62,6 +63,7 @@ export default function RottenOrFreshPage() {
             {data?.genres?.map((genre) => {
               return (
                 <span
+                  key={genre.id}
                   className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
                   style={{
                     borderColor: `var(--${GENRE_LUT[genre.id]}10)`,
@@ -75,6 +77,7 @@ export default function RottenOrFreshPage() {
             })}
           </div>
           <img
+            alt={data.title}
             className="w-full"
             src={`https://image.tmdb.org/t/p/original/${data.backdrop_path}`}
           />
