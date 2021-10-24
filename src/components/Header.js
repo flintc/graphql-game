@@ -21,30 +21,27 @@ import { useUserStarred } from "../lib/useUserStarred";
 
 const Header = () => {
   const router = useRouter();
-  const [isDarkTheme, setIsDarkTheme] = useState(
+  const [isDarkTheme] = useState(
     document.documentElement.classList.contains("dark-theme")
   );
   const {
     starredQuery: { data: starred },
   } = useUserStarred();
-  const onClick = () => {
-    if (isDarkTheme) {
-      window.localStorage.setItem("theme", "light");
-      document.documentElement.classList.remove("dark-theme");
-      document.documentElement.classList.remove("dark");
+  // const onClick = () => {
+  //   if (isDarkTheme) {
+  //     window.localStorage.setItem("theme", "light");
+  //     document.documentElement.classList.remove("dark-theme");
+  //     document.documentElement.classList.remove("dark");
 
-      setIsDarkTheme(false);
-    } else {
-      window.localStorage.setItem("theme", "dark");
-      document.documentElement.classList.add("dark-theme");
-      document.documentElement.classList.add("dark");
+  //     setIsDarkTheme(false);
+  //   } else {
+  //     window.localStorage.setItem("theme", "dark");
+  //     document.documentElement.classList.add("dark-theme");
+  //     document.documentElement.classList.add("dark");
 
-      setIsDarkTheme(true);
-    }
-  };
-  // if (router.query?.search !== undefined) {
-  //   return null;
-  // }
+  //     setIsDarkTheme(true);
+  //   }
+  // };
 
   return (
     // <FixedBottom>
@@ -97,7 +94,7 @@ const Header = () => {
       {/* <a className="" aria-label="Logout">
         <LogoutIcon className="w-7 h-7" />
       </a> */}
-      <button
+      {/* <button
         className=""
         onClick={onClick}
         aria-label={isDarkTheme ? "Toggle light theme" : "Toggle dark theme"}
@@ -107,7 +104,7 @@ const Header = () => {
         ) : (
           <MoonIcon className="w-7 h-7" />
         )}
-      </button>
+      </button> */}
     </div>
   );
 };
