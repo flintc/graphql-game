@@ -10,6 +10,7 @@ import { getGeneres } from "../../lib/queryClient";
 import { useState } from "react";
 import { useMovieSearch } from "../../lib/useMovieSearch";
 import { useKeywords } from "../../lib/useKeywords";
+import Image from "next/image";
 
 const filterSearchResults = (result) => {
   if (result.media_type === "movie") {
@@ -38,73 +39,13 @@ function KnownForSearchResult({ result, onGuess }) {
   );
 }
 
-function KnownForTitle({ result }) {
-  const [showHints, setShowHints] = useState(0);
-  const { data, status } = useKeywords(result.id, result.media_type);
-  return (
-    <div>
-      {showHints === 4 ? (
-        <span>{result.name || result.title}</span>
-      ) : (
-        <span>??????</span>
-      )}
-      {showHints >= 1 ? (
-        <>
-          <span>
-            ( {(result?.release_date || result?.first_air_date)?.split("-")[0]}
-            {""}){""}
-          </span>
-        </>
-      ) : (
-        <span>(year/first air date)</span>
-      )}
-      {showHints >= 2 ? (
-        <>
-          <span>
-            ({""}
-            {result.media_type === "tv"
-              ? "TV Show"
-              : result.media_type === "movie"
-              ? "Film"
-              : "unknown"}
-            {""}){""}
-          </span>
-        </>
-      ) : (
-        <span>(media type)</span>
-      )}
-      {showHints === 3 && (
-        <button onClick={() => setShowHints((x) => x + 1)}>
-          reveal answer
-        </button>
-      )}
-      {showHints >= 1 && showHints < 3 && (
-        <button onClick={() => setShowHints((x) => x + 1)}>
-          reveal more hints
-        </button>
-      )}
-      {!showHints && (
-        <button onClick={() => setShowHints((x) => x + 1)}>reveal hints</button>
-      )}
-      {showHints === 3 && (
-        <div>{data?.keywords.map((x) => x.name).join(" -")}</div>
-      )}
-    </div>
-  );
-}
-
 function KnownForSearch({ setGuessed }) {
   const { data, inputProps, onCancel } = useMovieSearch();
   return (
     <div className="relative px-4">
-      <input
-        className=""
-        placeholder="Search The Movie Database"
-        {...inputProps}
-      />
-      {data?.results?.length && (
-        <div className="absolute z-50 top-full">
-          <ul className="z-50 px-4 py-2 mt-1 rounded-lg shadow-md bg-gray-1 dark:bg-gray-4">
+      {data?.results?.length ? (
+        <div className="absolute z-50 bottom-full">
+          <ul className="z-50 max-h-[30vh] px-4 py-2 mb-1 overflow-auto rounded-lg shadow-md bg-gray-1 dark:bg-gray-4">
             {data?.results?.filter(filterSearchResults).map((result) => {
               return (
                 <KnownForSearchResult
@@ -122,7 +63,12 @@ function KnownForSearch({ setGuessed }) {
             })}
           </ul>
         </div>
-      )}
+      ) : null}
+      <input
+        className=""
+        placeholder="Search The Movie Database"
+        {...inputProps}
+      />
     </div>
   );
 }
@@ -144,7 +90,7 @@ function KnownForItem({ title, guessed }) {
         alt="Unknown"
         src={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
         className={[
-          "transition duration-1000",
+          "transition duration-1000 delay-150",
           shouldReveal ? "" :"blur-xl",
         ].join(` `)}
       />
@@ -181,7 +127,7 @@ function KnownForItem({ title, guessed }) {
             </div>
           </div>
         )}
-        {hintPrompt ? (
+        {hintPrompt & !shouldReveal ? (
           <>
             <button
               onClick={(e) => {
@@ -225,7 +171,7 @@ function KnownForItem({ title, guessed }) {
                       pathname: router.pathname,
                       query: {
                         ...router.query,
-                        hintPrompt: null,
+                        // hintPrompt: null,
                         [movie.id]:
                           parseInt(router.query?.[movie.id] || -1) + 1,
                       },
@@ -240,6 +186,13 @@ function KnownForItem({ title, guessed }) {
               </button>
             )}
           </>
+        ) : shouldReveal ? (
+          <Link
+            passHref
+            href={{ pathname: "/movies/[id]", query: { id: movie.id } }}
+          >
+            <a className="w-full h-full"></a>
+          </Link>
         ) : (
           <button
             onClick={(e) => {
@@ -273,10 +226,9 @@ function KnownForGuessing({ titles }) {
     )
   );
   return (
-    <div>
-      <KnownForSearch setGuessed={setGuessed} />
+    <div className="pb-10">
       <div className="relative">
-        <ul className="grid grid-cols-2 gap-4 px-4 py-2">
+        <ul className="grid grid-cols-2 gap-4 px-4 py-2 md:gap-1 md:grid-cols-4">
           {titles.map((movie) => {
             return (
               <KnownForItem
@@ -288,6 +240,7 @@ function KnownForGuessing({ titles }) {
           })}
         </ul>
       </div>
+      <KnownForSearch setGuessed={setGuessed} />
     </div>
   );
 }
@@ -314,19 +267,33 @@ export default function KnownFor({ person }) {
   if (status === "error") {
     return <p>Error!</p>;
   }
-
   return (
     <div>
-      <div className="flex items-center gap-1 px-4 py-2">
+      <div className="grid items-center grid-cols-12 gap-1 px-2 py-2">
         {/* <div className="aspect-w-3 aspect-h-4"> */}
-        <div className="w-20 overflow-hidden rounded-md h-28">
-          <img
+        <div className="flex items-center col-span-3 lg:col-span-2">
+          <Image
             alt="foo"
-            className="object-cover object-top scale-[98%]"
+            className="object-cover object-top scale-[98%] col-span-2 rounded-md"
+            width={1400}
+            height={2000}
             src={`https://image.tmdb.org/t/p/original/${data.profile_path}`}
           />
         </div>
-        <h1 className="px-4 text-3xl text-gray-12">{data.name}</h1>
+        <div className="col-span-9 px-2">
+          <h1 className="px-0 text-3xl md:text-6xl md:mb-4 text-gray-12">
+            {data.name}
+          </h1>
+          <p className="px-0 -mb-1 text-xs md:-mb-0 md:text-lg text-gray-11 line-clamp-5 md:line-clamp-10">
+            {data.biography}
+          </p>
+          <Link
+            passHref
+            href={{ pathname: "/people/[id]/bio", query: { id: data.id } }}
+          >
+            <a className="text-sm md:text-lg">more</a>
+          </Link>
+        </div>
       </div>
       <KnownForAnswer person={data} />
     </div>

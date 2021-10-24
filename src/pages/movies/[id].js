@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/router";
 import { useMovieScore } from "../../lib/useMovieScore";
 import { useMovie } from "../../lib/useMovie";
 import { useGenres } from "../../lib/useGenres";
-import { useMovieReviews } from "../../lib/useMovieReviews";
+import { useMovieCredits } from "../../lib/useMovieCredits";
 import fetch from "isomorphic-unfetch";
 import { useUserSubscription } from "../../user-subscription";
 import { useMutation } from "react-query";
@@ -10,6 +11,7 @@ import Link from "next/link";
 import { GENRE_LUT } from "../../constants";
 import { useKeywords } from "../../lib/useKeywords";
 import { motion } from "framer-motion";
+import ScrollArea from "../../components/ScrollArea";
 
 function SelectMovie({ movie }) {
   const user = useUserSubscription();
@@ -94,6 +96,46 @@ function MovieKeywords({ movie }) {
   );
 }
 
+const Credits = ({ movieId }) => {
+  const { data, status } = useMovieCredits(movieId);
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
+  if (status === "error") {
+    return <p>Unable to get credits for this title</p>;
+  }
+  return (
+    <div className="px-2 mt-3">
+      <ScrollArea>
+        <div className="inline-block w-full gap-2 ">
+          {data.cast.map((cast) => {
+            return (
+              <Link
+                key={cast.id}
+                href={{
+                  pathname: "/people/[id]",
+                  query: { id: `${cast.id}` },
+                }}
+              >
+                <a className="px-1.5 py-0.5 rounded-lg block w-full">
+                  <div className="flex w-full flex-nowrap">
+                    <img
+                      alt="foo"
+                      className="object-cover object-top scale-[98%] h-12 w-12 mr-2 rounded-md"
+                      src={`https://image.tmdb.org/t/p/original/${cast.profile_path}`}
+                    />
+                    <span className="w-full">{cast.name}</span>
+                  </div>
+                </a>
+              </Link>
+            );
+          })}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
+
 export default function MovieDetailsPage() {
   const router = useRouter();
   const { status, data, error } = useMovie(router.query.id);
@@ -112,17 +154,36 @@ export default function MovieDetailsPage() {
             <div className="absolute flex justify-around gap-2 overflow-x-scroll flex-nowrap bottom-2 left-2">
               {data?.genres?.map((genre) => {
                 return (
-                  <span
+                  <Link
+                    passHref
                     key={genre.id}
-                    className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
-                    style={{
-                      borderColor: `var(--${GENRE_LUT[genre.id]}7)`,
-                      backgroundColor: `var(--${GENRE_LUT[genre.id]}3)`,
-                      color: `var(--${GENRE_LUT[genre.id]}12)`,
+                    href={{
+                      pathname: "/movies/browse",
+                      query: { with_genres: `${genre.id}` },
                     }}
                   >
-                    {genresQuery?.data?.[genre.id]}
-                  </span>
+                    <a
+                      className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
+                      style={{
+                        borderColor: `var(--${GENRE_LUT[genre.id]}7)`,
+                        backgroundColor: `var(--${GENRE_LUT[genre.id]}3)`,
+                        color: `var(--${GENRE_LUT[genre.id]}12)`,
+                      }}
+                    >
+                      {genresQuery?.data?.[genre.id]}
+                    </a>
+                  </Link>
+                  // <span
+                  //   key={genre.id}
+                  //   className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
+                  //   style={{
+                  //     borderColor: `var(--${GENRE_LUT[genre.id]}7)`,
+                  //     backgroundColor: `var(--${GENRE_LUT[genre.id]}3)`,
+                  //     color: `var(--${GENRE_LUT[genre.id]}12)`,
+                  //   }}
+                  // >
+                  //   {genresQuery?.data?.[genre.id]}
+                  // </span>
                 );
               })}
             </div>
@@ -152,6 +213,7 @@ export default function MovieDetailsPage() {
         {/* <h1>{data.title}</h1>
         <p>{data.overview}</p> */}
         <MovieKeywords movie={data} />
+        <Credits movieId={data.id} />
       </div>
     </div>
   );

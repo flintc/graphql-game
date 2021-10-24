@@ -16,6 +16,7 @@
     "@radix-ui/react-scroll-area": "^0.0.16",
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "@tailwindcss/forms": "^0.3.3",
+    "@tailwindcss/line-clamp": "^0.2.2",
     "@xstate/fsm": "^1.6.1",
     "@xstate/react": "^1.6.1",
     "apollo-cache-inmemory": "^1.6.6",

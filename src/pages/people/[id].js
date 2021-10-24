@@ -83,9 +83,9 @@ function PersonCredits({ knownForDepartment }) {
   }
   const { key, filter, header } = creditsDepartmentMap[knownForDepartment];
   return (
-    <div>
-      credits!
-      <div>
+    <div className="px-2">
+      <h3 className="text-sm tracking-wide uppercase text-gray-12">Credits</h3>
+      <div className="text-gray-11">
         <div>
           <ul>
             {_.uniqBy(data?.[key]?.filter(filter), "id").map((movie) => (
@@ -180,14 +180,16 @@ function KnownFor({ person }) {
   const [state, setState] = useState("hidden");
   if (state === "hidden") {
     return (
-      <div>
+      <div className="my-4">
         <Link
           href={{
             pathname: "/knownFor/[personId]",
             query: { personId: person.id },
           }}
         >
-          <a>Guess Known For</a>
+          <a className="px-4 py-2 border rounded-full bg-primary-1 border-primary-7 text-primary-12">
+            Guess Known For
+          </a>
         </Link>
       </div>
     );
@@ -251,8 +253,9 @@ export default function PersonDetailsPage() {
         style={{ width: "80px", height: "120px" }}
         src={`https://image.tmdb.org/t/p/original/${data.profile_path}`}
       />
-      {/* <PersonCredits knownForDepartment={data.known_for_department} /> */}
       {data && <KnownFor person={data} />}
+
+      <PersonCredits knownForDepartment={data.known_for_department} />
     </div>
   );
 }
