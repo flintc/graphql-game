@@ -18,11 +18,13 @@ const getAnswerByScoreType = (scores, scoreType) => {
 };
 
 function RottenOrFreshAnswer({ movie, guess }) {
-  const { data, status } = useMovieScore(movie);
+  console.warn("!!!!! imdbid??", movie);
+  const { data, status, error } = useMovieScore(movie);
   if (status === "loading") {
     return <p>Loading...</p>;
   }
   if (status === "error") {
+    console.warn("errror", error);
     return <p>Error!</p>;
   }
   const answer = getAnswerByScoreType(data, guess["scoreType"]);
@@ -46,6 +48,7 @@ function RottenOrFreshAnswer({ movie, guess }) {
 export default function RottenOrFreshPage() {
   const router = useRouter();
   const { status, data, error } = useMovie(router.query.id);
+  console.log("BBBBB", status, data);
   const [guess, setGuess] = useState(null);
   const genres = useGenres();
   if (status === "loading") {
@@ -56,7 +59,6 @@ export default function RottenOrFreshPage() {
   }
   return (
     <div>
-      {/* <h1>Guess the score</h1> */}
       <div>
         <div className="relative">
           <div className="absolute flex gap-2 bottom-2 left-2">
@@ -81,9 +83,6 @@ export default function RottenOrFreshPage() {
             className="w-full"
             src={`https://image.tmdb.org/t/p/original/${data.backdrop_path}`}
           />
-          {/* <div className="absolute bottom-0 w-full text-white bg-black bg-opacity-90">
-            <h1>{data?.title}</h1>
-          </div> */}
         </div>
         <div className="px-2 mt-2">
           <div className="flex items-end gap-3">

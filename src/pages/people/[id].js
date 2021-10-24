@@ -3,11 +3,10 @@
 import { useRouter } from "next/router";
 import { usePerson } from "../../lib/usePerson";
 
-import { useKnownFor } from "../../lib/useKnownFor";
 import { usePersonCredits } from "../../lib/usePersonCredits";
 import Link from "next/link";
+import Image from "next/image";
 import _ from "lodash";
-import { getGeneres } from "../../lib/queryClient";
 import { useState } from "react";
 import { useMovieSearch } from "../../lib/useMovieSearch";
 
@@ -180,15 +179,15 @@ function KnownFor({ person }) {
   const [state, setState] = useState("hidden");
   if (state === "hidden") {
     return (
-      <div className="my-4">
+      <div className="my-1">
         <Link
           href={{
             pathname: "/knownFor/[personId]",
             query: { personId: person.id },
           }}
         >
-          <a className="px-4 py-2 border rounded-full bg-primary-1 border-primary-7 text-primary-12">
-            Guess Known For
+          <a className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12">
+            Play IMdB Known For
           </a>
         </Link>
       </div>
@@ -241,7 +240,7 @@ export default function PersonDetailsPage() {
 
   return (
     <div>
-      <button
+      {/* <button
         onClick={() => {
           router.back();
         }}
@@ -253,7 +252,38 @@ export default function PersonDetailsPage() {
         style={{ width: "80px", height: "120px" }}
         src={`https://image.tmdb.org/t/p/original/${data.profile_path}`}
       />
-      {data && <KnownFor person={data} />}
+      {data && <KnownFor person={data} />} */}
+
+      <div className="grid items-center grid-cols-12 gap-1 px-4 py-2">
+        {/* <div className="aspect-w-3 aspect-h-4"> */}
+        <div className="flex items-center col-span-2 lg:col-span-2">
+          <Image
+            alt="foo"
+            className="object-cover object-top scale-[98%] col-span-2 rounded-md"
+            width={1400}
+            height={2000}
+            src={`https://image.tmdb.org/t/p/original/${data.profile_path}`}
+          />
+        </div>
+        <div className="col-span-10 px-2">
+          <h1 className="px-0 text-3xl md:text-6xl text-gray-12">
+            {data.name}
+          </h1>
+          {/* <p className="px-0 -mb-1 text-base md:-mb-0 md:text-lg text-gray-11 line-clamp-5 md:line-clamp-10">
+            {data.known_for_department}
+          </p> */}
+          {data && <KnownFor person={data} />}
+          {/* <p className="px-0 -mb-1 text-xs md:-mb-0 md:text-lg text-gray-11 line-clamp-5 md:line-clamp-10">
+            {data.biography}
+          </p> */}
+          {/* <Link
+            passHref
+            href={{ pathname: "/people/[id]/bio", query: { id: data.id } }}
+          >
+            <a className="text-sm md:text-lg">more</a>
+          </Link> */}
+        </div>
+      </div>
 
       <PersonCredits knownForDepartment={data.known_for_department} />
     </div>

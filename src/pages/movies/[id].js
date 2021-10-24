@@ -56,7 +56,9 @@ function SelectMovie({ movie }) {
             query: { id: movie.id },
           }}
         >
-          <a className="px-4 py-2 text-gray-12">Guess the score!</a>
+          <a className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12">
+            Play Rotten or Fresh
+          </a>
         </Link>
       )}
     </div>
@@ -107,7 +109,7 @@ const Credits = ({ movieId }) => {
   return (
     <div className="px-2 mt-3">
       <ScrollArea>
-        <div className="inline-block w-full gap-2 ">
+        <div className="grid w-full grid-flow-col gap-2 auto-cols-max ">
           {data.cast.map((cast) => {
             return (
               <Link

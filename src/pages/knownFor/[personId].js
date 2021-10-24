@@ -189,7 +189,12 @@ function KnownForItem({ title, guessed }) {
         ) : shouldReveal ? (
           <Link
             passHref
-            href={{ pathname: "/movies/[id]", query: { id: movie.id } }}
+            href={{
+              pathname: `/${
+                movie.media_type === "movie" ? "movies" : "tv"
+              }/[id]`,
+              query: { id: movie.id },
+            }}
           >
             <a className="w-full h-full"></a>
           </Link>
@@ -260,6 +265,7 @@ function KnownForAnswer({ person }) {
 export default function KnownFor({ person }) {
   const router = useRouter();
   const { data, status, error } = usePerson(router.query.personId);
+  console.log("lasdfasdfafj;a", data);
 
   if (["idle", "loading"].includes(status)) {
     return <p>Loading...</p>;
@@ -269,9 +275,8 @@ export default function KnownFor({ person }) {
   }
   return (
     <div>
-      <div className="grid items-center grid-cols-12 gap-1 px-2 py-2">
-        {/* <div className="aspect-w-3 aspect-h-4"> */}
-        <div className="flex items-center col-span-3 lg:col-span-2">
+      <div className="grid items-center grid-cols-12 gap-1 px-4 py-2">
+        <div className="flex items-center col-span-2 lg:col-span-2">
           <Image
             alt="foo"
             className="object-cover object-top scale-[98%] col-span-2 rounded-md"
@@ -280,19 +285,13 @@ export default function KnownFor({ person }) {
             src={`https://image.tmdb.org/t/p/original/${data.profile_path}`}
           />
         </div>
-        <div className="col-span-9 px-2">
+        <div className="col-span-10 px-2">
           <h1 className="px-0 text-3xl md:text-6xl md:mb-4 text-gray-12">
             {data.name}
           </h1>
-          <p className="px-0 -mb-1 text-xs md:-mb-0 md:text-lg text-gray-11 line-clamp-5 md:line-clamp-10">
-            {data.biography}
+          <p className="px-0 -mb-1 text-base md:-mb-0 md:text-lg text-gray-11 line-clamp-5 md:line-clamp-10">
+            is best known for:
           </p>
-          <Link
-            passHref
-            href={{ pathname: "/people/[id]/bio", query: { id: data.id } }}
-          >
-            <a className="text-sm md:text-lg">more</a>
-          </Link>
         </div>
       </div>
       <KnownForAnswer person={data} />

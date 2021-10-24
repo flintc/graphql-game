@@ -49,6 +49,7 @@ async function getRtScores(title, imdbId) {
   });
   for (let x of resp.data[1]) {
     let rtExtlinks = await getLinkInfo(x, imdbId);
+
     if (rtExtlinks?.length) {
       const page = await axios.get(rtExtlinks[0].replace(/s[0-9]+\/$/g, ""));
       const $ = cheerio.load(page.data);

@@ -1,14 +1,20 @@
 import Link from "next/link";
+import Image from "next/image";
 import { useUser } from "../user-context";
 
 const CreateOrJoin = () => {
   return (
-    <div className="dark-theme">
-      <Link href={{ pathname: "/create" }}>Create</Link>
-      <Link href={{ pathname: "/join" }}>Join</Link>
-
-      {/* <button className="button">Join</button> */}
-      <button className="bg-blue-1">another button</button>
+    <div className="space-x-2 dark-theme">
+      <Link href={{ pathname: "/create" }}>
+        <a className="px-4 py-2 border rounded-md bg-primary-1 border-primary-7 text-primary-12">
+          Create
+        </a>
+      </Link>
+      <Link href={{ pathname: "/join" }}>
+        <a className="px-4 py-2 border rounded-md bg-primary-1 border-primary-7 text-primary-12">
+          Join
+        </a>
+      </Link>
     </div>
   );
 };
@@ -16,10 +22,40 @@ const CreateOrJoin = () => {
 const IndexPage = () => {
   const user = useUser();
   return (
-    <div>
-      <h1>Welcome {user.name}</h1>
+    <div className="px-4 space-y-6">
+      <h1 className="mb-3 text-4xl">Welcome {user.name}</h1>
       <CreateOrJoin />
-      {/* {user?.room ? <Play room={user.room} /> : <CreateOrJoin />} */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-3xl">Known for Game</h2>
+            <p className="text-gray-11">
+              Guess the four movies and/or tv series that an actor/actress is
+              known for according to IMDb.
+            </p>
+          </div>
+          <Link href={{ pathname: "/movies" }}>
+            <a className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12">
+              Search actors/actresses
+            </a>
+          </Link>
+        </div>
+        <div className="space-y-2">
+          <div>
+            <h2 className="text-3xl">Rotten or Fresh</h2>
+            <p className="text-gray-11">
+              Guess the score of a movie or tv show according to Rotten
+              Tomatoes. Choose to guess the critics score, audiance score, or
+              the difference between the two!
+            </p>
+          </div>
+          <Link href={{ pathname: "/movies" }}>
+            <a className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12">
+              Search movies/tv shows
+            </a>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

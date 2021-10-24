@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
-import axios from "axios";
 import fetch from "isomorphic-unfetch";
+
 export const useMovieScore = (data) => {
   const scores = useQuery(
     ["movie", "scores", data?.id],
