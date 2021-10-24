@@ -30,7 +30,7 @@ function RottenOrFreshAnswer({ movie, guess }) {
   const answer = getAnswerByScoreType(data, guess["scoreType"]);
   return (
     <div>
-      <div>You&apos;re guess: {guess.value}</div>
+      <div>Your guess: {guess.value}</div>
       <div>
         Answer ({guess["scoreType"]}): {answer}
         {guess["scoreType"] === "the-spread" && (
