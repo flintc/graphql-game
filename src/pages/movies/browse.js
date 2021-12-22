@@ -6,6 +6,7 @@ import { useQueryClient } from "react-query";
 import { useMovieBrowse } from "../../lib/useMovieBrowse";
 import { useQueryParams } from "../../lib/useQueryParams";
 import { useUserStarred } from "../../lib/useUserStarred";
+import { useUser } from "../../user-context";
 
 const StarButton = ({ movie }) => {
   const { starredQuery, addStarMutation, removeStarMutation } =
@@ -44,6 +45,7 @@ const StarButton = ({ movie }) => {
 export default function MoviesPage() {
   const params = useQueryParams();
   const { data, error, status, bottomRef } = useMovieBrowse(params);
+  const user = useUser();
   const queryClient = useQueryClient();
 
   if (status === "loading") {
@@ -88,7 +90,7 @@ export default function MoviesPage() {
                       layoutId={`movie-backdrop-${movie.id}`}
                       src={`https://image.tmdb.org/t/p/original/${movie.backdrop_path}`}
                     />
-                    <StarButton movie={movie} />
+                    {user && <StarButton movie={movie} />}
                   </div>
                 </a>
               </Link>

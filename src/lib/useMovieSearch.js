@@ -10,6 +10,19 @@ export const useMovieSearch = () => {
   const router = useRouter();
   const inputRef = React.useRef();
   const [params, setParams] = useState({ query: queryParams.search });
+
+  const throttledSetParams = React.useMemo(
+    () =>
+      _.debounce(
+        (val) => {
+          setParams(val);
+        },
+        300,
+        { leading: false }
+      ),
+    []
+  );
+
   useEffect(() => {
     if (router.pathname === "/movies") {
       if (queryParams.search !== params.query) {
@@ -31,17 +44,6 @@ export const useMovieSearch = () => {
       }
     }
   }, [queryParams, throttledSetParams, router.pathname, params.query]);
-  const throttledSetParams = React.useMemo(
-    () =>
-      _.debounce(
-        (val) => {
-          setParams(val);
-        },
-        300,
-        { leading: false }
-      ),
-    []
-  );
 
   const { data } = useQuery(["search", "movies", params], searchMovies, {
     staleTime: 10000 * 60 * 1000,

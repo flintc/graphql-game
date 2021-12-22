@@ -42,9 +42,9 @@ function UserSubcriptionProvider({ children }) {
   const user = useUser();
   const router = useRouter();
   const { data, loading, error } = useSubscription(SUBSCRIBE_TO_USER, {
-    // skip: !user?.sub,
+    skip: !user,
     variables: {
-      userId: user.id,
+      userId: user?.id,
     },
   });
   useEffect(() => {
@@ -80,8 +80,9 @@ function UserSubcriptionProvider({ children }) {
       </div>
     );
   }
+
   return (
-    <UserSubscriptionContext.Provider value={data.user}>
+    <UserSubscriptionContext.Provider value={data?.user || null}>
       {children}
     </UserSubscriptionContext.Provider>
   );

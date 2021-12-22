@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { useUser } from "../user-context";
+import Router from "next/router";
 
 const CreateOrJoin = () => {
   return (
@@ -21,6 +21,24 @@ const CreateOrJoin = () => {
 
 const IndexPage = () => {
   const user = useUser();
+  if (!user) {
+    return (
+      <div>
+        Welcome
+        <div>Login to play!</div>
+        <button
+          id="qsLoginBtn"
+          variant="primary"
+          className="btn-margin loginBtn"
+          onClick={() => {
+            Router.push("/api/login");
+          }}
+        >
+          Log In
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="px-4 space-y-6">
       <h1 className="mb-3 text-4xl">Welcome {user.name}</h1>

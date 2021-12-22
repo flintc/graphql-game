@@ -33,7 +33,7 @@ function SelectMovie({ movie }) {
       {/* {["error"].includes(status) && (
         <div>Unable to get scores for this title</div>
       )} */}
-      {user.room ? (
+      {user?.room ? (
         status === "loading" ? (
           "Fetching score..."
         ) : status === "error" ? (

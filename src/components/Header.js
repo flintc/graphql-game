@@ -21,12 +21,14 @@ import { useUserStarred } from "../lib/useUserStarred";
 
 const Header = () => {
   const router = useRouter();
-  const [isDarkTheme] = useState(
-    document.documentElement.classList.contains("dark-theme")
-  );
-  const {
-    starredQuery: { data: starred },
-  } = useUserStarred();
+  // const [isDarkTheme] = useState(
+  //   document?.documentElement?.classList?.contains("dark-theme")
+  // );
+
+  // const {
+  //   starredQuery: { data: starred },
+  // } = useUserStarred();
+
   // const onClick = () => {
   //   if (isDarkTheme) {
   //     window.localStorage.setItem("theme", "light");
@@ -64,7 +66,7 @@ const Header = () => {
           <SearchIcon className="w-7 h-7" />
         </a>
       </Link>
-      <Link href="/starred" scroll={true}>
+      {/* <Link href="/starred" scroll={true}>
         <a
           className={`relative ${
             router.pathname.startsWith("/starred")
@@ -80,7 +82,7 @@ const Header = () => {
             </div>
           ) : null}
         </a>
-      </Link>
+      </Link> */}
       <Link href="/summary" scroll={true}>
         <a
           className={

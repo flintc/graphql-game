@@ -32,14 +32,19 @@ function UserProvider({ children }) {
   if (loading || backendUser.loading) {
     return <div>Loading...</div>;
   }
+  // debugger;
   if (!loading && !user) {
-    return <Login />;
+    // return <Login />;
+    <UserContext.Provider value={null}>{children}</UserContext.Provider>;
+  } else {
+    return (
+      <UserContext.Provider value={backendUser.data.user}>
+        {children}
+      </UserContext.Provider>
+    );
   }
-  return (
-    <UserContext.Provider value={backendUser.data.user}>
-      {children}
-    </UserContext.Provider>
-  );
+  // return null;
+  return <UserContext.Provider value={null}>{children}</UserContext.Provider>;
 }
 
 const useUser = () => {

@@ -265,7 +265,6 @@ function KnownForAnswer({ person }) {
 export default function KnownFor({ person }) {
   const router = useRouter();
   const { data, status, error } = usePerson(router.query.personId);
-  console.log("lasdfasdfafj;a", data);
 
   if (["idle", "loading"].includes(status)) {
     return <p>Loading...</p>;

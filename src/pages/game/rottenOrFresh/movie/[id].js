@@ -48,7 +48,6 @@ function RottenOrFreshAnswer({ movie, guess }) {
 export default function RottenOrFreshPage() {
   const router = useRouter();
   const { status, data, error } = useMovie(router.query.id);
-  console.log("BBBBB", status, data);
   const [guess, setGuess] = useState(null);
   const genres = useGenres();
   if (status === "loading") {
