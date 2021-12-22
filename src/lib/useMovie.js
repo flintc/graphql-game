@@ -11,11 +11,15 @@ export const useMovie = (movieId) => {
     ["movie", "details", movieId],
     async ({ queryKey }) => {
       const [, , movieId] = queryKey;
-      const resp = await client.get("/movie/" + movieId);
+      const resp = await client.get("/movie/" + movieId, {
+        params: {
+          append_to_response: "videos,images,keywords,credits,watch/providers",
+        },
+      });
       return resp.data;
     },
     {
-      staleTime: 1000 * 60 * 1000,
+      staleTime: 1 * 24 * 60 * 60 * 1000,
       enabled: movieId !== undefined,
     }
   );
