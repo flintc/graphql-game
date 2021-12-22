@@ -13,6 +13,7 @@ import { useMovieBrowse } from "../../lib/useMovieBrowse";
 import { useQuery } from "react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import ScrollArea from "../../components/ScrollArea";
+import { GENRE_LUT } from "../../constants";
 
 // export const getServerSideProps = async (ctx) => {
 //   if (_.isNil(ctx.query.search)) {
@@ -138,20 +139,14 @@ function MoviesSearchResults({ results }) {
   );
 }
 
-// function MoviesBrowseCategory() {
-//   const { data } = useMovieBrowse();
-//   return <div></div>;
-// }
-
 function MoviesBrowseCategories() {
-  // getGeneres;
   const genres = useQuery("genres", getGeneres, {
-    staleTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 60 * 24 * 7,
   });
   return (
-    <div>
-      <div>
-        <div>Browse by Decade</div>
+    <div className="mt-2 space-y-5">
+      <div className="space-y-3">
+        <div className="mx-2">Browse by Decade</div>
         <ScrollArea>
           <div className="flex gap-2 flex-nowrap">
             {[
@@ -204,7 +199,7 @@ function MoviesBrowseCategories() {
                   }}
                 >
                   <a
-                    className={`my-6 w-32 h-32 text-white shadow-md rounded-lg flex justify-start p-2 items-end text-3xl  bg-gradient-to-br ${decade.className}`}
+                    className={`w-32 h-32 text-white shadow-md rounded-lg flex justify-start p-2 items-end text-3xl  bg-gradient-to-br ${decade.className}`}
                   >
                     {decade.title}
                   </a>
@@ -214,31 +209,33 @@ function MoviesBrowseCategories() {
           </div>
         </ScrollArea>
       </div>
-      <div>
-        <div>Browse by Genre</div>
-        {genres?.data?.genres.map((genre) => {
-          return (
-            <div
-              key={genre.id}
-              style={
-                {
-                  // height: "80px"
-                }
-              }
-            >
+      <div className="space-y-3">
+        <div className="mx-2">Browse by Genre</div>
+        <div className="flex flex-wrap items-center justify-start gap-2 mx-2">
+          {genres?.data?.genres?.map((genre) => {
+            return (
               <Link
+                passHref
+                key={genre.id}
                 href={{
-                  // pathname: "/movies/category/[categoryId]",
-                  // query: { categoryId: genre.id },
                   pathname: "/movies/browse",
                   query: { with_genres: `${genre.id}` },
                 }}
               >
-                <a>{genre.name}</a>
+                <a
+                  className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
+                  style={{
+                    borderColor: `var(--${GENRE_LUT[genre.id]}7)`,
+                    backgroundColor: `var(--${GENRE_LUT[genre.id]}3)`,
+                    color: `var(--${GENRE_LUT[genre.id]}12)`,
+                  }}
+                >
+                  {genre.name}
+                </a>
               </Link>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

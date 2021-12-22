@@ -93,10 +93,6 @@ function SelectMovie({ movie }) {
   // const out = useMovieReviews(movie.id);
   return (
     <div className="mt-1">
-      {/* {["loading", "idle"].includes(status) && <p>Loading...</p>} */}
-      {/* {["error"].includes(status) && (
-        <div>Unable to get scores for this title</div>
-      )} */}
       {user?.room ? (
         status === "loading" ? (
           "Fetching score..."
@@ -240,17 +236,6 @@ export default function MovieDetailsPage() {
                       {genresQuery?.data?.[genre.id]}
                     </a>
                   </Link>
-                  // <span
-                  //   key={genre.id}
-                  //   className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
-                  //   style={{
-                  //     borderColor: `var(--${GENRE_LUT[genre.id]}7)`,
-                  //     backgroundColor: `var(--${GENRE_LUT[genre.id]}3)`,
-                  //     color: `var(--${GENRE_LUT[genre.id]}12)`,
-                  //   }}
-                  // >
-                  //   {genresQuery?.data?.[genre.id]}
-                  // </span>
                 );
               })}
             </div>
