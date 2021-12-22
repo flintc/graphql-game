@@ -46,6 +46,7 @@ export const useMovieBrowse = (params) => {
       return lastPage.total_pages === lastPage.page ? null : lastPage.page + 1;
     },
     staleTime: 10000 * 60 * 1000,
+    keepPreviousData: true,
   });
   const { hasNextPage, isFetchingNextPage, isFetching, fetchNextPage } = result;
   // const { data } = useQuery(
