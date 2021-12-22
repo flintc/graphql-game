@@ -1,4 +1,4 @@
-import { StarIcon } from "@heroicons/react/outline";
+import { StarIcon, XIcon } from "@heroicons/react/outline";
 import { StarIcon as StarIconFilled } from "@heroicons/react/solid";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { GENRE_LUT } from "../../constants";
 import { getGeneres } from "../../lib/queryClient";
+import { useKeyword } from "../../lib/useKeyword";
 import { useMovieBrowse } from "../../lib/useMovieBrowse";
 import { useQueryParams } from "../../lib/useQueryParams";
 import { useUserStarred } from "../../lib/useUserStarred";
@@ -133,6 +134,63 @@ const WithGenresFilter = () => {
   );
 };
 
+const KeywordToggle = ({ keywordId }) => {
+  const params = useQueryParams();
+  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
+
+  const currKeywords = new Set(
+    params.with_keywords?.split(withKeywordOperator)
+  );
+  const newKeywords = new Set(currKeywords);
+  const { data, status } = useKeyword(keywordId);
+  console.log("KeywordToggle", withKeywordOperator, data, status);
+  newKeywords.delete(String(keywordId));
+  if (status === "loading") {
+    return null;
+  }
+  if (status === "error") {
+    return null;
+  }
+  return (
+    <Link
+      key={data.id}
+      href={{
+        pathname: "/movies/browse",
+        query: { with_keywords: [...newKeywords].join(withKeywordOperator) },
+      }}
+    >
+      <a className="flex items-center justify-center gap-1 px-2 py-1 text-sm rounded-lg bg-gray-3">
+        <XIcon className="w-4 h-4 text-gray-9" />
+        {data.name}
+      </a>
+    </Link>
+  );
+};
+
+const WithKeywordsFilter = () => {
+  const params = useQueryParams();
+  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
+
+  const currKeywords = new Set(
+    params.with_keywords?.split(withKeywordOperator)
+  );
+  if (!params.with_keywords?.length) {
+    return null;
+  }
+  return (
+    <div className="flex items-center space-x-2">
+      <div className="text-sm">
+        Keywords <span>{withKeywordOperator === "|" ? "(any)" :"(all)"}</span>
+      </div>
+      <div className="flex flex-wrap items-center justify-start gap-1">
+        {[...currKeywords].map((keyword) => {
+          return <KeywordToggle key={keyword} keywordId={keyword} />;
+        })}
+      </div>
+    </div>
+  );
+};
+
 const WithoutGenresFilter = () => {
   const params = useQueryParams();
   const genreOperator = params.without_genres?.includes("|") ? "|" :",";
@@ -200,6 +258,7 @@ const Filters = () => {
         <div className="space-y-4">
           <WithGenresFilter />
           <WithoutGenresFilter />
+          <WithKeywordsFilter />
         </div>
       )}
     </div>
