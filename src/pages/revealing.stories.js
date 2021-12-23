@@ -5,7 +5,7 @@ export default {
 
 export const Page = (args) => {
   return (
-    <div>
+    <div className="dark-theme">
       <RevealingLayout {...args} />
     </div>
   );
