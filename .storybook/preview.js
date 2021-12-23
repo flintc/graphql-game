@@ -1,11 +1,11 @@
 import "../src/styles/App.css";
 import { RouterContext } from "next/dist/shared/lib/router-context"; // next 12
-// import { UserProvider } from "../src/user-context";
-// import {
-//   SUBSCRIBE_TO_USER,
-//   UserSubcriptionProvider,
-//   UserSubscriptionContext,
-// } from "../src/user-subscription";
+import { UserProvider, UserContext } from "../src/user-context";
+import {
+  // SUBSCRIBE_TO_USER,
+  // UserSubcriptionProvider,
+  UserSubscriptionContext,
+} from "../src/user-subscription";
 // import { MockedProvider } from "@apollo/client/testing"; // Use for Apollo Version 3+
 
 export const parameters = {
@@ -47,11 +47,19 @@ export const parameters = {
 };
 
 export const decorators = [
-  (story, ...rest) => {
-    console.log("AAA here?", rest, document.documentElement);
-    // document.body.classList.add("dark-theme");
-    // document.documentElement.classList.add("dark-theme");
-    return story();
+  (Story) => {
+    return (
+      <UserContext.Provider value={null}>
+        <UserSubscriptionContext.Provider
+          value={{
+            id: "abc",
+            name: "foobar",
+          }}
+        >
+          <Story />
+        </UserSubscriptionContext.Provider>
+      </UserContext.Provider>
+    );
   },
   // (Story) => {
   //   return (

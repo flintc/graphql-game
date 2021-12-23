@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 // import { SUBSCRIBE_TO_USER } from "../../user-subscription";
-import { WatchProviders } from "./[id].page";
+import MovieDetailsPage, { WatchProviders } from "./[id].page";
 
 export default {
   title: "Movies/[id]",
@@ -19,22 +19,23 @@ export const WatchProvidersComponent = () => {
 export const Foo = () => {
   return <div>Foo</div>;
 };
-// export const Page = () => {
-//   return (
-//     <QueryClientProvider client={queryClient}>
-//       <MovieDetailsPage />
-//     </QueryClientProvider>
-//   );
-// };
 
-// Page.story = {
-//   parameters: {
-//     nextRouter: {
-//       path: "/movies/[id]",
-//       asPath: "/movies/27205",
-//       query: {
-//         id: "27205",
-//       },
-//     },
-//   },
-// };
+export const Page = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MovieDetailsPage />
+    </QueryClientProvider>
+  );
+};
+
+Page.story = {
+  parameters: {
+    nextRouter: {
+      path: "/movies/[id]",
+      asPath: "/movies/27205",
+      query: {
+        id: "27205",
+      },
+    },
+  },
+};

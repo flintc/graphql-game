@@ -3,7 +3,7 @@ import React, { createContext } from "react";
 import Login from "./components/Auth/Login";
 import { useFetchUser } from "./lib/user";
 
-const UserContext = createContext();
+export const UserContext = createContext();
 
 const GET_USER = gql`
   query User($userId: String!) {
