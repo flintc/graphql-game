@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useMutation } from "react-query";
 import { useUserSubscription } from "../user-subscription";
 
-function Counter({ from, to }) {
+export function Counter({ from, to }) {
   const ref = useRef();
   useEffect(() => {
     animate();
@@ -22,6 +22,27 @@ function Counter({ from, to }) {
   return <p ref={ref} />;
 }
 
+export const RevealingLayout = ({
+  userResponse,
+  loading,
+  error,
+  onNextRound,
+  question,
+}) => {
+  return (
+    <div>
+      <h1>Revealing</h1>
+      <div>{userResponse.value}</div>
+      <Counter from={0} to={question.answer.value} />
+      <div>
+        <button disabled={loading || error} onClick={onNextRound}>
+          Next round
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function RevealingPage() {
   const user = useUserSubscription();
   const question = user?.room?.questions?.[user?.room?.round];
@@ -30,20 +51,13 @@ export default function RevealingPage() {
     return fetch(`/api/nextRound?roomName=${user.room.name}`);
   });
   return (
-    <div>
-      <h1>Revealing</h1>
-      <div>{userResponse.value}</div>
-      <Counter from={0} to={question.answer.value} />
-      <div>
-        <button
-          disabled={loading || error}
-          onClick={() => {
-            mutate();
-          }}
-        >
-          Next round
-        </button>
-      </div>
-    </div>
+    <RevealingLayout
+      userResponse={userResponse}
+      loading={loading}
+      error={error}
+      onNextRound={() => {
+        mutate();
+      }}
+    />
   );
 }

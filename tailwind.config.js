@@ -1,13 +1,3 @@
-const {
-  gray,
-  blue,
-  red,
-  green,
-  grayDark,
-  blueDark,
-  redDark,
-  greenDark,
-} = require("@radix-ui/colors");
 const _ = require("lodash");
 
 const radixColorToTW = (color) => {
