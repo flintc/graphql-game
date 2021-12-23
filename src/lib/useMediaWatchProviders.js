@@ -13,7 +13,7 @@ export const useMediaWatchProviders = (movieId, mediaType = "movie") => {
         "details",
         String(movieId),
       ]);
-      if (cachedData["watch/providers"]) {
+      if (cachedData?.["watch/providers"]) {
         return { id: parseInt(movieId), ...cachedData["watch/providers"] };
       } else {
         const resp = await client.get(

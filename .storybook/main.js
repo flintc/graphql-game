@@ -4,6 +4,8 @@ module.exports = {
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "storybook-dark-mode",
+    "storybook-addon-next-router",
+    "storybook-addon-apollo-client",
     {
       name: "@storybook/addon-postcss",
       options: {

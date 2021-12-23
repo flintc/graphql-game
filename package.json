@@ -38,6 +38,7 @@
     "react-fixed-bottom": "^1.0.7",
     "react-intersection-observer-hook": "^2.0.3",
     "react-query": "^3.21.1",
+    "storybook-addon-next-router": "^3.1.1",
     "subscriptions-transport-ws": "^0.9.19",
     "xstate": "^4.23.3"
   },
@@ -53,6 +54,7 @@
     "eslint": "7.32.0",
     "eslint-config-next": "11.1.0",
     "postcss": "^8.3.6",
+    "storybook-addon-apollo-client": "^4.0.9",
     "storybook-dark-mode": "^1.0.8",
     "tailwindcss": "^2.2.8"
   },

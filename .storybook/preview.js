@@ -1,4 +1,12 @@
 import "../src/styles/App.css";
+import { RouterContext } from "next/dist/shared/lib/router-context"; // next 12
+// import { UserProvider } from "../src/user-context";
+// import {
+//   SUBSCRIBE_TO_USER,
+//   UserSubcriptionProvider,
+//   UserSubscriptionContext,
+// } from "../src/user-subscription";
+// import { MockedProvider } from "@apollo/client/testing"; // Use for Apollo Version 3+
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -14,4 +22,49 @@ export const parameters = {
     classTarget: "html",
     stylePreview: true,
   },
+  nextRouter: {
+    Provider: RouterContext.Provider,
+  },
+  // apolloClient: {
+  //   MockedProvider,
+  //   // any props you want to pass to MockedProvider on every story
+  //   mocks: [
+  //     {
+  //       request: {
+  //         // query: SUBSCRIBE_TO_USER,
+  //       },
+  //       result: {
+  //         data: {
+  //           user: {
+  //             id: "abc",
+  //             name: "foobar",
+  //           },
+  //         },
+  //       },
+  //     },
+  //   ],
+  // },
 };
+
+export const decorators = [
+  (story, ...rest) => {
+    console.log("AAA here?", rest, document.documentElement);
+    // document.body.classList.add("dark-theme");
+    // document.documentElement.classList.add("dark-theme");
+    return story();
+  },
+  // (Story) => {
+  //   return (
+  //     <UserProvider>
+  //       <UserSubscriptionContext.Provider
+  //         value={{
+  //           id: "abc",
+  //           name: "foobar",
+  //         }}
+  //       >
+  //       <Story />
+  //       </UserSubscriptionContext.Provider>
+  //     </UserProvider>
+  //   );
+  // },
+];

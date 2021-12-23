@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 import React, { createContext, useEffect } from "react";
 import { useUser } from "./user-context";
 
-const UserSubscriptionContext = createContext();
+export const UserSubscriptionContext = createContext();
 
-const SUBSCRIBE_TO_USER = gql`
+export const SUBSCRIBE_TO_USER = gql`
   subscription User($userId: String!) {
     user: user_by_pk(id: $userId) {
       id
@@ -38,11 +38,11 @@ const SUBSCRIBE_TO_USER = gql`
   }
 `;
 
-function UserSubcriptionProvider({ children }) {
+function UserSubcriptionProvider({ children, initialData = null }) {
   const user = useUser();
   const router = useRouter();
   const { data, loading, error } = useSubscription(SUBSCRIBE_TO_USER, {
-    skip: !user,
+    skip: !user || initialData,
     variables: {
       userId: user?.id,
     },
@@ -82,7 +82,7 @@ function UserSubcriptionProvider({ children }) {
   }
 
   return (
-    <UserSubscriptionContext.Provider value={data?.user || null}>
+    <UserSubscriptionContext.Provider value={data?.user || initialData}>
       {children}
     </UserSubscriptionContext.Provider>
   );

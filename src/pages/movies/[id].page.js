@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import ScrollArea from "../../components/ScrollArea";
 import { useMediaWatchProviders } from "../../lib/useMediaWatchProviders";
 
-function WatchProviders({ movieId }) {
+export function WatchProviders({ movieId }) {
   const { data, status } = useMediaWatchProviders(movieId);
   if (status === "loading") {
     return <div>Loading...</div>;
