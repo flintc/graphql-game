@@ -397,7 +397,6 @@ const WithCastFilter = () => {
   );
   const selected = new Set(params.with_cast?.split(operator));
   selected.delete("");
-  console.log("debouncedValue", debouncedValue);
   const { data, status } = usePersonSearch(debouncedValue);
   return (
     <details>

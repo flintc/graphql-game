@@ -1,19 +1,11 @@
+import { animate } from "framer-motion";
 import fetch from "isomorphic-unfetch";
+import { useEffect, useRef } from "react";
 import { useMutation } from "react-query";
 import { useUserSubscription } from "../user-subscription";
-import {
-  motion,
-  animate,
-  useAnimation,
-  useMotionValue,
-  useSpring,
-} from "framer-motion";
-import { useEffect, useRef } from "react";
 
 function Counter({ from, to }) {
   const ref = useRef();
-  // useAnimation()
-  // animate()
   useEffect(() => {
     animate();
     const controls = animate(from, to, {
