@@ -98,13 +98,13 @@ function SelectMovie({ movie }) {
           "Failed to fetch score "
         ) : (
           <button
-            className="px-8 py-2 font-medium text-white rounded-lg bg-primary-9 "
+            className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12"
             onClick={() => {
               selectQuestionMutation.mutate();
             }}
             disabled={selectQuestionMutation.status === "loading"}
           >
-            Select
+            Play Rotten or Fresh
           </button>
         )
       ) : (

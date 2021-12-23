@@ -11,6 +11,8 @@ import { GENRE_LUT } from "../../constants";
 import { getGeneres } from "../../lib/queryClient";
 import { useKeyword } from "../../lib/useKeyword";
 import { useMovieBrowse } from "../../lib/useMovieBrowse";
+import { usePerson } from "../../lib/usePerson";
+import { usePersonSearch } from "../../lib/usePersonSearch";
 import { useQueryParams } from "../../lib/useQueryParams";
 import { useUserStarred } from "../../lib/useUserStarred";
 import { useWatchProviders } from "../../lib/useWatchProviders";
@@ -352,6 +354,113 @@ const WithWatchProvidersFilter = () => {
   );
 };
 
+const SelectedPerson = ({ href, personId }) => {
+  const params = useQueryParams();
+  const { data, status } = usePerson(personId);
+
+  if (status === "loading") {
+    return null;
+  }
+  if (status === "error") {
+    return null;
+  }
+  // const selected = new Set(params.with_cast?.split(operator));
+  return (
+    <Link href={href}>
+      <a className="flex items-center justify-center gap-1 px-2 py-1 text-sm rounded-lg bg-gray-3">
+        <XIcon className="w-4 h-4 text-gray-9" />
+        {data.name}
+      </a>
+    </Link>
+  );
+};
+
+const WithCastFilter = () => {
+  const router = useRouter();
+  const params = useQueryParams();
+  const [value, setValue] = useState("");
+  const [operator, setOperator] = useState(
+    params.with_cast?.includes("|") ? "|" :","
+  );
+  const selected = new Set(params.with_cast?.split(operator));
+  const { data, status } = usePersonSearch(value);
+  return (
+    <div>
+      <div className="relative">
+        <label>Cast (all) </label>
+        <input
+          className=""
+          placeholder="Search The Movie Database"
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+          }}
+        />
+        {data?.results?.length ? (
+          <div className="absolute z-50 top-full">
+            <ul className="z-50 max-h-[30vh] px-4 py-2 mb-1 overflow-auto rounded-lg shadow-md bg-gray-1 dark:bg-gray-4 w-full">
+              {data?.results?.map((result) => {
+                let newCast = new Set(selected);
+                if (selected.has(String(result.id))) {
+                  newCast.delete(String(result.id));
+                } else {
+                  newCast.add(String(result.id));
+                }
+                const with_cast = Array.from(newCast).join(operator);
+                return (
+                  <li key={result.id}>
+                    <Link
+                      passHref
+                      shallow={true}
+                      replace={true}
+                      href={{
+                        pathname: "/movies/browse",
+                        query: {
+                          ...params,
+                          with_cast,
+                        },
+                      }}
+                    >
+                      <a
+                        className="px-2 py-1 text-xs border rounded-full shadow-md whitespace-nowrap"
+                        onClick={() => {
+                          setValue("");
+                        }}
+                      >
+                        {result.name}
+                      </a>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+      <div className="flex justify-start gap-1 pt-1 place-content-center">
+        {[...selected].map((x) => {
+          let newCast = new Set(selected);
+          newCast.delete(String(x));
+          const with_cast = Array.from(newCast).join(operator);
+          return (
+            <SelectedPerson
+              key={x}
+              personId={x}
+              href={{
+                pathname: "/movies/browse",
+                query: {
+                  ...params,
+                  with_cast,
+                },
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const Filters = () => {
   const [show, setShow] = useState(false);
   return (
@@ -368,6 +477,7 @@ const Filters = () => {
             transition={{ duration: 0.25 }}
             className="mb-4 space-y-4"
           >
+            {/* <WithCastFilter /> */}
             <WithGenresFilter />
             <WithoutGenresFilter />
             <WithKeywordsFilter />

@@ -6,7 +6,6 @@ export const useKeyword = (keywordId) => {
     ["keyword", keywordId],
     async ({ queryKey }) => {
       const [, keywordId] = queryKey;
-      console.log("AAAA", keywordId);
       const resp = await client.get("/keyword/" + keywordId);
       return resp.data;
     },

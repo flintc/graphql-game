@@ -11,7 +11,11 @@ export const useMovieScore = (data) => {
       const json = await resp.json();
       return json;
     },
-    { staleTime: 10000 * 60 * 60, enabled: data !== undefined, retry: false }
+    {
+      staleTime: 10000 * 60 * 60,
+      enabled: data !== undefined && data?.imdb_id !== undefined,
+      retry: false,
+    }
   );
   return scores;
 };

@@ -106,6 +106,7 @@ export default async function handler(req, res) {
   const { title, imdbId } = req.query;
 
   const scores = await getRtScores(title, imdbId);
+  console.warn("???", title, imdbId, scores);
   if (!scores) {
     return res.status(404).send("No scores found");
   }
