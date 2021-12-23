@@ -62,8 +62,8 @@ const WithGenresFilter = () => {
     staleTime: 1000 * 60 * 60 * 24 * 7,
   });
   return (
-    <div className="space-y-2">
-      <div className="">
+    <details open className="space-y-2">
+      <summary className="font-medium">
         Include{""}
         <select
           value={genreOperator}
@@ -88,8 +88,8 @@ const WithGenresFilter = () => {
           <option value="|">ANY OF</option>
         </select>
         Genres
-      </div>
-      <div className="flex flex-wrap items-center justify-start gap-2 mx-2">
+      </summary>
+      <div className="flex flex-wrap items-center justify-start gap-2">
         {genres?.data?.genres?.map((genre) => {
           const foo = currGenres.has(String(genre.id))
             ? {
@@ -133,64 +133,7 @@ const WithGenresFilter = () => {
           );
         })}
       </div>
-    </div>
-  );
-};
-
-const KeywordToggle = ({ keywordId }) => {
-  const params = useQueryParams();
-  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
-
-  const currKeywords = new Set(
-    params.with_keywords?.split(withKeywordOperator)
-  );
-  const newKeywords = new Set(currKeywords);
-  const { data, status } = useKeyword(keywordId);
-  console.log("KeywordToggle", withKeywordOperator, data, status);
-  newKeywords.delete(String(keywordId));
-  if (status === "loading") {
-    return null;
-  }
-  if (status === "error") {
-    return null;
-  }
-  return (
-    <Link
-      key={data.id}
-      href={{
-        pathname: "/movies/browse",
-        query: { with_keywords: [...newKeywords].join(withKeywordOperator) },
-      }}
-    >
-      <a className="flex items-center justify-center gap-1 px-2 py-1 text-sm rounded-lg bg-gray-3">
-        <XIcon className="w-4 h-4 text-gray-9" />
-        {data.name}
-      </a>
-    </Link>
-  );
-};
-
-const WithKeywordsFilter = () => {
-  const params = useQueryParams();
-  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
-
-  const currKeywords = new Set(
-    params.with_keywords?.split(withKeywordOperator)
-  );
-  if (!params.with_keywords?.length) {
-    return null;
-  }
-  return (
-    <div className="flex items-center space-x-2">
-      <div className="text-sm">
-        Keywords <span>{withKeywordOperator === "|" ? "(any)" :"(all)"}</span>
-      </div>
-      <div className="flex flex-wrap items-center justify-start gap-1">
-        {[...currKeywords].map((keyword) => {
-          return <KeywordToggle key={keyword} keywordId={keyword} />;
-        })}
-      </div>
-    </div>
+    </details>
   );
 };
 
@@ -198,13 +141,14 @@ const WithoutGenresFilter = () => {
   const params = useQueryParams();
   const genreOperator = params.without_genres?.includes("|") ? "|" :",";
   const currGenres = new Set(params.without_genres?.split(genreOperator));
+
   const genres = useQuery("genres", getGeneres, {
     staleTime: 1000 * 60 * 60 * 24 * 7,
   });
   return (
-    <div className="space-y-2">
-      <div className="">Exclude Genres</div>
-      <div className="flex flex-wrap items-center justify-start gap-2 mx-2">
+    <details className="space-y-2">
+      <summary className="font-medium">Exclude Genres </summary>
+      <div className="flex flex-wrap items-center justify-start gap-2">
         {genres?.data?.genres?.map((genre) => {
           const foo = currGenres.has(String(genre.id))
             ? {
@@ -248,6 +192,123 @@ const WithoutGenresFilter = () => {
           );
         })}
       </div>
+    </details>
+  );
+};
+
+const KeywordToggle = ({ keywordId }) => {
+  const params = useQueryParams();
+  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
+
+  const currKeywords = new Set(
+    params.with_keywords?.split(withKeywordOperator)
+  );
+  const newKeywords = new Set(currKeywords);
+  const { data, status } = useKeyword(keywordId);
+  newKeywords.delete(String(keywordId));
+  if (status === "loading") {
+    return null;
+  }
+  if (status === "error") {
+    return null;
+  }
+  return (
+    <Link
+      key={data.id}
+      href={{
+        pathname: "/movies/browse",
+        query: { with_keywords: [...newKeywords].join(withKeywordOperator) },
+      }}
+    >
+      <a className="flex items-center justify-center gap-1 px-2 py-1 text-sm rounded-lg bg-gray-3">
+        <XIcon className="w-4 h-4 text-gray-9" />
+        {data.name}
+      </a>
+    </Link>
+  );
+};
+
+const WithKeywordsFilter = () => {
+  const params = useQueryParams();
+  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
+
+  const currKeywords = new Set(
+    params.with_keywords?.split(withKeywordOperator)
+  );
+  if (!params.with_keywords?.length) {
+    return null;
+  }
+  return (
+    <div className="flex items-center space-x-2">
+      <div className="font-medium">
+        Keywords <span>{withKeywordOperator === "|" ? "(any)" :"(all)"}</span>
+      </div>
+      <div className="flex flex-wrap items-center justify-start gap-1">
+        {[...currKeywords].map((keyword) => {
+          return <KeywordToggle key={keyword} keywordId={keyword} />;
+        })}
+      </div>
+    </div>
+  );
+};
+
+const WatchProviders = ({ providers, selected, operator }) => {
+  const params = useQueryParams();
+  return (
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1.5">
+      {providers.map((provider) => {
+        const newWithWatchProviders = new Set(selected);
+        if (selected.has(String(provider.provider_id))) {
+          newWithWatchProviders.delete(String(provider.provider_id));
+        } else {
+          newWithWatchProviders.add(String(provider.provider_id));
+        }
+        const with_watch_providers = Array.from(newWithWatchProviders).join(
+          operator
+        );
+        const isSelected = selected.has(String(provider.provider_id));
+        return (
+          <Link
+            passHref
+            key={provider.provider_id}
+            shallow={true}
+            replace={true}
+            href={{
+              pathname: "/movies/browse",
+              query: {
+                ...params,
+                watch_region: "US",
+                with_watch_providers: with_watch_providers,
+              },
+            }}
+          >
+            <a
+              className={`
+                  text-xs shadow-md whitespace-nowrap relative`}
+            >
+              <img
+                alt="foo"
+                className={`w-12 h-12 rounded-lg transition duration-200
+                ${isSelected ? "scale-90" : "grayscale"}`}
+                src={`https://image.tmdb.org/t/p/original/${provider.logo_path}`}
+              />
+              <AnimatePresence>
+                {isSelected && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute bottom-0 right-0 flex rounded-full translate-x-3/12 translate-y-3/12 place-content-center bg-green-11"
+                  >
+                    <CheckIcon className="w-4 h-4 text-green-1" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </a>
+          </Link>
+        );
+      })}
     </div>
   );
 };
@@ -267,66 +328,27 @@ const WithWatchProvidersFilter = () => {
     return null;
   }
   return (
-    <div>
-      <div>Watch Providers</div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1.5">
-        {data.slice(0, 20).map((provider) => {
-          const newWithWatchProviders = new Set(currWatchProviders);
-          if (currWatchProviders.has(String(provider.provider_id))) {
-            newWithWatchProviders.delete(String(provider.provider_id));
-          } else {
-            newWithWatchProviders.add(String(provider.provider_id));
-          }
-          const with_watch_providers = Array.from(newWithWatchProviders).join(
-            watchProvidersOperator
-          );
-          const isSelected = currWatchProviders.has(
-            String(provider.provider_id)
-          );
-          return (
-            <Link
-              passHref
-              key={provider.provider_id}
-              shallow={true}
-              replace={true}
-              href={{
-                pathname: "/movies/browse",
-                query: {
-                  ...params,
-                  watch_region: "US",
-                  with_watch_providers: with_watch_providers,
-                },
-              }}
-            >
-              <a
-                className={`
-                  text-xs shadow-md whitespace-nowrap relative`}
-              >
-                <img
-                  alt="foo"
-                  className={`w-12 h-12 rounded-lg transition duration-200
-                ${isSelected ? "scale-90" : "grayscale"}`}
-                  src={`https://image.tmdb.org/t/p/original/${provider.logo_path}`}
-                />
-                <AnimatePresence>
-                  {isSelected && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute bottom-0 right-0 flex rounded-full translate-x-3/12 translate-y-3/12 place-content-center bg-green-11"
-                    >
-                      <CheckIcon className="w-4 h-4 text-green-1" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </a>
-            </Link>
-          );
-        })}
+    <details open>
+      <summary className="font-medium">Watch Providers</summary>
+      <div className="space-y-1.5">
+        <div className="space-y-1">
+          <div className="text-gray-11">Streaming</div>
+          <WatchProviders
+            providers={data.flatrate}
+            selected={currWatchProviders}
+            operator={watchProvidersOperator}
+          />
+        </div>
+        <div className="space-y-1">
+          <div className="text-gray-11">Rent/Buy</div>
+          <WatchProviders
+            providers={data.rentOrBuy}
+            selected={currWatchProviders}
+            operator={watchProvidersOperator}
+          />
+        </div>
       </div>
-    </div>
+    </details>
   );
 };
 
@@ -334,15 +356,25 @@ const Filters = () => {
   const [show, setShow] = useState(false);
   return (
     <div className="px-4 py-2">
-      <button onClick={() => setShow((x) => !x)}>Filters</button>
-      {show && (
-        <div className="space-y-4">
-          <WithGenresFilter />
-          <WithoutGenresFilter />
-          <WithKeywordsFilter />
-          <WithWatchProvidersFilter />
-        </div>
-      )}
+      <button className="font-semibold" onClick={() => setShow((x) => !x)}>
+        Filters
+      </button>
+      <AnimatePresence>
+        {show && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="mb-4 space-y-4"
+          >
+            <WithGenresFilter />
+            <WithoutGenresFilter />
+            <WithKeywordsFilter />
+            <WithWatchProvidersFilter />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

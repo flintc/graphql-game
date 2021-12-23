@@ -22,7 +22,6 @@ function WatchProviders({ movieId }) {
   if (status === "error") {
     return <div>Error</div>;
   }
-  console.log("data watch", data);
   return (
     <div className="px-2 py-2">
       <div className="text-gray-12">Where To Watch</div>
@@ -35,7 +34,6 @@ function WatchProviders({ movieId }) {
             <img
               alt="foo"
               key={provider.provider_id}
-              // className="object-cover object-top scale-[98%] h-12 w-12 mr-2 rounded-md"
               className="w-12 h-12 rounded-md"
               src={`https://image.tmdb.org/t/p/original/${provider.logo_path}`}
             />
@@ -201,7 +199,6 @@ const Credits = ({ movieId }) => {
 export default function MovieDetailsPage() {
   const router = useRouter();
   const { status, data, error } = useMovie(router.query.id);
-  console.log("useMovie data", status, data);
   const genresQuery = useGenres();
   if (["idle", "loading"].includes(status)) {
     return <p>Loading...</p>;
