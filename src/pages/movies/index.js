@@ -15,40 +15,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import ScrollArea from "../../components/ScrollArea";
 import { GENRE_LUT } from "../../constants";
 
-// export const getServerSideProps = async (ctx) => {
-//   if (_.isNil(ctx.query.search)) {
-//     const resp = await discoverMovies(ctx.query);
-//     return { props: resp };
-//   }
-//   const resp = await searchMovies({
-//     queryKey: ["", "", { query: ctx.query.search }],
-//   });
-//   return { props: { ...ctx.query, ...(resp || { results: [] }) } };
-// };
-
-// function MoviesBrowse({ results = [] }) {
-//   const { data, loading, error, toggles } = useMovieBrowse();
-//   return (
-//     <div>
-//       <div>
-//         {toggles.map((toggle) => {
-//           return (
-//             <span>
-//               <input
-//                 type="checkbox"
-//                 value={toggle.value}
-//                 defaultChecked={toggle.defaultChecked}
-//                 onChange={toggle.onChange}
-//               />
-//               <label>{toggle.label}</label>
-//             </span>
-//           );
-//         })}
-//       </div>
-//     </div>
-//   );
-// }
-
 const MovieLink = ({ movie }) => {
   return (
     <li key={`${movie.id}`}>

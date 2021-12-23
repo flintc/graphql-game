@@ -12,17 +12,17 @@ import { GENRE_LUT } from "../../constants";
 import { useKeywords } from "../../lib/useKeywords";
 import { motion } from "framer-motion";
 import ScrollArea from "../../components/ScrollArea";
-import { useWatchProviders } from "../../lib/useWatchProviders";
+import { useMediaWatchProviders } from "../../lib/useMediaWatchProviders";
 
 function WatchProviders({ movieId }) {
-  const { data, status } = useWatchProviders(movieId);
+  const { data, status } = useMediaWatchProviders(movieId);
   if (status === "loading") {
     return <div>Loading...</div>;
   }
   if (status === "error") {
     return <div>Error</div>;
   }
-
+  console.log("data watch", data);
   return (
     <div className="px-2 py-2">
       <div className="text-gray-12">Where To Watch</div>

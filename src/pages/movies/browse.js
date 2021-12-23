@@ -1,6 +1,8 @@
-import { StarIcon, XIcon } from "@heroicons/react/outline";
+/* eslint-disable @next/next/no-img-element */
+import { CheckIcon, StarIcon, XIcon } from "@heroicons/react/outline";
+import { CheckCircleIcon } from "@heroicons/react/solid";
 import { StarIcon as StarIconFilled } from "@heroicons/react/solid";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -11,6 +13,7 @@ import { useKeyword } from "../../lib/useKeyword";
 import { useMovieBrowse } from "../../lib/useMovieBrowse";
 import { useQueryParams } from "../../lib/useQueryParams";
 import { useUserStarred } from "../../lib/useUserStarred";
+import { useWatchProviders } from "../../lib/useWatchProviders";
 import { useUser } from "../../user-context";
 
 const StarButton = ({ movie }) => {
@@ -249,6 +252,84 @@ const WithoutGenresFilter = () => {
   );
 };
 
+const WithWatchProvidersFilter = () => {
+  const params = useQueryParams();
+  const [watchProvidersOperator] = useState("|");
+  const currWatchProviders = new Set(
+    params.with_watch_providers?.split(watchProvidersOperator)
+  );
+
+  const { data, status } = useWatchProviders();
+  if (status === "loading") {
+    return null;
+  }
+  if (status === "error") {
+    return null;
+  }
+  return (
+    <div>
+      <div>Watch Providers</div>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1.5">
+        {data.slice(0, 20).map((provider) => {
+          const newWithWatchProviders = new Set(currWatchProviders);
+          if (currWatchProviders.has(String(provider.provider_id))) {
+            newWithWatchProviders.delete(String(provider.provider_id));
+          } else {
+            newWithWatchProviders.add(String(provider.provider_id));
+          }
+          const with_watch_providers = Array.from(newWithWatchProviders).join(
+            watchProvidersOperator
+          );
+          const isSelected = currWatchProviders.has(
+            String(provider.provider_id)
+          );
+          return (
+            <Link
+              passHref
+              key={provider.provider_id}
+              shallow={true}
+              replace={true}
+              href={{
+                pathname: "/movies/browse",
+                query: {
+                  ...params,
+                  watch_region: "US",
+                  with_watch_providers: with_watch_providers,
+                },
+              }}
+            >
+              <a
+                className={`
+                  text-xs shadow-md whitespace-nowrap relative`}
+              >
+                <img
+                  alt="foo"
+                  className={`w-12 h-12 rounded-lg transition duration-200
+                ${isSelected ? "scale-90" : "grayscale"}`}
+                  src={`https://image.tmdb.org/t/p/original/${provider.logo_path}`}
+                />
+                <AnimatePresence>
+                  {isSelected && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute bottom-0 right-0 flex rounded-full translate-x-3/12 translate-y-3/12 place-content-center bg-green-11"
+                    >
+                      <CheckIcon className="w-4 h-4 text-green-1" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </a>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const Filters = () => {
   const [show, setShow] = useState(false);
   return (
@@ -259,6 +340,7 @@ const Filters = () => {
           <WithGenresFilter />
           <WithoutGenresFilter />
           <WithKeywordsFilter />
+          <WithWatchProvidersFilter />
         </div>
       )}
     </div>
