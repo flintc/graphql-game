@@ -19,4 +19,5 @@ module.exports = {
   images: {
     domains: ["image.tmdb.org"],
   },
+  pageExtensions: ["page.tsx", "page.ts", "page.jsx", "page.js"],
 };
