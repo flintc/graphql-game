@@ -5,7 +5,7 @@ import { StarIcon as StarIconFilled } from "@heroicons/react/solid";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { GENRE_LUT } from "../../constants";
 import { getGeneres } from "../../lib/queryClient";
@@ -17,6 +17,7 @@ import { useQueryParams } from "../../lib/useQueryParams";
 import { useUserStarred } from "../../lib/useUserStarred";
 import { useWatchProviders } from "../../lib/useWatchProviders";
 import { useUser } from "../../user-context";
+import _ from "lodash";
 
 const StarButton = ({ movie }) => {
   const { starredQuery, addStarMutation, removeStarMutation } =
@@ -56,7 +57,7 @@ const WithGenresFilter = () => {
   const router = useRouter();
   const params = useQueryParams();
   const [genreOperator, setGenreOperator] = useState(
-    params.with_genres?.includes("|") ? "|" :","
+    params.with_genres?.includes(",") ? "," :"|"
   );
   const currGenres = new Set(params.with_genres?.split(genreOperator));
 
@@ -367,7 +368,7 @@ const SelectedPerson = ({ href, personId }) => {
   // const selected = new Set(params.with_cast?.split(operator));
   return (
     <Link href={href}>
-      <a className="flex items-center justify-center gap-1 px-2 py-1 text-sm rounded-lg bg-gray-3">
+      <a className="flex items-center justify-center gap-1 px-2 py-1 text-sm rounded-lg w-max bg-gray-3">
         <XIcon className="w-4 h-4 text-gray-9" />
         {data.name}
       </a>
@@ -379,24 +380,47 @@ const WithCastFilter = () => {
   const router = useRouter();
   const params = useQueryParams();
   const [value, setValue] = useState("");
+  const [debouncedValue, setDebouncedValue_] = useState();
+  const debouncedSetValue = useMemo(
+    () =>
+      _.throttle(
+        (val) => {
+          setDebouncedValue_(val);
+        },
+        500,
+        { leading: false }
+      ),
+    []
+  );
   const [operator, setOperator] = useState(
-    params.with_cast?.includes("|") ? "|" :","
+    params.with_cast?.includes(",") ? "," :"|"
   );
   const selected = new Set(params.with_cast?.split(operator));
-  const { data, status } = usePersonSearch(value);
+  selected.delete("");
+  console.log("debouncedValue", debouncedValue);
+  const { data, status } = usePersonSearch(debouncedValue);
   return (
-    <div>
-      <div className="relative">
-        <label>Cast (all) </label>
+    <details>
+      <summary className="font-medium">Cast</summary>
+      <div className="relative py-2">
         <input
           className=""
           placeholder="Search The Movie Database"
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
+            debouncedSetValue(e.target.value);
+          }}
+          onBlur={() => {
+            setTimeout(() => {
+              setValue("");
+            }, 200);
+
+            debouncedSetValue("");
+            // setDebouncedValue_(undefined);
           }}
         />
-        {data?.results?.length ? (
+        {data?.results?.length && value?.length > 0 ? (
           <div className="absolute z-50 top-full">
             <ul className="z-50 max-h-[30vh] px-4 py-2 mb-1 overflow-auto rounded-lg shadow-md bg-gray-1 dark:bg-gray-4 w-full">
               {data?.results?.map((result) => {
@@ -437,27 +461,56 @@ const WithCastFilter = () => {
           </div>
         ) : null}
       </div>
-      <div className="flex justify-start gap-1 pt-1 place-content-center">
-        {[...selected].map((x) => {
-          let newCast = new Set(selected);
-          newCast.delete(String(x));
-          const with_cast = Array.from(newCast).join(operator);
-          return (
-            <SelectedPerson
-              key={x}
-              personId={x}
-              href={{
-                pathname: "/movies/browse",
-                query: {
-                  ...params,
-                  with_cast,
-                },
+      <div className="px-2">
+        {[...selected].length > 0 && (
+          <div className="py-1">
+            Include{""}
+            <select
+              value={operator}
+              className="pl-2 pr-8 mx-2 py-0.5 rounded-md shadow-sm bg-gray-2 focus:ring-primary-6 focus:border-primary-3 sm:max-w-xs sm:text-sm border-gray-3"
+              onChange={(e) => {
+                if (!params?.with_cast?.length) {
+                  setOperator(e.target.value);
+                } else {
+                  let newSelected = new Set(selected);
+                  setOperator(e.target.value);
+                  router.replace({
+                    pathname: router.pathname,
+                    query: {
+                      ...params,
+                      with_cast: [...newSelected].join(e.target.value),
+                    },
+                  });
+                }
               }}
-            />
-          );
-        })}
+            >
+              <option value=",">ALL OF</option>
+              <option value="|">ANY OF</option>
+            </select>
+          </div>
+        )}
+        <div className="flex flex-wrap justify-start gap-1 pt-1 place-content-center">
+          {[...selected].map((x) => {
+            let newCast = new Set(selected);
+            newCast.delete(String(x));
+            const with_cast = Array.from(newCast).join(operator);
+            return (
+              <SelectedPerson
+                key={x}
+                personId={x}
+                href={{
+                  pathname: "/movies/browse",
+                  query: {
+                    ...params,
+                    with_cast,
+                  },
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </details>
   );
 };
 
@@ -477,7 +530,7 @@ const Filters = () => {
             transition={{ duration: 0.25 }}
             className="mb-4 space-y-4"
           >
-            {/* <WithCastFilter /> */}
+            <WithCastFilter />
             <WithGenresFilter />
             <WithoutGenresFilter />
             <WithKeywordsFilter />

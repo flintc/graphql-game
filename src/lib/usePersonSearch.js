@@ -17,7 +17,7 @@ export const usePersonSearch = (query) => {
     },
     {
       staleTime: 1000 * 60 * 1000,
-      enabled: query !== undefined,
+      enabled: query !== undefined && query?.length > 0,
       // getNextPageParam: (lastPage, pages) => {
       //   return lastPage.total_pages === lastPage.page
       //     ? null
