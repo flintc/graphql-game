@@ -48,7 +48,7 @@ function UserSubcriptionProvider({ children }) {
     },
   });
   useEffect(() => {
-    if (data) {
+    if (data && !loading) {
       if (data.user.room) {
         if (data.user.room.state !== "selecting") {
           if (router.pathname !== `/${data.user.room.state}`) {
@@ -69,7 +69,7 @@ function UserSubcriptionProvider({ children }) {
         // }
       }
     }
-  }, [data, router]);
+  }, [data, loading, user, router]);
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -80,7 +80,6 @@ function UserSubcriptionProvider({ children }) {
       </div>
     );
   }
-
   return (
     <UserSubscriptionContext.Provider value={data?.user}>
       {children}

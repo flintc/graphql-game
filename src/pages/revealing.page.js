@@ -100,7 +100,6 @@ export const RevealingLayout = ({
           motionProps={{ onAnimationComplete: () => setState("revealed") }}
         >
           {otherUserResponses.map((x) => {
-            console.log("...", x.value);
             return (
               <div
                 key={x.owner.id}
@@ -181,19 +180,25 @@ export const RevealingLayout = ({
 export default function RevealingPage() {
   const user = useUserSubscription();
   const question = user?.room?.questions?.[user?.room?.round];
-  const userResponse = question.responses.find((x) => x.owner.id === user.id);
-  const otherUserResponses = question.responses.filter(
+  const userResponse = question?.responses?.find((x) => x.owner.id === user.id);
+  const otherUserResponses = question?.responses?.filter(
     (x) => x.owner.id !== user.id
   );
   const { mutate, loading, error } = useMutation("nextRound", () => {
     return fetch(`/api/nextRound?roomName=${user.room.name}`);
   });
+
+  if (!question) {
+    // TODO: should be handled elsewhere but needed when other user clicks next round
+    return null;
+  }
   return (
     <RevealingLayout
       userResponse={userResponse}
       otherUserResponses={otherUserResponses}
       loading={loading}
       error={error}
+      question={question}
       onNextRound={() => {
         mutate();
       }}
