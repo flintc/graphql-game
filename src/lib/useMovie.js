@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "react-query";
 import { client } from "./queryClient";
 
-export const useMovie = (movieId) => {
+export const useMovie = (movieId, config) => {
   const queryClient = useQueryClient();
   const cachedResp = queryClient.getQueryData(["movie", "details", movieId]);
   if (!cachedResp?.imdb_id) {
@@ -16,11 +16,13 @@ export const useMovie = (movieId) => {
           append_to_response: "videos,images,keywords,credits,watch/providers",
         },
       });
+      queryClient.invalidateQueries(["movie", "watchProviders", movieId]);
       return resp.data;
     },
     {
       staleTime: 1 * 24 * 60 * 60 * 1000,
       enabled: movieId !== undefined,
+      ...config?.options,
     }
   );
   return movieDetails;

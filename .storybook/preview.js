@@ -6,7 +6,10 @@ import {
   // UserSubcriptionProvider,
   UserSubscriptionContext,
 } from "../src/user-subscription";
+import { QueryClient, QueryClientProvider } from "react-query";
+
 // import { MockedProvider } from "@apollo/client/testing"; // Use for Apollo Version 3+
+const queryClient = new QueryClient();
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -47,18 +50,23 @@ export const parameters = {
 };
 
 export const decorators = [
-  (Story) => {
+  (Story, args) => {
+    args.parameters?.reactQuery?.forEach((x) => {
+      queryClient.setQueryData(x.queryKey, x.data);
+    });
     return (
-      <UserContext.Provider value={null}>
-        <UserSubscriptionContext.Provider
-          value={{
-            id: "abc",
-            name: "foobar",
-          }}
-        >
-          <Story />
-        </UserSubscriptionContext.Provider>
-      </UserContext.Provider>
+      <QueryClientProvider client={queryClient}>
+        <UserContext.Provider value={null}>
+          <UserSubscriptionContext.Provider
+            value={{
+              id: "abc",
+              name: "foobar",
+            }}
+          >
+            <Story />
+          </UserSubscriptionContext.Provider>
+        </UserContext.Provider>
+      </QueryClientProvider>
     );
   },
   // (Story) => {

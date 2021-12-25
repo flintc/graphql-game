@@ -38,11 +38,11 @@ export const SUBSCRIBE_TO_USER = gql`
   }
 `;
 
-function UserSubcriptionProvider({ children, initialData = null }) {
+function UserSubcriptionProvider({ children }) {
   const user = useUser();
   const router = useRouter();
   const { data, loading, error } = useSubscription(SUBSCRIBE_TO_USER, {
-    skip: !user || initialData,
+    skip: !user,
     variables: {
       userId: user?.id,
     },
@@ -82,7 +82,7 @@ function UserSubcriptionProvider({ children, initialData = null }) {
   }
 
   return (
-    <UserSubscriptionContext.Provider value={data?.user || initialData}>
+    <UserSubscriptionContext.Provider value={data?.user}>
       {children}
     </UserSubscriptionContext.Provider>
   );

@@ -1,11 +1,26 @@
-import { Counter, RevealingLayout } from "./revealing.page";
+/* eslint-disable import/no-anonymous-default-export */
+import { Counter, RevealingLayout, UserScoreCard } from "./revealing.page";
 export default {
   title: "Revealing Page",
 };
 
+export const UserScoreCardComponent = (args) => {
+  return (
+    <div className="max-w-2xl m-auto">
+      <UserScoreCard {...args} />
+    </div>
+  );
+};
+
+UserScoreCardComponent.args = {
+  name: "John",
+  place: "1st",
+  score: "5",
+};
+
 export const Page = (args) => {
   return (
-    <div className="dark-theme">
+    <div className="">
       <RevealingLayout {...args} />
     </div>
   );
@@ -13,8 +28,27 @@ export const Page = (args) => {
 
 Page.args = {
   userResponse: {
-    value: 88,
+    value: 68,
+    owner: {
+      name: "John",
+    },
   },
+  otherUserResponses: [
+    {
+      value: 82,
+      owner: {
+        id: "a",
+        name: "Alice",
+      },
+    },
+    {
+      value: 77,
+      owner: {
+        id: "b",
+        name: "Barry",
+      },
+    },
+  ],
   question: {
     answer: {
       value: 90,
