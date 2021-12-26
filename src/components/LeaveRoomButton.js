@@ -10,7 +10,7 @@ const LeaveRoomButton = () => {
   });
   return (
     <button
-      className="px-8 py-2 font-medium text-white rounded-lg bg-primary-9 "
+      className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12"
       disabled={status === "loading"}
       onClick={() => {
         mutate();

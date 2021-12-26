@@ -21,7 +21,7 @@ export const useMovie = (movieId, config) => {
     },
     {
       staleTime: 1 * 24 * 60 * 60 * 1000,
-      enabled: movieId !== undefined,
+      enabled: movieId !== undefined && movieId !== null,
       ...config?.options,
     }
   );
