@@ -24,7 +24,7 @@
     "apollo-client": "^2.6.10",
     "apollo-link-http": "^1.5.17",
     "apollo-link-ws": "^1.0.20",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "8.2.0",
     "framer-motion": "^4.1.17",
