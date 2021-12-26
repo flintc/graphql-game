@@ -16,6 +16,7 @@ const SELECT_QUESTION = gql`
   mutation SelectQuestion(
     $roomName: String!
     $question: String!
+    $questionId: String
     $description: String!
     $answer: json!
   ) {
@@ -26,7 +27,12 @@ const SELECT_QUESTION = gql`
           state: "guessing"
           questions: {
             data: [
-              { name: $question, description: $description, answer: $answer }
+              {
+                name: $question
+                questionId: $questionId
+                description: $description
+                answer: $answer
+              }
             ]
           }
         }
@@ -65,6 +71,7 @@ export default async function selectQuestion(req, res) {
     variables: {
       roomName: req.query.roomName,
       question: body.question,
+      questionId: String(body.questionId),
       description: body.description,
       answer: body.answer,
     },

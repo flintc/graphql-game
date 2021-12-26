@@ -18,7 +18,6 @@ const getAnswerByScoreType = (scores, scoreType) => {
 };
 
 function RottenOrFreshAnswer({ movie, guess }) {
-  console.warn("!!!!! imdbid??", movie);
   const { data, status, error } = useMovieScore(movie);
   if (status === "loading") {
     return <p>Loading...</p>;
@@ -45,17 +44,43 @@ function RottenOrFreshAnswer({ movie, guess }) {
   );
 }
 
-export default function RottenOrFreshPage() {
-  const router = useRouter();
-  const { status, data, error } = useMovie(router.query.id);
+export function RottenOrFreshPageSinglePlayer({ data }) {
   const [guess, setGuess] = useState(null);
-  const genres = useGenres();
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-  if (status === "error") {
-    return <div>Error: {error}</div>;
-  }
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const scoreType = e.target.elements?.["score-type"];
+    setGuess({
+      value: e.target.elements.answer.value,
+      scoreType: scoreType.value,
+    });
+  };
+  return (
+    <RottenOrFreshLayout data={data} guess={guess} onSubmit={onSubmit}>
+      <RottenOrFreshAnswer movie={data} guess={guess} />
+    </RottenOrFreshLayout>
+  );
+}
+
+// export function RottenOrFreshPageMultiPlayer({ data }) {
+//   const [guess, setGuess] = useState(null);
+//   const onSubmit = async (e) => {
+//     e.preventDefault();
+//     const scoreType = e.target.elements?.["score-type"];
+//     setGuess({
+//       value: e.target.elements.answer.value,
+//       scoreType: scoreType.value,
+//     });
+//   };
+//   return <RottenOrFreshLayout data={data} guess={guess} onSubmit={onSubmit} />;
+// }
+
+export function RottenOrFreshLayout({
+  data,
+  guess,
+  onSubmit,
+  children,
+  allowScoreSource = true,
+}) {
   return (
     <div>
       <div>
@@ -99,18 +124,9 @@ export default function RottenOrFreshPage() {
         </div>
 
         {guess ? (
-          <RottenOrFreshAnswer movie={data} guess={guess} />
+          children
         ) : (
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const scoreType = e.target.elements?.["score-type"];
-              setGuess({
-                value: e.target.elements.answer.value,
-                scoreType: scoreType.value,
-              });
-            }}
-          >
+          <form onSubmit={onSubmit}>
             <motion.div
               initial={{ opacity: 1, translateX: "-100%" }}
               animate={{
@@ -131,47 +147,61 @@ export default function RottenOrFreshPage() {
                 submit
               </button>
             </motion.div>
-            <fieldset className="flex gap-4 px-2">
-              <legend className="mb-1.5 text-gray-12">Score source:</legend>
-              <div className="flex items-center gap-2 text-gray-12">
-                <input
-                  type="radio"
-                  id="score-type_critics"
-                  name="score-type"
-                  value="critics"
-                  className="text-primary-9 focus:ring-1 focus:ring-primary-9 focus:ring-offset-gray-2"
-                  defaultChecked={true}
-                />
-                <label htmlFor="score-type_critics" className="">
-                  Critics
-                </label>
-              </div>
-              <div className="flex items-center gap-2 text-gray-12 flex-nowrap">
-                <input
-                  type="radio"
-                  id="score-type_audience"
-                  name="score-type"
-                  value="audience"
-                  className="text-primary-9 focus:ring-1 focus:ring-primary-9 focus:ring-offset-gray-2"
-                  defaultChecked={false}
-                />
-                <label htmlFor="score-type_audience">Audience</label>
-              </div>
-              <div className="flex items-center gap-2 text-gray-12 flex-nowrap">
-                <input
-                  type="radio"
-                  name="score-type"
-                  value="the-spread"
-                  id="score-type_spread"
-                  className="text-primary-9 focus:ring-1 focus:ring-primary-9 focus:ring-offset-gray-2"
-                  defaultChecked={false}
-                />
-                <label htmlFor="score-type_spread">The Spread</label>
-              </div>
-            </fieldset>
+            {allowScoreSource && (
+              <fieldset className="flex gap-4 px-2">
+                <legend className="mb-1.5 text-gray-12">Score source:</legend>
+                <div className="flex items-center gap-2 text-gray-12">
+                  <input
+                    type="radio"
+                    id="score-type_critics"
+                    name="score-type"
+                    value="critics"
+                    className="text-primary-9 focus:ring-1 focus:ring-primary-9 focus:ring-offset-gray-2"
+                    defaultChecked={true}
+                  />
+                  <label htmlFor="score-type_critics" className="">
+                    Critics
+                  </label>
+                </div>
+                <div className="flex items-center gap-2 text-gray-12 flex-nowrap">
+                  <input
+                    type="radio"
+                    id="score-type_audience"
+                    name="score-type"
+                    value="audience"
+                    className="text-primary-9 focus:ring-1 focus:ring-primary-9 focus:ring-offset-gray-2"
+                    defaultChecked={false}
+                  />
+                  <label htmlFor="score-type_audience">Audience</label>
+                </div>
+                <div className="flex items-center gap-2 text-gray-12 flex-nowrap">
+                  <input
+                    type="radio"
+                    name="score-type"
+                    value="the-spread"
+                    id="score-type_spread"
+                    className="text-primary-9 focus:ring-1 focus:ring-primary-9 focus:ring-offset-gray-2"
+                    defaultChecked={false}
+                  />
+                  <label htmlFor="score-type_spread">The Spread</label>
+                </div>
+              </fieldset>
+            )}
           </form>
         )}
       </div>
     </div>
   );
+}
+
+export default function RottenOrFreshPage() {
+  const router = useRouter();
+  const { status, data, error } = useMovie(router.query.id);
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+  if (status === "error") {
+    return <div>Error: {error}</div>;
+  }
+  return <RottenOrFreshPageSinglePlayer data={data} />;
 }

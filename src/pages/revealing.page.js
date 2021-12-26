@@ -132,7 +132,6 @@ export const RevealingLayout = ({
               );
             })
             .map((x, ix) => {
-              console.log("...", x.value);
               return (
                 <motion.div
                   key={x.owner.id}

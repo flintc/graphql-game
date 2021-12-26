@@ -23,6 +23,7 @@ export const SUBSCRIBE_TO_USER = gql`
         questions(order_by: { created_at: asc_nulls_last }) {
           id
           name
+          questionId
           description
           answer
           responses(order_by: { created_at: desc_nulls_last }) {
@@ -81,7 +82,7 @@ function UserSubcriptionProvider({ children }) {
     );
   }
   return (
-    <UserSubscriptionContext.Provider value={data?.user}>
+    <UserSubscriptionContext.Provider value={data?.user || null}>
       {children}
     </UserSubscriptionContext.Provider>
   );

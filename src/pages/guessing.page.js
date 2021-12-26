@@ -1,8 +1,11 @@
 import { useUserSubscription } from "../user-subscription";
 import fetch from "isomorphic-unfetch";
+import { useRouter } from "next/router";
+
 import Link from "next/link";
 import { useCallback } from "react";
-
+import { RottenOrFreshLayout } from "./game/rottenOrFresh/movie/[id].page";
+import { useMovie } from "../lib/useMovie";
 const foo = (user) => {
   const room = user?.room;
   const question = room.questions[room.round];
@@ -45,6 +48,9 @@ export default function Guessing() {
     },
     [user]
   );
+  const question = user.room.questions[user.room.round];
+  const userResponse = question?.responses?.find((x) => x.owner.id === user.id);
+  const { status, data } = useMovie(question.questionId);
   if (!user.room) {
     return (
       <div>
@@ -54,18 +60,39 @@ export default function Guessing() {
       </div>
     );
   }
-  const question = user.room.questions[user.room.round];
+  if (status === "loading") {
+    return <div>loading</div>;
+  }
+  if (status === "error") {
+    return <div>error</div>;
+  }
+  const numRemaining = user.room.users.length - question.responses.length;
   return (
-    <div>
-      <h1>Guessing</h1>
-      <div>
-        <h1>{question?.name}</h1>
-        <p>{question?.description}</p>
-        <form onSubmit={onSubmit}>
-          <input id="answer" placeholder="Your guess" />
-          <button>submit answer</button>
-        </form>
+    <RottenOrFreshLayout
+      data={data}
+      onSubmit={onSubmit}
+      allowScoreSource={false}
+      guess={userResponse?.value}
+    >
+      <div className="px-2 mt-4">
+        <div className="text-center">{`You're locked in! Waiting on responses from ${numRemaining} ${
+          numRemaining === 1 ? "player" : "players"
+        }`}</div>
       </div>
-    </div>
+    </RottenOrFreshLayout>
   );
+
+  // return (
+  //   <div>
+  //     <h1>Guessing</h1>
+  //     <div>
+  //       <h1>{question?.name}</h1>
+  //       <p>{question?.description}</p>
+  //       <form onSubmit={onSubmit}>
+  //         <input id="answer" placeholder="Your guess" />
+  //         <button>submit answer</button>
+  //       </form>
+  //     </div>
+  //   </div>
+  // );
 }

@@ -83,6 +83,7 @@ function SelectMovie({ movie }) {
       method: "POST",
       body: JSON.stringify({
         question: movie.title,
+        questionId: movie.id,
         description: movie.overview,
         answer: { value: data.tomatometerScore },
       }),

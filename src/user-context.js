@@ -32,9 +32,7 @@ function UserProvider({ children }) {
   if (loading || backendUser.loading) {
     return <div>Loading...</div>;
   }
-  // debugger;
   if (!loading && !user) {
-    // return <Login />;
     <UserContext.Provider value={null}>{children}</UserContext.Provider>;
   } else {
     return (
@@ -43,7 +41,6 @@ function UserProvider({ children }) {
       </UserContext.Provider>
     );
   }
-  // return null;
   return <UserContext.Provider value={null}>{children}</UserContext.Provider>;
 }
 
