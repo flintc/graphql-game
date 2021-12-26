@@ -31,32 +31,33 @@ const CreateRoomForm = ({ roomCode }) => {
         });
       }}
     >
-      <input id="roomCode" placeholder="Room Code" />
+      <input className="uppercase" id="roomCode" placeholder="Room Code" />
       <input id="nickname" placeholder="Name" defaultValue={user.name} />
-      <button
-        type="button"
-        onClick={() => {
-          router.back();
-        }}
-      >
-        Cancel
-      </button>
-      <button disabled={loading || error}>
-        {loading ? "Submitting..." :"Submit"}
-      </button>
+      <div className="grid grid-cols-2">
+        <button
+          type="button"
+          onClick={() => {
+            router.back();
+          }}
+          className="block w-full px-4 py-2 text-center border rounded-md bg-gray-1 border-gray-7 text-gray-12"
+        >
+          Cancel
+        </button>
+        <button
+          className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12"
+          disabled={loading || error}
+        >
+          {loading ? "Submitting..." :"Submit"}
+        </button>
+      </div>
     </form>
   );
 };
 
 const Create = () => {
-  // const { data, loading, error } = useQuery("roomCode", async () => {
-  //   const resp = await fetch("/api/generateRoomCode");
-  //   const data = await resp.json();
-  //   return data;
-  // });
   return (
-    <div>
-      join room page
+    <div className="px-6 mt-6 space-y-4">
+      <div className="text-lg font-bold">Join Room:</div>
       <CreateRoomForm />
     </div>
   );
