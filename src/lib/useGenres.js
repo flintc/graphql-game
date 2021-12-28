@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { client, getGeneres } from "./queryClient";
+import { getGeneres } from "./queryClient";
 import _ from "lodash";
 
 export const useGenres = () => {

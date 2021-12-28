@@ -66,7 +66,6 @@ export default function StartingPage() {
       </div>
     );
   }
-  console.log("user", user);
   return (
     <div className="px-6 mt-6 space-y-4">
       <h1 className="text-lg font-bold">Room Code: {user.room.name}</h1>

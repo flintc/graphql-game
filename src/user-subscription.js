@@ -2,7 +2,9 @@ import { gql, useSubscription } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { createContext, useEffect } from "react";
 import { useUser } from "./user-context";
-
+import GuessingPage from "./pages/guessing.page";
+import RevealingPage from "./pages/revealing.page";
+import { AnimatePresence, motion } from "framer-motion";
 export const UserSubscriptionContext = createContext();
 
 export const SUBSCRIBE_TO_USER = gql`
@@ -51,23 +53,14 @@ function UserSubcriptionProvider({ children }) {
   useEffect(() => {
     if (data && !loading) {
       if (data.user.room) {
-        if (data.user.room.state !== "selecting") {
-          if (router.pathname !== `/${data.user.room.state}`) {
-            router.push(`/${data.user.room.state}`);
-          }
-        }
         if (data.user.room.state === "selecting") {
           if (
             !["/movies", "/summary", "/people", "/tv"].some((x) =>
               router.pathname.startsWith(x)
             )
           ) {
-            router.push(`/movies`);
           }
         }
-        // if (data.user.room.state === "guessing" && router.pathname !== "/") {
-        //   router.push("/");
-        // }
       }
     }
   }, [data, loading, user, router]);
@@ -84,6 +77,41 @@ function UserSubcriptionProvider({ children }) {
   return (
     <UserSubscriptionContext.Provider value={data?.user || null}>
       {children}
+      <AnimatePresence>
+        {data?.user?.room?.state === "guessing" && (
+          <motion.div
+            initial={{ translateY: "100%" }}
+            animate={{ translateY: "0%" }}
+            exit={{ translateY: "100%" }}
+            transition={{ duration: 1 }}
+            className="fixed inset-0 overflow-hidden rounded-t-3xl bg-gray-2"
+          >
+            <GuessingPage />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {data?.user?.room?.state === "revealing" && (
+          <motion.div
+            initial="hidden"
+            animate="show"
+            exit="hidden"
+            transition={{ duration: 1, delayChildren: 3 }}
+            variants={{
+              hidden: { translateY: "100%" },
+              show: {
+                translateY: "0%",
+                transition: {
+                  duration: 1,
+                },
+              },
+            }}
+            className="fixed inset-0 overflow-hidden rounded-t-3xl bg-gray-2"
+          >
+            <RevealingPage />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </UserSubscriptionContext.Provider>
   );
 }

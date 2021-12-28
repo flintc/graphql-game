@@ -40,6 +40,22 @@ export function WatchProviders({ movieId }) {
           );
         })}
       </div>
+      {data?.buyOrRent?.length > 0 && (
+        <div className="text-gray-11">Buy/Rent</div>
+      )}
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1">
+        {data?.buyOrRent?.map((provider) => {
+          return (
+            <img
+              alt="foo"
+              key={provider.provider_id}
+              // className="object-cover object-top scale-[98%] h-12 w-12 mr-2 rounded-md"
+              className="w-12 h-12 rounded-md"
+              src={`https://image.tmdb.org/t/p/original/${provider.logo_path}`}
+            />
+          );
+        })}
+      </div>
       {data?.buy?.length > 0 && <div className="text-gray-11">Buy</div>}
       <div className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-1">
         {data?.buy?.map((provider) => {
@@ -212,7 +228,7 @@ export default function MovieDetailsPage() {
       <div key={data.id} className="overflow-x-hidden">
         <div className="relative ">
           <div className="w-full overflow-x-hidden">
-            <div className="absolute flex justify-around gap-2 overflow-x-scroll flex-nowrap bottom-2 left-2">
+            <div className="absolute flex justify-around gap-2 flex-nowrap bottom-2 left-2">
               {data?.genres?.map((genre) => {
                 return (
                   <Link

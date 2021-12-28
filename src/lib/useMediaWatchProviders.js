@@ -2,13 +2,33 @@ import { useQuery } from "react-query";
 import { client } from "./queryClient";
 
 import { useMovie } from "./useMovie";
-import { useQueryClient } from "react-query";
+import _ from "lodash";
+
+const select = (data) => {
+  const buyOrRent = _.intersectionBy(
+    data.results.US.buy,
+    data.results.US.rent,
+    "provider_id"
+  );
+  return {
+    ...data.results.US,
+    buy: _.differenceBy(data.results.US.buy, buyOrRent, "provider_id"),
+    rent: _.differenceBy(data.results.US.rent, buyOrRent, "provider_id"),
+    buyOrRent,
+  };
+};
 
 export const useMediaWatchProviders = (movieId, mediaType = "movie") => {
-  const queryClient = useQueryClient();
-  useMovie;
   const foo = useMovie(movieId, {
-    options: { select: (data) => data?.["watch/providers"]?.results?.["US"] },
+    options: {
+      select: (fullData) => {
+        const data = fullData?.["watch/providers"];
+        if (!data) {
+          return undefined;
+        }
+        return select(data);
+      },
+    },
   });
 
   const movieWatchProviders = useQuery(
@@ -22,10 +42,9 @@ export const useMediaWatchProviders = (movieId, mediaType = "movie") => {
       // }
     },
     {
-      // staleTime: 1 * 24 * 60 * 60 * 1000,
-      staleTime: 0,
+      staleTime: 1 * 24 * 60 * 60 * 1000,
       enabled: movieId !== undefined && !foo.data && foo.status === "success",
-      select: (data) => data.results.US,
+      select,
     }
   );
   return foo.data && foo.status === "success" ? foo : movieWatchProviders;

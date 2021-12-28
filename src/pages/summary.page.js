@@ -8,7 +8,6 @@ import Image from "next/image";
 
 const MovieCard = ({ movieId, score }) => {
   const { data, status } = useMovie(movieId);
-  console.log("data", status, data);
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -50,12 +49,16 @@ const MovieCard = ({ movieId, score }) => {
   );
 };
 
-export function GameSummary({ rounds }) {
+export function GameSummary({ rounds, roomName }) {
   const total = rounds.reduce((acc, curr) => {
     return acc + parseInt(curr.score.replace(` `, ""));
   }, 0);
   return (
     <div className="flex flex-col gap-10 px-8 mt-4">
+      <div className="m-auto text-center">
+        <div className="text-base uppercase text-primary-11">Room Code</div>
+        <div className="text-6xl uppercase text-gray-12">{roomName}</div>
+      </div>
       <div className="flex flex-row items-baseline justify-between text-gray-12">
         <div className="text-2xl">{"Your score:"}</div>
         <div className="text-4xl">{total}</div>
@@ -79,12 +82,10 @@ export function GameSummary({ rounds }) {
 
 export default function Summary() {
   const user = useUserSubscription();
-  console.log("summary", user?.room?.questions);
   const rounds = user?.room?.questions?.map((question) => {
     const response = question.responses.find(
       (response) => response.owner.id === user.id
     );
-    console.log("AAA", response, question.answer);
     const difference = Math.abs(question.answer.value - response.value);
     return {
       score: difference === 0 ? "- 5" : `+ ${difference}`,
@@ -109,7 +110,9 @@ export default function Summary() {
           Log In
         </button>
       )}
-      {user?.room && <GameSummary rounds={rounds} />}
+      {user?.room && (
+        <GameSummary rounds={rounds} roomName={user?.room?.name} />
+      )}
       <div>
         {user?.room && <LeaveRoomButton />}
         {user && <LogoutBtn />}
