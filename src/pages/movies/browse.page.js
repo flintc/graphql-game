@@ -60,14 +60,14 @@ const WithGenresFilter = () => {
     params.with_genres?.includes(",") ? "," :"|"
   );
   const currGenres = new Set(params.with_genres?.split(genreOperator));
-
+  currGenres.delete("");
   const genres = useQuery("genres", getGeneres, {
     staleTime: 1000 * 60 * 60 * 24 * 7,
   });
   return (
     <details open className="space-y-2">
       <summary className="font-medium">
-        Include{""}
+        Include
         <select
           value={genreOperator}
           className="pl-2 pr-8 mx-2 py-0.5 rounded-md shadow-sm bg-gray-2 focus:ring-primary-6 focus:border-primary-3 sm:max-w-xs sm:text-sm border-gray-3"
@@ -91,6 +91,11 @@ const WithGenresFilter = () => {
           <option value="|">ANY OF</option>
         </select>
         Genres
+        {[...currGenres].length > 0 && (
+          <span className="ml-2 font-normal text-gray-11">
+            ({[...currGenres].length})
+          </span>
+        )}
       </summary>
       <div className="flex flex-wrap items-center justify-start gap-2">
         {genres?.data?.genres?.map((genre) => {
@@ -144,13 +149,20 @@ const WithoutGenresFilter = () => {
   const params = useQueryParams();
   const genreOperator = params.without_genres?.includes("|") ? "|" :",";
   const currGenres = new Set(params.without_genres?.split(genreOperator));
-
+  currGenres.delete("");
   const genres = useQuery("genres", getGeneres, {
     staleTime: 1000 * 60 * 60 * 24 * 7,
   });
   return (
-    <details className="space-y-2">
-      <summary className="font-medium">Exclude Genres </summary>
+    <details open={[...currGenres].length > 0} className="space-y-2">
+      <summary className="font-medium">
+        Exclude Genres
+        {[...currGenres].length > 0 && (
+          <span className="ml-2 font-normal text-gray-11">
+            ({[...currGenres].length})
+          </span>
+        )}
+      </summary>
       <div className="flex flex-wrap items-center justify-start gap-2">
         {genres?.data?.genres?.map((genre) => {
           const foo = currGenres.has(String(genre.id))
@@ -322,7 +334,7 @@ const WithWatchProvidersFilter = () => {
   const currWatchProviders = new Set(
     params.with_watch_providers?.split(watchProvidersOperator)
   );
-
+  currWatchProviders.delete("");
   const { data, status } = useWatchProviders();
   if (status === "loading") {
     return null;
@@ -332,7 +344,14 @@ const WithWatchProvidersFilter = () => {
   }
   return (
     <details open>
-      <summary className="font-medium">Watch Providers</summary>
+      <summary className="font-medium">
+        Watch Providers
+        {[...currWatchProviders].length > 0 && (
+          <span className="ml-2 font-normal text-gray-11">
+            ({[...currWatchProviders].length})
+          </span>
+        )}
+      </summary>
       <div className="space-y-1.5">
         <div className="space-y-1">
           <div className="text-gray-11">Streaming</div>
@@ -399,8 +418,15 @@ const WithCastFilter = () => {
   selected.delete("");
   const { data, status } = usePersonSearch(debouncedValue);
   return (
-    <details>
-      <summary className="font-medium">Cast</summary>
+    <details open={[...selected].length > 0}>
+      <summary className="font-medium">
+        Cast
+        {[...selected].length > 0 && (
+          <span className="ml-2 font-normal text-gray-11">
+            ({[...selected].length})
+          </span>
+        )}
+      </summary>
       <div className="relative py-2">
         <input
           className=""
@@ -513,30 +539,46 @@ const WithCastFilter = () => {
   );
 };
 
-const Filters = () => {
+const Filters = ({ resultCount }) => {
   const [show, setShow] = useState(false);
   return (
-    <div className="px-4 py-2">
-      <button className="font-semibold" onClick={() => setShow((x) => !x)}>
-        Filters
-      </button>
+    <div className="">
       <AnimatePresence>
         {show && (
           <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="mb-4 space-y-4"
+            initial={{ translateX: "-100%" }}
+            animate={{ translateX: "0%" }}
+            exit={{ translateX: "-100%" }}
+            transition={{
+              translateX: { type: "spring", damping: 30, stiffness: 280 },
+            }}
+            className="fixed inset-0 px-6 py-4 overflow-y-auto bg-gray-2"
           >
-            <WithCastFilter />
-            <WithGenresFilter />
-            <WithoutGenresFilter />
-            <WithKeywordsFilter />
-            <WithWatchProvidersFilter />
+            <div className="flex flex-col gap-6">
+              <WithCastFilter />
+              <WithGenresFilter />
+              <WithoutGenresFilter />
+              <WithKeywordsFilter />
+              <WithWatchProvidersFilter />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
+      {show ? (
+        <button
+          className="fixed px-4 py-2 font-semibold rounded-full bottom-8 right-8 bg-gray-9"
+          onClick={() => setShow((x) => !x)}
+        >
+          See {resultCount} results
+        </button>
+      ) : (
+        <button
+          className="fixed px-4 py-2 font-semibold border rounded-full shadow-2xl bottom-8 right-8 bg-secondary-9 text-secondary-12 border-secondary-12"
+          onClick={() => setShow((x) => !x)}
+        >
+          Filters
+        </button>
+      )}
     </div>
   );
 };
@@ -554,10 +596,10 @@ export default function MoviesPage() {
   }
   const results = data.pages.map((x) => x.results).flat();
   return (
-    <div>
-      <div>
+    <div className="relative">
+      {/* <div>
         <Filters />
-      </div>
+      </div> */}
       <ul>
         {results.map((movie, ix) => {
           let ref;
@@ -597,6 +639,7 @@ export default function MoviesPage() {
           );
         })}
       </ul>
+      <Filters resultCount={data?.pages?.[0]?.total_results} />
     </div>
   );
 }
