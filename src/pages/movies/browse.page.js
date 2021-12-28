@@ -554,24 +554,25 @@ const Filters = ({ resultCount }) => {
             }}
             className="fixed inset-0 px-6 py-4 overflow-y-auto bg-gray-2"
           >
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col min-h-full gap-6 ">
               <WithCastFilter />
               <WithGenresFilter />
               <WithoutGenresFilter />
               <WithKeywordsFilter />
               <WithWatchProvidersFilter />
+              <div className="flex items-end justify-end flex-1">
+                <button
+                  className="px-4 py-2 mb-6 font-semibold rounded-full item-end bg-gray-9"
+                  onClick={() => setShow((x) => !x)}
+                >
+                  See {resultCount} results
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      {show ? (
-        <button
-          className="fixed px-4 py-2 font-semibold rounded-full bottom-8 right-8 bg-gray-9"
-          onClick={() => setShow((x) => !x)}
-        >
-          See {resultCount} results
-        </button>
-      ) : (
+      {!show && (
         <button
           className="fixed px-4 py-2 font-semibold border rounded-full shadow-2xl bottom-8 right-8 bg-secondary-9 text-secondary-12 border-secondary-12"
           onClick={() => setShow((x) => !x)}
