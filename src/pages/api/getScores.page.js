@@ -44,14 +44,22 @@ async function getRtScores(title, imdbId) {
     params: {
       action: "opensearch",
       search: title,
+      limit: 20,
       format: "json",
     },
   });
+  // console.log("wiki api opensearch resp", title, resp.data[1]);
+
   for (let x of resp.data[1]) {
     let rtExtlinks = await getLinkInfo(x, imdbId);
-
+    // console.log("rtExtlinks", rtExtlinks);
     if (rtExtlinks?.length) {
-      const page = await axios.get(rtExtlinks[0].replace(/s[0-9]+\/$/g, ""));
+      const page = await axios.get(rtExtlinks[0].replace(/s[0-9]+\/$/g, ""), {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
+        },
+      });
       const $ = cheerio.load(page.data);
       let criticsConsensus = "";
       $(
@@ -106,7 +114,7 @@ export default async function handler(req, res) {
   const { title, imdbId } = req.query;
 
   const scores = await getRtScores(title, imdbId);
-  console.warn("???", title, imdbId, scores);
+  // console.warn("???", title, imdbId, scores);
   if (!scores) {
     return res.status(404).send("No scores found");
   }

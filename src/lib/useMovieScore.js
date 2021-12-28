@@ -1,13 +1,17 @@
 import { useQuery } from "react-query";
 import fetch from "isomorphic-unfetch";
+import _ from "lodash";
 
 export const useMovieScore = (data) => {
   const scores = useQuery(
     ["movie", "scores", data?.id],
     async () => {
-      const resp = await fetch(
-        `/api/getScores?title=${data?.title}&imdbId=${data?.imdb_id}`
+      var url = new URL("http://example.com/api/getScore"),
+        params = { title: data?.title, imdbId: data?.imdb_id };
+      Object.keys(params).forEach((key) =>
+        url.searchParams.append(key, params[key])
       );
+      const resp = await fetch(`/api/getScores${url.search}`);
       const json = await resp.json();
       return json;
     },
