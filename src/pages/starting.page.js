@@ -4,24 +4,6 @@ import fetch from "isomorphic-unfetch";
 import { useUserSubscription } from "../user-subscription";
 import LeaveRoomButton from "../components/LeaveRoomButton";
 import Link from "next/link";
-// const LeaveRoomButton = () => {
-//   const user = useUser();
-
-//   const { mutate, status } = useMutation(["user", "leaveRoom", user.id], () => {
-//     return fetch(`/api/leaveRoom?userId=${user.id}`);
-//   });
-//   return (
-//     <button
-//       className="button is-danger"
-//       disabled={status === "loading"}
-//       onClick={() => {
-//         mutate();
-//       }}
-//     >
-//       {status === "loading" ? "Leaving Room..." :"Leave Room"}
-//     </button>
-//   );
-// };
 
 const StartGameButton = () => {
   const user = useUser();

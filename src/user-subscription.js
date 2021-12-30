@@ -4,8 +4,10 @@ import React, { createContext, useEffect } from "react";
 import { useUser } from "./user-context";
 import GuessingPage from "./pages/guessing.page";
 import RevealingPage from "./pages/revealing.page";
+import StartingPage from "./pages/starting.page";
 import { AnimatePresence, motion } from "framer-motion";
 export const UserSubscriptionContext = createContext();
+import { Drawer } from "./components/drawer";
 
 export const SUBSCRIBE_TO_USER = gql`
   subscription User($userId: String!) {
@@ -77,41 +79,21 @@ function UserSubcriptionProvider({ children }) {
   return (
     <UserSubscriptionContext.Provider value={data?.user || null}>
       {children}
-      <AnimatePresence>
-        {data?.user?.room?.state === "guessing" && (
-          <motion.div
-            initial={{ translateY: "100%" }}
-            animate={{ translateY: "0%" }}
-            exit={{ translateY: "100%" }}
-            transition={{ duration: 1 }}
-            className="fixed inset-0 overflow-hidden rounded-t-3xl bg-gray-2"
-          >
-            <GuessingPage />
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {data?.user?.room?.state === "revealing" && (
-          <motion.div
-            initial="hidden"
-            animate="show"
-            exit="hidden"
-            transition={{ duration: 1, delayChildren: 3 }}
-            variants={{
-              hidden: { translateY: "100%" },
-              show: {
-                translateY: "0%",
-                transition: {
-                  duration: 1,
-                },
-              },
-            }}
-            className="fixed inset-0 overflow-hidden rounded-t-3xl bg-gray-2"
-          >
-            <RevealingPage />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {data?.user?.room?.state === "starting" && (
+        <Drawer open={true} close={null}>
+          <StartingPage />
+        </Drawer>
+      )}
+      {data?.user?.room?.state === "guessing" && (
+        <Drawer open={true} close={null}>
+          <GuessingPage />
+        </Drawer>
+      )}
+      {data?.user?.room?.state === "revealing" && (
+        <Drawer open={true} close={null}>
+          <RevealingPage />
+        </Drawer>
+      )}
     </UserSubscriptionContext.Provider>
   );
 }
