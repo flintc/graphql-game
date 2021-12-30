@@ -1,12 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
-import { CheckIcon, StarIcon, XIcon } from "@heroicons/react/outline";
-import { CheckCircleIcon } from "@heroicons/react/solid";
+import {
+  CheckIcon,
+  FilterIcon,
+  StarIcon,
+  XIcon,
+} from "@heroicons/react/outline";
 import { StarIcon as StarIconFilled } from "@heroicons/react/solid";
 import { AnimatePresence, motion } from "framer-motion";
+import _ from "lodash";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
+import { Drawer } from "../../components/drawer";
 import { GENRE_LUT } from "../../constants";
 import { getGeneres } from "../../lib/queryClient";
 import { useKeyword } from "../../lib/useKeyword";
@@ -17,7 +23,6 @@ import { useQueryParams } from "../../lib/useQueryParams";
 import { useUserStarred } from "../../lib/useUserStarred";
 import { useWatchProviders } from "../../lib/useWatchProviders";
 import { useUser } from "../../user-context";
-import _ from "lodash";
 
 const StarButton = ({ movie }) => {
   const { starredQuery, addStarMutation, removeStarMutation } =
@@ -597,11 +602,8 @@ export default function MoviesPage() {
   }
   const results = data.pages.map((x) => x.results).flat();
   return (
-    <div className="relative">
-      {/* <div>
-        <Filters />
-      </div> */}
-      <ul>
+    <div className="flex flex-col h-full">
+      <motion.ul initial={{ filter: "blur( 0px )" }}>
         {results.map((movie, ix) => {
           let ref;
           if (ix === results.length - 5) {
@@ -639,8 +641,27 @@ export default function MoviesPage() {
             </li>
           );
         })}
-      </ul>
-      <Filters resultCount={data?.pages?.[0]?.total_results} />
+      </motion.ul>
+      <Drawer
+        trigger={
+          <button className="fixed p-6 font-semibold rounded-full shadow-lg bottom-14 right-8 bg-gradient-to-r from-secondary-7 to-secondary-9 focus:outline-none">
+            <FilterIcon className="w-6 h-6" />
+          </button>
+        }
+        close={
+          <button className="w-full px-6 py-4 text-lg font-semibold text-white rounded-full bg-gradient-to-r from-gray-7 to-gray-10">
+            See {data?.pages?.[0]?.total_results} results
+          </button>
+        }
+      >
+        <div className="flex flex-col min-h-full gap-6 px-6 pt-8 mb-20 rounded-t-3xl">
+          <WithCastFilter />
+          <WithGenresFilter />
+          <WithoutGenresFilter />
+          <WithKeywordsFilter />
+          <WithWatchProvidersFilter />
+        </div>
+      </Drawer>
     </div>
   );
 }
