@@ -1,13 +1,12 @@
 import { gql, useSubscription } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { createContext, useEffect } from "react";
-import { useUser } from "./user-context";
+import { Drawer } from "./components/drawer";
 import GuessingPage from "./pages/guessing.page";
 import RevealingPage from "./pages/revealing.page";
 import StartingPage from "./pages/starting.page";
-import { AnimatePresence, motion } from "framer-motion";
+import { useUser } from "./user-context";
 export const UserSubscriptionContext = createContext();
-import { Drawer } from "./components/drawer";
 
 export const SUBSCRIBE_TO_USER = gql`
   subscription User($userId: String!) {

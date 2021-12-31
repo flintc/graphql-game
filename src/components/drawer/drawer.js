@@ -55,7 +55,6 @@ const DrawerControlled = ({ open, onOpenChange, trigger, close, children }) => {
                     stiffness: 1000,
                     damping: 50,
                     mass: 1,
-                    // velocity: 1000
                   },
                 },
               }}
