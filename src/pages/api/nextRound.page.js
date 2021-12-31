@@ -1,5 +1,4 @@
 import { gql } from "@apollo/client";
-// import { client } from "./submitAnswer";
 import createApolloClient from "../../lib/apolloClient";
 const client = createApolloClient();
 

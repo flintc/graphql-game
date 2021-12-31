@@ -1,12 +1,12 @@
+import axios from "axios";
 import { useQuery } from "react-query";
-import { client } from "./queryClient";
 
 export const useKeyword = (keywordId) => {
   const out = useQuery(
     ["keyword", keywordId],
     async ({ queryKey }) => {
       const [, keywordId] = queryKey;
-      const resp = await client.get("/keyword/" + keywordId);
+      const resp = await axios.get("/api/tmdb/keyword/" + keywordId);
       return resp.data;
     },
     {

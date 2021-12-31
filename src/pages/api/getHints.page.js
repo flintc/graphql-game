@@ -1,7 +1,5 @@
 import axios from "axios";
-import _ from "lodash";
 import cheerio from "cheerio";
-import { client } from "../../lib/queryClient";
 
 async function getLinkInfo(url, imdbId) {
   const foo = url.split("/");

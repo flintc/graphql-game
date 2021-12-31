@@ -1,16 +1,15 @@
-import { useQuery, useInfiniteQuery } from "react-query";
-import { client } from "./queryClient";
+import axios from "axios";
+import { useQuery } from "react-query";
 
 export const usePersonSearch = (query) => {
   const resp = useQuery(
     ["search", "person", query],
-    async ({ queryKey, pageParam }) => {
+    async ({ queryKey }) => {
       const [, , query] = queryKey;
-      const resp = await client.get("/search/person", {
+      const resp = await axios.get("/api/tmdb" + "/search/person", {
         params: {
           query: query,
           include_adult: false,
-          // page: pageParam,
         },
       });
       return resp.data;
@@ -18,11 +17,6 @@ export const usePersonSearch = (query) => {
     {
       staleTime: 1000 * 60 * 1000,
       enabled: query !== undefined && query?.length > 0,
-      // getNextPageParam: (lastPage, pages) => {
-      //   return lastPage.total_pages === lastPage.page
-      //     ? null
-      //     : lastPage.page + 1;
-      // },
       keepPreviousData: true,
     }
   );

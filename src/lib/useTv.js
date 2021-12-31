@@ -1,13 +1,15 @@
+import axios from "axios";
 import { useQuery } from "react-query";
-import { client } from "./queryClient";
 
 export const useTv = (movieId) => {
   const movieDetails = useQuery(
     ["tv", "details", movieId],
     async ({ queryKey }) => {
       const [, , movieId] = queryKey;
-      const resp = await client.get("/tv/" + movieId);
-      const resp2 = await client.get("/tv/" + movieId + "/external_ids");
+      const resp = await axios.get("/api/tmdb" + "/tv/" + movieId);
+      const resp2 = await axios.get(
+        "/api/tmdb" + "/tv/" + movieId + "/external_ids"
+      );
       return { ...resp.data, imdb_id: resp2.data?.imdb_id };
     },
     {

@@ -1,5 +1,5 @@
+import axios from "axios";
 import { useQuery } from "react-query";
-import { client } from "./queryClient";
 import _ from "lodash";
 
 const streamingIds = [
@@ -12,11 +12,14 @@ export const useWatchProviders = (mediaType = "movie") => {
   const movieWatchProviders = useQuery(
     [mediaType, "watchProviders"],
     async () => {
-      const resp = await client.get("/watch/providers/" + mediaType, {
-        params: {
-          watch_region: "US",
-        },
-      });
+      const resp = await axios.get(
+        "/api/tmdb" + "/watch/providers/" + mediaType,
+        {
+          params: {
+            watch_region: "US",
+          },
+        }
+      );
       return resp.data;
     },
     {

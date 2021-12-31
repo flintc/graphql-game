@@ -1,16 +1,17 @@
 import axios from "axios";
 
-const API_KEY = "4f7bcb6bc0a198a793dca6e48393e5f7";
-
+const API_KEY = process.env.TMDB_API_KEY;
 export const client = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.TMDB_API_URL,
   params: {
     api_key: API_KEY,
   },
 });
 
 export const getMovie = async (context) => {
-  const resp = await client.get("/movie/" + context.params.movieId);
+  const resp = await axios.get(
+    "/api/tmdb" + "/movie/" + context.params.movieId
+  );
   return { ...resp.data };
 };
 
@@ -19,19 +20,19 @@ export const searchMovies = async ({ queryKey }) => {
   if ((queryParams?.query || "").trim().length === 0) {
     return undefined;
   }
-  const resp = await client.get("/search/multi", {
+  const resp = await axios.get("/api/tmdb" + "/search/multi", {
     params: { ...queryParams },
   });
   return { ...resp.data };
 };
 
 export const getGeneres = async () => {
-  const resp = await client.get("/genre/movie/list");
+  const resp = await axios.get("/api/tmdb" + "/genre/movie/list");
   return { ...resp.data };
 };
 
 export const getKeywords = async () => {
-  const resp = await client.get("/search/keyword", {
+  const resp = await axios.get("/api/tmdb" + "/search/keyword", {
     params: {
       query: "kidnapping",
     },
@@ -40,7 +41,7 @@ export const getKeywords = async () => {
 };
 
 export const getPopular = async () => {
-  const resp = await client.get("/movie/popular", {
+  const resp = await axios.get("/api/tmdb" + "/movie/popular", {
     params: {
       language: "en",
     },
@@ -49,7 +50,7 @@ export const getPopular = async () => {
 };
 
 export const getTopRated = async () => {
-  const resp = await client.get("/movie/top_rated", {
+  const resp = await axios.get("/api/tmdb" + "/movie/top_rated", {
     params: {
       language: "en",
     },
@@ -58,7 +59,7 @@ export const getTopRated = async () => {
 };
 
 export const discoverMovies = async (params) => {
-  const resp = await client.get("/discover/movie", {
+  const resp = await axios.get("/api/tmdb" + "/discover/movie", {
     params: {
       sort_by: "vote_count.desc",
       include_adult: false,

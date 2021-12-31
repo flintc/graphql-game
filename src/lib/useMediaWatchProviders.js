@@ -1,8 +1,7 @@
-import { useQuery } from "react-query";
-import { client } from "./queryClient";
-
-import { useMovie } from "./useMovie";
+import axios from "axios";
 import _ from "lodash";
+import { useQuery } from "react-query";
+import { useMovie } from "./useMovie";
 
 const select = (data) => {
   const buyOrRent = _.intersectionBy(
@@ -35,11 +34,10 @@ export const useMediaWatchProviders = (movieId, mediaType = "movie") => {
     [mediaType, "watchProviders", String(movieId)],
     async ({ queryKey }) => {
       const [, , movieId] = queryKey;
-      const resp = await client.get(
-        "/" + "movie" + "/" + movieId + "/watch/providers"
+      const resp = await axios.get(
+        "/api/tmdb" + "/" + "movie" + "/" + movieId + "/watch/providers"
       );
       return resp.data;
-      // }
     },
     {
       staleTime: 1 * 24 * 60 * 60 * 1000,

@@ -1,12 +1,14 @@
+import axios from "axios";
 import { useQuery } from "react-query";
-import { client } from "./queryClient";
 
 export const useMovieCredits = (movieId) => {
   const movieCredits = useQuery(
     ["movie", "credits", movieId],
     async ({ queryKey }) => {
       const [, , movieId] = queryKey;
-      const resp = await client.get("/" + "movie" + "/" + movieId + "/credits");
+      const resp = await axios.get(
+        "/api/tmdb" + "/" + "movie" + "/" + movieId + "/credits"
+      );
       return resp.data;
     },
     {

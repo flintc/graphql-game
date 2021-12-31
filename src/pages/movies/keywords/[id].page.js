@@ -1,11 +1,11 @@
+import axios from "axios";
+import { motion } from "framer-motion";
+import _ from "lodash";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useQuery, useInfiniteQuery } from "react-query";
-import { client, discoverMovies } from "../../../lib/queryClient";
-import { useTrackVisibility } from "react-intersection-observer-hook";
-import _ from "lodash";
 import { useEffect } from "react";
-import { motion } from "framer-motion";
+import { useTrackVisibility } from "react-intersection-observer-hook";
+import { useInfiniteQuery } from "react-query";
 export default function MoviesKeyword() {
   const router = useRouter();
   const [bottomRef, { isVisible: isBottomVisible }] = useTrackVisibility({});
@@ -34,7 +34,7 @@ export default function MoviesKeyword() {
     ],
     queryFn: async ({ queryKey, pageParam }) => {
       const [, , params] = queryKey;
-      const resp = await client.get(`/discover/movie`, {
+      const resp = await axios.get(`/api/tmdb/discover/movie`, {
         params: {
           ...params,
           page: pageParam,
@@ -48,19 +48,6 @@ export default function MoviesKeyword() {
     staleTime: 0,
   });
 
-  // const { data, status } = useQuery(
-  //   ["movies", "keyword", { with_keywords: `${router.query.id}` }],
-  //   async () => {
-  //     const resp = await client.get(`/keyword/${router.query.id}/movies`);
-  //     return resp.data;
-  //   },
-  //   {
-  //     staleTime: 1000 * 60 * 1000,
-  //     // keepPreviousData: true,
-  //     // placeholderData: initialData,
-  //     // enabled: queryP
-  //   }
-  // );
   const fetchNextPageThrottled = _.throttle(fetchNextPage, 500, {
     leading: false,
   });

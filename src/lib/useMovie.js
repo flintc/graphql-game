@@ -1,5 +1,5 @@
+import axios from "axios";
 import { useQuery, useQueryClient } from "react-query";
-import { client } from "./queryClient";
 
 export const useMovie = (movieId, config) => {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ export const useMovie = (movieId, config) => {
     ["movie", "details", movieId],
     async ({ queryKey }) => {
       const [, , movieId] = queryKey;
-      const resp = await client.get("/movie/" + movieId, {
+      const resp = await axios.get("/api/tmdb" + "/movie/" + movieId, {
         params: {
           append_to_response: "videos,images,keywords,credits,watch/providers",
         },
