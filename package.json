@@ -12,7 +12,7 @@
     "@apollo/client": "^3.4.10",
     "@apollo/react-hooks": "^4.0.0",
     "@apollo/react-ssr": "^4.0.0",
-    "@auth0/nextjs-auth0": "0.13.0",
+    "@auth0/nextjs-auth0": "1.6.2",
     "@heroicons/react": "^1.0.4",
     "@radix-ui/colors": "^0.1.8",
     "@radix-ui/react-dialog": "^0.1.5",
