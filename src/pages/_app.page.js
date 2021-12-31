@@ -32,6 +32,7 @@ const ScrollPosition = ({ Component, pageProps }) => {
   }
 
   // Save scroll position - requires an up-to-date router.asPath
+
   useEffect(() => {
     // Save the scroll position of current page before leaving
     const handleRouteChangeStart = (url) => {
