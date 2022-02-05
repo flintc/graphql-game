@@ -105,6 +105,7 @@ function SelectMovie({ movie }) {
       }),
     });
   });
+  console.log("selectQuestionMutation.status", selectQuestionMutation.status);
   return (
     <div className="mt-1">
       {user?.room ? (
@@ -118,7 +119,7 @@ function SelectMovie({ movie }) {
             onClick={() => {
               selectQuestionMutation.mutate();
             }}
-            disabled={selectQuestionMutation.status === "loading"}
+            disabled={selectQuestionMutation.status !== "idle"}
           >
             Play Rotten or Fresh
           </button>

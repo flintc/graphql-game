@@ -53,7 +53,7 @@ function UserSubcriptionProvider({ children }) {
   });
   useEffect(() => {
     if (data && !loading) {
-      if (data.user.room) {
+      if (data?.user?.room) {
         if (data.user.room.state === "selecting") {
           if (
             !["/movies", "/summary", "/people", "/tv"].some((x) =>
