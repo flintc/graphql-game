@@ -48,7 +48,7 @@ function useUserStarred() {
   const queryClient = useQueryClient();
 
   const starredQuery = useQuery(
-    ["user", user.id, "starred"],
+    ["user", user?.id, "starred"],
     async ({ queryKey }) => {
       const [, userId] = queryKey;
       const resp = await client.query({
@@ -61,6 +61,7 @@ function useUserStarred() {
     },
     {
       staleTime: 100000 * 60 * 60,
+      enabled: user !== null,
     }
   );
 
@@ -80,7 +81,7 @@ function useUserStarred() {
   };
 
   const addStarMutation = useMutation({
-    mutationKey: ["user", user.id, "starred"],
+    mutationKey: ["user", user?.id, "starred"],
     mutationFn: async (mediaId) => {
       const resp = await client.mutate({
         mutation: ADD_STAR,
@@ -114,10 +115,11 @@ function useUserStarred() {
     },
     onError,
     onSettled,
+    enabled: user !== null,
   });
 
   const removeStarMutation = useMutation({
-    mutationKey: ["user", user.id, "starred"],
+    mutationKey: ["user", user?.id, "starred"],
     mutationFn: async (mediaId, ...args) => {
       const resp = await client.mutate({
         mutation: REMOVE_STAR,
@@ -150,6 +152,7 @@ function useUserStarred() {
     },
     onError,
     onSettled,
+    enabled: user !== null,
   });
   return { starredQuery, addStarMutation, removeStarMutation };
 }

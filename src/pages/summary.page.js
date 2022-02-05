@@ -28,9 +28,21 @@ const MovieCard = ({ movieId, score }) => {
           className="rounded-lg"
         />
         <div
-          className="absolute top-[-0.75rem] right-[-0.75rem] grid px-4 py-3 rounded-full bg-secondary-9 place-content-center font-medium"
+          className={`
+          absolute top-[-0.75rem] right-[-0.75rem] grid w-20 py-3 rounded-full
+          place-content-center font-medium
+          text-secondary-12
+          bg-secondary-7
+          `}
           style={{
-            backgroundColor: score == "- 5" ? "var(--green9)" : undefined,
+            // backgroundColor: score == "- 5" ? "var(--green9)" : undefined, background:"rgba( 255, 255, 255, 0.25 )",
+            // background: "rgba(233 61 130 / 1)",
+
+            boxShadow: "0 8px 32px 0 rgba( 31, 38, 135, 0.37 )",
+            backdropFilter: "blur( 4px )",
+            "-webkit-backdrop-filter": "blur( 4px )",
+            // borderRadius: "10px",
+            border: "1px solid rgba( 255, 255, 255, 0.18 )",
           }}
         >
           {score}

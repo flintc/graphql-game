@@ -1,26 +1,16 @@
 import {
-  MoonIcon as MoonIconOutline,
-  PlayIcon as PlayIconOutline,
-  SearchIcon as SearchIconOutline,
-  StarIcon as StarIconOutline,
-  SunIcon as SunIconOutline,
-  UserIcon as UserIconOutline,
-} from "@heroicons/react/outline";
-import {
-  MoonIcon,
   PlayIcon,
   SearchIcon,
   StarIcon,
-  SunIcon,
   UserIcon,
 } from "@heroicons/react/solid";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import { useUserStarred } from "../lib/useUserStarred";
+import { useUser } from "../user-context";
 
 const Header = () => {
   const router = useRouter();
+  const user = useUser();
   // const [isDarkTheme] = useState(
   //   document?.documentElement?.classList?.contains("dark-theme")
   // );
@@ -66,23 +56,20 @@ const Header = () => {
           <SearchIcon className="w-7 h-7" />
         </a>
       </Link>
-      {/* <Link href="/starred" scroll={true}>
-        <a
-          className={`relative ${
-            router.pathname.startsWith("/starred")
-              ? "fill-current stroke-current text-primary-11"
-              : ""
-          }`}
-          aria-label="Starred"
-        >
-          <StarIcon className="w-7 h-7" />
-          {starred?.length ? (
-            <div className="absolute flex items-center justify-center p-[0.075em] text-xs rounded-full bottom-[50%] left-[70%] bg-secondary-9 text-center text-white font-extrabold">
-              <span className="w-4 h-4">{starred.length}</span>
-            </div>
-          ) : null}
-        </a>
-      </Link> */}
+      {user && (
+        <Link href="/starred" scroll={true}>
+          <a
+            className={`relative ${
+              router.pathname.startsWith("/starred")
+                ? "fill-current stroke-current text-primary-11"
+                : ""
+            }`}
+            aria-label="Starred"
+          >
+            <StarIcon className="w-7 h-7" />
+          </a>
+        </Link>
+      )}
       <Link href="/summary" scroll={true}>
         <a
           className={
