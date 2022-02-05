@@ -114,13 +114,12 @@ export function RottenOrFreshLayout({
         ) : (
           <form onSubmit={onSubmit}>
             <motion.div
-              initial={{ opacity: 1, translateX: "-100%" }}
+              initial={{ opacity: 1, scaleY: 0 }}
               animate={{
                 opacity: 1,
                 width: "auto",
-                translateX: "0%",
+                scaleY: 1,
               }}
-              exit={{ opacity: 1, width: 0 }}
               className="flex gap-0 px-1 py-2"
             >
               <input
