@@ -4,6 +4,12 @@ import cheerio from "cheerio";
 
 const RT_REGEX = /(http\:|https\:)\/\/(w{3}.)?rottentomatoes.com/g;
 
+// known errors:
+// Harry Potter and the Deathly Hallows: Part 2
+// - rt not listed under external links on wiki page
+// Harry Potter and the Deathly Hallows: Part 1
+// - rt not listed under external links on wiki page
+
 async function getLinkInfo(url, imdbId) {
   const foo = url.split("/");
   try {
@@ -39,6 +45,64 @@ async function getLinkInfo(url, imdbId) {
   }
 }
 
+async function parseRtPage(rtExtLink) {
+  try {
+    const page = await axios.get(rtExtLink.replace(/s[0-9]+\/$/g, ""), {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
+      },
+    });
+    const $ = cheerio.load(page.data);
+    let criticsConsensus = "";
+    $(
+      ".container #what-to-know *[data-qa='critics-consensus']"
+    )?.[0].children.forEach((x) => {
+      if (x.type === "tag" && x.name === "em") {
+        criticsConsensus += "[Movie Name]";
+      }
+      if (x.type === "text") {
+        criticsConsensus += x.data;
+      }
+    });
+    const audienceScore = parseInt(
+      page.data
+        .match(/(?:audienceScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
+        ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
+    );
+    const tomatometerScore = parseInt(
+      page.data
+        .match(/(?:tomatometerScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
+        ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
+    );
+    const audienceAll = parseInt(
+      page.data
+        .match(/(?:audienceAll\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
+        ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
+    );
+    const foo = page.data.match(
+      /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
+    )?.[0];
+    const tomatometerAllCritics = parseInt(
+      _.last(
+        page.data
+          .match(
+            /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
+          )?.[0]
+          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)
+      )
+    );
+    return {
+      audienceScore,
+      tomatometerScore,
+      audienceAll,
+      tomatometerAllCritics,
+    };
+  } catch (e) {
+    return {};
+  }
+}
+
 async function getRtScores(title, imdbId) {
   const resp = await axios.get("https://en.wikipedia.org/w/api.php", {
     params: {
@@ -48,64 +112,19 @@ async function getRtScores(title, imdbId) {
       format: "json",
     },
   });
-  // console.log("wiki api opensearch resp", title, resp.data[1]);
+  console.log("wiki api opensearch resp", title, resp.data[1]);
 
   for (let x of resp.data[1]) {
-    let rtExtlinks = await getLinkInfo(x, imdbId);
-    // console.log("rtExtlinks", rtExtlinks);
-    if (rtExtlinks?.length) {
-      const page = await axios.get(rtExtlinks[0].replace(/s[0-9]+\/$/g, ""), {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36",
-        },
-      });
-      const $ = cheerio.load(page.data);
-      let criticsConsensus = "";
-      $(
-        ".container #what-to-know *[data-qa='critics-consensus']"
-      )?.[0].children.forEach((x) => {
-        if (x.type === "tag" && x.name === "em") {
-          criticsConsensus += "[Movie Name]";
-        }
-        if (x.type === "text") {
-          criticsConsensus += x.data;
-        }
-      });
-      const audienceScore = parseInt(
-        page.data
-          .match(/(?:audienceScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const tomatometerScore = parseInt(
-        page.data
-          .match(/(?:tomatometerScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const audienceAll = parseInt(
-        page.data
-          .match(/(?:audienceAll\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const foo = page.data.match(
-        /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
-      )?.[0];
-      const tomatometerAllCritics = parseInt(
-        _.last(
-          page.data
-            .match(
-              /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
-            )?.[0]
-            ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)
-        )
-      );
-
-      return {
-        audienceScore,
-        tomatometerScore,
-        audienceAll,
-        tomatometerAllCritics,
-      };
+    const rtExtlinks = await getLinkInfo(x, imdbId);
+    console.log("rtExtlinks", rtExtlinks);
+    if (rtExtlinks === null) {
+      continue;
+    }
+    for (let rtExtLink of rtExtlinks) {
+      const out = await parseRtPage(rtExtLink);
+      if (out.tomatometerScore) {
+        return out;
+      }
     }
   }
 }
