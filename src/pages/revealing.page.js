@@ -80,8 +80,7 @@ const container = {
 export const RevealingLayout = ({
   userResponse,
   otherUserResponses,
-  loading,
-  error,
+  status,
   onNextRound,
   question,
 }) => {
@@ -165,7 +164,7 @@ export const RevealingLayout = ({
         >
           <button
             className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12"
-            disabled={loading || error}
+            disabled={status !== "idle"}
             onClick={onNextRound}
           >
             Next round
@@ -183,7 +182,7 @@ export default function RevealingPage() {
   const otherUserResponses = question?.responses?.filter(
     (x) => x.owner.id !== user.id
   );
-  const { mutate, loading, error } = useMutation("nextRound", () => {
+  const { mutate, status } = useMutation("nextRound", () => {
     return fetch(`/api/nextRound?roomName=${user.room.name}`);
   });
 
@@ -195,8 +194,7 @@ export default function RevealingPage() {
     <RevealingLayout
       userResponse={userResponse}
       otherUserResponses={otherUserResponses}
-      loading={loading}
-      error={error}
+      status={status}
       question={question}
       onNextRound={() => {
         mutate();

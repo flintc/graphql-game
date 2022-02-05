@@ -105,11 +105,10 @@ function SelectMovie({ movie }) {
       }),
     });
   });
-  // const out = useMovieReviews(movie.id);
   return (
     <div className="mt-1">
       {user?.room ? (
-        status === "loading" ? (
+        ["loading", "idle"].includes(status) ? (
           "Fetching score..."
         ) : status === "error" ? (
           "Failed to fetch score "

@@ -17,10 +17,13 @@ const StartGameButton = () => {
       enabled: user?.room?.name,
     }
   );
+  const isDisabled = status !== "idle" || !user?.room?.name;
   return (
     <button
-      className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12"
-      disabled={status === "loading"}
+      className={`block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12
+      ${isDisabled ? "opacity-20" : "opacity-100"}
+      `}
+      disabled={isDisabled}
       onClick={() => {
         mutate();
       }}
@@ -61,7 +64,7 @@ export default function StartingPage() {
       <div>
         {user.room.users.map((x) => {
           if (x.id !== user.id) {
-            return <p>{x.name}</p>;
+            return <p key={x.id}>{x.name}</p>;
           } else {
             return null;
           }

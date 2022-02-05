@@ -1,11 +1,11 @@
 import { useUserSubscription } from "../user-subscription";
 import fetch from "isomorphic-unfetch";
-import { useRouter } from "next/router";
 
 import Link from "next/link";
 import { useCallback } from "react";
 import { RottenOrFreshLayout } from "./game/rottenOrFresh/movie/[id].page";
 import { useMovie } from "../lib/useMovie";
+import { useMutation } from "react-query";
 const foo = (user) => {
   const room = user?.room;
   const question = room.questions[room.round];
@@ -28,16 +28,16 @@ const foo = (user) => {
 
 export default function Guessing() {
   const user = useUserSubscription();
-  const onSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
+  const { mutate, status: submitAnswerStatus } = useMutation(
+    "submitAnswer",
+    async (answer) => {
       const out = foo(user);
       const resp = await fetch(
         `/api/submitAnswer?questionId=${out.questionId}&ownerId=${user.id}`,
         {
           method: "POST",
           body: JSON.stringify({
-            answer: e.target.elements.answer.value,
+            answer: answer.value,
             roomState: out.roomState,
           }),
         }
@@ -45,8 +45,14 @@ export default function Guessing() {
       if (resp.ok) {
         const data = await resp.json();
       }
+    }
+  );
+  const onSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      mutate({ value: e.target.elements.answer.value });
     },
-    [user]
+    [mutate]
   );
   const question = user.room.questions[user.room.round];
   const userResponse = question?.responses?.find((x) => x.owner.id === user.id);
@@ -71,6 +77,7 @@ export default function Guessing() {
     <RottenOrFreshLayout
       data={data}
       onSubmit={onSubmit}
+      submitAnswerStatus={submitAnswerStatus}
       allowScoreSource={false}
       guess={userResponse?.value}
     >
@@ -81,18 +88,4 @@ export default function Guessing() {
       </div>
     </RottenOrFreshLayout>
   );
-
-  // return (
-  //   <div>
-  //     <h1>Guessing</h1>
-  //     <div>
-  //       <h1>{question?.name}</h1>
-  //       <p>{question?.description}</p>
-  //       <form onSubmit={onSubmit}>
-  //         <input id="answer" placeholder="Your guess" />
-  //         <button>submit answer</button>
-  //       </form>
-  //     </div>
-  //   </div>
-  // );
 }

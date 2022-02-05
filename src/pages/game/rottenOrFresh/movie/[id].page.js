@@ -2,7 +2,6 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useMovie } from "../../../../lib/useMovie";
-import { useGenres } from "../../../../lib/useGenres";
 import { useMovieScore } from "../../../../lib/useMovieScore";
 import { motion } from "framer-motion";
 import { GENRE_LUT } from "../../../../constants";
@@ -38,7 +37,6 @@ function RottenOrFreshAnswer({ movie, guess }) {
             audience by {Math.abs(answer)} points
           </div>
         )}
-        {/* <div>{JSON.stringify(data)}</div> */}
       </div>
     </div>
   );
@@ -61,23 +59,11 @@ export function RottenOrFreshPageSinglePlayer({ data }) {
   );
 }
 
-// export function RottenOrFreshPageMultiPlayer({ data }) {
-//   const [guess, setGuess] = useState(null);
-//   const onSubmit = async (e) => {
-//     e.preventDefault();
-//     const scoreType = e.target.elements?.["score-type"];
-//     setGuess({
-//       value: e.target.elements.answer.value,
-//       scoreType: scoreType.value,
-//     });
-//   };
-//   return <RottenOrFreshLayout data={data} guess={guess} onSubmit={onSubmit} />;
-// }
-
 export function RottenOrFreshLayout({
   data,
   guess,
   onSubmit,
+  submitAnswerStatus,
   children,
   allowScoreSource = true,
 }) {
@@ -135,7 +121,6 @@ export function RottenOrFreshLayout({
                 translateX: "0%",
               }}
               exit={{ opacity: 1, width: 0 }}
-              // transition={{ duration: 2 }}
               className="flex gap-0 px-1 py-2"
             >
               <input
@@ -143,7 +128,10 @@ export function RottenOrFreshLayout({
                 id="answer"
                 placeholder="Your guess"
               />
-              <button className="px-4 py-2 border rounded-lg rounded-l-none bg-primary-3 text-primary-11 border-primary-6">
+              <button
+                disabled={submitAnswerStatus && submitAnswerStatus !== "idle"}
+                className="px-4 py-2 border rounded-lg rounded-l-none bg-primary-3 text-primary-11 border-primary-6"
+              >
                 submit
               </button>
             </motion.div>
