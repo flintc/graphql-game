@@ -1,8 +1,5 @@
-import fetch from "isomorphic-unfetch";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useQuery } from "react-query";
-import { createMachine } from "xstate";
 import { useUpsertRoomWithUser } from "../lib/useUpsertRoomWithUser";
 import { useUser } from "../user-context";
 
@@ -21,7 +18,7 @@ const CreateRoomForm = ({ roomCode }) => {
         e.preventDefault();
         upsertRoomWithUser({
           variables: {
-            roomName: e.target.elements.roomCode.value,
+            roomName: e.target.elements.roomCode.value.toUpperCase(),
             userId: user.id,
             userName: e.target.elements.nickname.value,
           },

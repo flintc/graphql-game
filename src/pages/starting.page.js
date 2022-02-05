@@ -9,9 +9,12 @@ const StartGameButton = () => {
   const user = useUser();
 
   const { mutate, status } = useMutation(
-    ["room", "startGame", user.room.name],
+    ["room", "startGame", user?.room?.name],
     () => {
-      return fetch(`/api/startGame?roomName=${user.room.name}`);
+      return fetch(`/api/startGame?roomName=${user?.room?.name}`);
+    },
+    {
+      enabled: user?.room?.name,
     }
   );
   return (

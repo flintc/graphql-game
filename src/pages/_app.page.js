@@ -134,7 +134,7 @@ function MyApp({ Component, pageProps }) {
             />
           </Head>
           <AnimateSharedLayout type="crossfade">
-            <div>
+            <div className="max-w-3xl m-auto">
               <Header />
 
               {/* <Header /> */}
