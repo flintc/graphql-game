@@ -4,7 +4,7 @@ import fetch from "isomorphic-unfetch";
 import Link from "next/link";
 import { useCallback } from "react";
 import { RottenOrFreshLayout } from "./game/rottenOrFresh/movie/[id].page";
-import { useMovie } from "../lib/useMovie";
+import { useMovie } from "../entities/movie/useMovie";
 import { useMutation } from "react-query";
 const foo = (user) => {
   const room = user?.room;

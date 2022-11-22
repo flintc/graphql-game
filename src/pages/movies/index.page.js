@@ -1,21 +1,18 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
-import Link from "next/link";
-import {
-  discoverMovies,
-  searchMovies,
-  getGeneres,
-} from "../../lib/queryClient";
-import { useMovieSearch } from "../../lib/useMovieSearch";
+import { AnimatePresence, motion } from "framer-motion";
 import _ from "lodash";
-import { useQueryParams } from "../../lib/useQueryParams";
-import { useMovieBrowse } from "../../lib/useMovieBrowse";
+import Link from "next/link";
 import { useQuery } from "react-query";
-import { motion, AnimatePresence } from "framer-motion";
-import ScrollArea from "../../components/ScrollArea";
+import { MediaList } from "../../features/media-list";
+import { MovieCard } from "../../features/movie-card";
+import { getGeneres } from "../../lib/queryClient";
+import { useMultiSearch } from "../../features/multi-search";
+import { useQueryParams } from "../../shared/useQueryParams";
 import { GENRE_LUT } from "../../shared/constants";
+import ScrollArea from "../../shared/ScrollArea";
 
-const MovieLink = ({ movie }) => {
+const MovieLink = ({ entity: movie }) => {
   return (
     <li key={`${movie.id}`}>
       <Link
@@ -34,7 +31,7 @@ const MovieLink = ({ movie }) => {
   );
 };
 
-const TvLink = ({ movie }) => {
+const TvLink = ({ entity: movie }) => {
   return (
     <li key={`${movie.id}`}>
       <Link
@@ -53,7 +50,7 @@ const TvLink = ({ movie }) => {
   );
 };
 
-const PersonLink = ({ person }) => {
+const PersonLink = ({ entity: person }) => {
   return (
     <li key={`${person.id}`}>
       <Link
@@ -91,11 +88,11 @@ function MoviesSearchResults({ results }) {
           return (
             <div key={result.id}>
               {["movie"].includes(result.media_type) ? (
-                <MovieLink movie={result} />
+                <MovieLink entity={result} />
               ) : ["tv"].includes(result.media_type) ? (
-                <TvLink movie={result} />
+                <TvLink entity={result} />
               ) : (
-                <PersonLink person={result} />
+                <PersonLink entity={result} />
               )}
             </div>
           );
@@ -209,7 +206,7 @@ function MoviesBrowseCategories() {
 
 export default function MoviesPage({ search, results, ...rest }) {
   const queryParams = useQueryParams();
-  const { data, inputProps, onCancel } = useMovieSearch({
+  const { data, inputProps, onCancel } = useMultiSearch({
     initialData: { results, ...rest },
   });
 
@@ -235,8 +232,13 @@ export default function MoviesPage({ search, results, ...rest }) {
         // <MoviesBrowse />
         <MoviesBrowseCategories />
       ) : (
-        <MoviesSearchResults results={data?.results || []} />
+        <MediaList
+          mediaComponents={{ movie: MovieCard, tv: TvLink, person: PersonLink }}
+          useMediaList={useMovieSearch}
+        />
       )}
     </div>
   );
 }
+
+// <MoviesSearchResults results={data?.results || []} />

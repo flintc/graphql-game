@@ -1,16 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/router";
-import { usePerson } from "../../lib/usePerson";
 
 import { useKnownFor } from "../../lib/useKnownFor";
-import { usePersonCredits } from "../../lib/usePersonCredits";
 import Link from "next/link";
 import _ from "lodash";
-import { getGeneres } from "../../lib/queryClient";
 import { useState } from "react";
-import { useMovieSearch } from "../../lib/useMovieSearch";
-import { useKeywords } from "../../lib/useKeywords";
+import { useMultiSearch } from "../../features/multi-search";
+import { useKeywords } from "../../entities/movie/useKeywords";
 import Image from "next/image";
+import { usePerson } from "../../entities/person";
 
 const filterSearchResults = (result) => {
   if (result.media_type === "movie") {
@@ -40,7 +38,7 @@ function KnownForSearchResult({ result, onGuess }) {
 }
 
 function KnownForSearch({ setGuessed }) {
-  const { data, inputProps, onCancel } = useMovieSearch();
+  const { data, inputProps, onCancel } = useMultiSearch();
   return (
     <div className="relative px-4">
       {data?.results?.length ? (
@@ -221,9 +219,6 @@ function KnownForItem({ title, guessed }) {
 }
 
 function KnownForGuessing({ titles }) {
-  // const { data, inputProps, onCancel } = useMovieSearch();
-  const [state, setState] = useState("initial");
-  const router = useRouter();
   const [guessed, setGuessed] = useState(
     _.zipObject(
       titles.map((x) => x.id),

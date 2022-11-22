@@ -15,7 +15,7 @@ export const getMovie = async (context) => {
   return { ...resp.data };
 };
 
-export const searchMovies = async ({ queryKey }) => {
+export const searchMulti = async ({ queryKey }) => {
   const [, , queryParams] = queryKey;
   if ((queryParams?.query || "").trim().length === 0) {
     return undefined;

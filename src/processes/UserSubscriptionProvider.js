@@ -1,11 +1,46 @@
-import { useSubscription } from "@apollo/client";
+import { gql, useSubscription } from "@apollo/client";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { Drawer } from "../shared/drawer";
 import GuessingPage from "../pages/guessing.page";
 import RevealingPage from "../pages/revealing.page";
 import StartingPage from "../pages/starting.page";
-import { useUser, UserSubscriptionContext } from "../shared/user-context";
+import { useUser } from "../shared/user-context";
+import { UserSubscriptionContext } from "../shared/user-subscription";
+
+export const SUBSCRIBE_TO_USER = gql`
+  subscription User($userId: String!) {
+    user: user_by_pk(id: $userId) {
+      id
+      name
+      starred
+      room {
+        state
+        id
+        name
+        round
+        users {
+          id
+          name
+        }
+        questions(order_by: { created_at: asc_nulls_last }) {
+          id
+          name
+          questionId
+          description
+          answer
+          responses(order_by: { created_at: desc_nulls_last }) {
+            value
+            owner {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 export default function UserSubcriptionProvider({ children }) {
   const user = useUser();

@@ -41,56 +41,6 @@ async function getLinkInfo(url, imdbId) {
   }
 }
 
-async function getRtScores(title, imdbId) {
-  const resp = await axios.get("https://en.wikipedia.org/w/api.php", {
-    params: {
-      action: "opensearch",
-      search: title,
-      format: "json",
-    },
-  });
-  for (let x of resp.data[1]) {
-    let rtExtlinks = await getLinkInfo(x, imdbId);
-
-    if (rtExtlinks) {
-      const page = await axios.get(rtExtlinks[0].replace(/s[0-9]+\/$/g, ""));
-      const audienceScore = parseInt(
-        page.data
-          .match(/(?:audienceScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const tomatometerScore = parseInt(
-        page.data
-          .match(/(?:tomatometerScore\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const audienceAll = parseInt(
-        page.data
-          .match(/(?:audienceAll\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g)?.[0]
-          ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)?.[0]
-      );
-      const foo = page.data.match(
-        /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
-      )?.[0];
-      const tomatometerAllCritics = parseInt(
-        _.last(
-          page.data
-            .match(
-              /(?:tomatometerAllCritics\":).*?(?:\"score\":)(\"?[0-9]{1,3}\"?)/g
-            )?.[0]
-            ?.match(/(?=\"?)[0-9]{1,3}(?=\"?)/g)
-        )
-      );
-      return {
-        audienceScore,
-        tomatometerScore,
-        audienceAll,
-        tomatometerAllCritics,
-      };
-    }
-  }
-}
-
 export default async function handler(req, res) {
   const { imdbId } = req.query;
 

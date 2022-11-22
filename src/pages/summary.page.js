@@ -3,7 +3,7 @@ import { useUserSubscription } from "../shared/user-subscription";
 import LeaveRoomButton from "../features/LeaveRoomButton";
 import LogoutBtn from "../components/Auth/Logout";
 import Router from "next/router";
-import { useMovie } from "../lib/useMovie";
+import { useMovie } from "../entities/movie/useMovie";
 import Image from "next/image";
 
 const MovieCard = ({ movieId, score }) => {

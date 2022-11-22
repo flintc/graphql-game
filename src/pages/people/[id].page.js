@@ -1,14 +1,10 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/router";
-import { usePerson } from "../../lib/usePerson";
-
-import { usePersonCredits } from "../../lib/usePersonCredits";
 import Link from "next/link";
 import Image from "next/image";
 import _ from "lodash";
-import { useState } from "react";
-import { useMovieSearch } from "../../lib/useMovieSearch";
+import { usePerson, usePersonCredits } from "../../entities/person";
 
 const filterResults = (result) => {
   return (
@@ -105,132 +101,28 @@ function PersonCredits({ knownForDepartment }) {
     </div>
   );
 }
-const filterSearchResults = (result) => {
-  if (result.media_type === "movie") {
-    return result.vote_count > 100 && result.poster_path;
-  } else if (result.media_type === "tv") {
-    return result.popularity > 0.99 && result.poster_path;
-  }
-  return false;
-};
-
-function KnownForGuessing({ titles, onHide }) {
-  const { data, inputProps, onCancel } = useMovieSearch();
-  const [guessed, setGuessed] = useState(
-    _.zipObject(
-      titles.map((x) => x.id),
-      Array(titles.length).fill(false)
-    )
-  );
-  return (
-    <div>
-      <button onClick={onHide}>Hide Known For</button>
-      <div>
-        <ul>
-          {titles.map((movie) => (
-            <li key={movie.id}>
-              {guessed[movie.id] ? (
-                <Link
-                  href={{
-                    pathname: `/movies/[id]`,
-                    query: { id: movie.id },
-                  }}
-                >
-                  <a>{movie.title || movie.name}</a>
-                </Link>
-              ) : (
-                <span>??????</span>
-              )}
-            </li>
-          ))}
-        </ul>
-        <input placeholder="Search The Movie Database" {...inputProps} />
-        <div>
-          <ul>
-            {data?.results?.filter(filterSearchResults).map((result) => {
-              return (
-                <div key={result.id}>
-                  <button
-                    onClick={() => {
-                      setGuessed((guessed) => ({
-                        ...guessed,
-                        [result.id]: true,
-                      }));
-                      onCancel();
-                    }}
-                  >
-                    {["movie"].includes(result.media_type) ? (
-                      <span>{result.title}</span>
-                    ) : ["tv"].includes(result.media_type) ? (
-                      <span>{result.name}</span>
-                    ) : null}
-                  </button>
-                </div>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function KnownFor({ person }) {
-  const [state, setState] = useState("hidden");
-  if (state === "hidden") {
-    return (
-      <div className="my-1">
-        <Link
-          href={{
-            pathname: "/knownFor/[personId]",
-            query: { personId: person.id },
-          }}
-        >
-          <a className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12">
-            Play IMdB Known For
-          </a>
-        </Link>
-      </div>
-    );
-  }
-  if (state === "visible") {
-    return (
-      <div>
-        <button onClick={() => setState("hidden")}>Hide Known For</button>
-        <div>
-          <ul>
-            {data.map((result) => (
-              <li key={result.id}>
-                <Link
-                  href={{
-                    pathname:
-                      result.media_type === "movie"
-                        ? `/movies/[id]`
-                        : `/tv/[id]`,
-                    query: { id: result.id },
-                  }}
-                >
-                  <a>
-                    {result.media_type === "movie" ? result.title : result.name}
-                  </a>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    );
-  }
-  if (state === "guessing") {
-    return <KnownForGuessing onHide={() => setState("hidden")} titles={data} />;
-  }
-
-  return null;
+  return (
+    <div className="my-1">
+      <Link
+        href={{
+          pathname: "/knownFor/[personId]",
+          query: { personId: person.id },
+        }}
+      >
+        <a className="block w-full px-4 py-2 text-center border rounded-md bg-primary-1 border-primary-7 text-primary-12">
+          Play IMdB Known For
+        </a>
+      </Link>
+    </div>
+  );
 }
 
 export default function PersonDetailsPage() {
   const router = useRouter();
   const { data, status, error } = usePerson(router.query.id);
+  console.log("BBBB", data);
   if (["idle", "loading"].includes(status)) {
     return <p>Loading...</p>;
   }

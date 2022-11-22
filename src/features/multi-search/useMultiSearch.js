@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { searchMovies } from "./queryClient";
-import { useQueryParams } from "./useQueryParams";
+import { searchMulti } from "../../lib/queryClient";
+import { useQueryParams } from "../../shared/useQueryParams";
 import _ from "lodash";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 
-export const useMovieSearch = () => {
+export const useMultiSearch = () => {
   const queryParams = useQueryParams();
   const router = useRouter();
   const inputRef = React.useRef();
@@ -24,28 +24,15 @@ export const useMovieSearch = () => {
   );
 
   useEffect(() => {
-    if (router.pathname === "/movies") {
-      if (queryParams.search !== params.query) {
-        const value = queryParams.search;
-        const query = (value || "").length === 0 ? undefined : { query: value };
-        throttledSetParams((x) => ({ ...x, query: queryParams.search }));
-        if (queryParams.search === undefined) {
-          inputRef.current.value = "";
-        }
-      }
-    } else {
-      if (queryParams.search !== params.query) {
-        const value = queryParams.search;
-        const query = (value || "").length === 0 ? undefined : { query: value };
-        throttledSetParams((x) => ({ ...x, query: queryParams.search }));
-        if (queryParams.search === undefined) {
-          inputRef.current.value = "";
-        }
+    if (queryParams.search !== params.query) {
+      throttledSetParams((x) => ({ ...x, query: queryParams.search }));
+      if (queryParams.search === undefined) {
+        inputRef.current.value = "";
       }
     }
   }, [queryParams, throttledSetParams, router.pathname, params.query]);
 
-  const { data } = useQuery(["search", "movies", params], searchMovies, {
+  const { data } = useQuery(["search", "multi", params], searchMulti, {
     staleTime: 10000 * 60 * 1000,
     keepPreviousData: true,
     // placeholderData: initialData,
@@ -99,6 +86,8 @@ export const useMovieSearch = () => {
 
   return {
     data,
+    results: data?.results,
+    total_results: null,
     inputProps: {
       defaultValue: params.query,
       ref: inputRef,

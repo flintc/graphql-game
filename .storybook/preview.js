@@ -1,11 +1,7 @@
 import "../src/styles/App.css";
 import { RouterContext } from "next/dist/shared/lib/router-context"; // next 12
 import { UserProvider, UserContext } from "../src/user-context";
-import {
-  // SUBSCRIBE_TO_USER,
-  // UserSubcriptionProvider,
-  UserSubscriptionContext,
-} from "../src/user-subscription";
+import { UserSubscriptionContext } from "../src/user-subscription";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 // import { MockedProvider } from "@apollo/client/testing"; // Use for Apollo Version 3+

@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useMovie } from "../../../../lib/useMovie";
-import { useMovieScore } from "../../../../lib/useMovieScore";
+import { useMovie } from "../../../../entities/movie/useMovie";
+import { useMovieScore } from "../../../../entities/movie/useMovieScore";
 import { motion } from "framer-motion";
 import { GENRE_LUT } from "../../../../shared/constants";
 

@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useMovieScore } from "../../lib/useMovieScore";
+import { useMovieScore } from "../../entities/movie/useMovieScore";
 import { useTv } from "../../lib/useTv";
 import fetch from "isomorphic-unfetch";
 import { useUserSubscription } from "../../shared/user-subscription";

@@ -56,6 +56,11 @@ export const useMovieBrowse = (params) => {
 
   return {
     ...result,
+    results: result?.data?.pages
+      ?.map((x) => x.results)
+      ?.flat()
+      .map((x) => ({ media_type: "movie", ...x })),
+    total_results: result?.data?.pages?.[0]?.total_results,
     bottomRef,
     isBottomVisible,
   };
