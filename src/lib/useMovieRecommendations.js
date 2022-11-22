@@ -7,18 +7,18 @@ export const useMovieRecommendations = (movieId) => {
     async ({ queryKey }) => {
       const [, , movieId] = queryKey;
       const respPage1 = await axios.get(
-        "/api/tmdb" + "/" + "movie" + "/" + movieId + "/recommendations"
+        "/api/tmdb" + "/" + "movie" + "/" + movieId + "/videos"
       );
-      const respPage2 = await axios.get(
-        "/api/tmdb" + "/" + "movie" + "/" + movieId + "/recommendations",
-        { params: { page: 2 } }
-      );
+      // const respPage2 = await axios.get(
+      //   "/api/tmdb" + "/" + "movie" + "/" + movieId + "/recommendations",
+      //   { params: { page: 2 } }
+      // );
 
       return {
         ...respPage1.data,
         results: [
           ...respPage1.data.results,
-          ...respPage2.data.results.slice(1),
+          // ...respPage2.data.results.slice(1),
         ],
       };
     },
