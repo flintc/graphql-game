@@ -2,7 +2,7 @@ import { animate } from "framer-motion";
 import fetch from "isomorphic-unfetch";
 import { useEffect, useRef, useState } from "react";
 import { useMutation } from "react-query";
-import { useUserSubscription } from "../user-subscription";
+import { useUserSubscription } from "../shared/user-subscription";
 import { motion } from "framer-motion";
 export function Counter({ from, to }) {
   const ref = useRef();

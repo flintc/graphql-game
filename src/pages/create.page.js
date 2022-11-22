@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import { createMachine } from "xstate";
 import { useUpsertRoomWithUser } from "../lib/useUpsertRoomWithUser";
-import { useUser } from "../user-context";
+import { useUser } from "../shared/user-context";
 
 const startGameMachine = createMachine({
   id: "startGame",

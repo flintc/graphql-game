@@ -1,5 +1,5 @@
 import { useMutation } from "react-query";
-import { useUser } from "../user-context";
+import { useUser } from "../shared/user-context";
 import fetch from "isomorphic-unfetch";
 
 const LeaveRoomButton = () => {

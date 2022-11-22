@@ -1,4 +1,4 @@
-import { useUserSubscription } from "../user-subscription";
+import { useUserSubscription } from "../shared/user-subscription";
 import fetch from "isomorphic-unfetch";
 
 import Link from "next/link";

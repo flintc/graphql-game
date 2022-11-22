@@ -1,9 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
-import React, { createContext } from "react";
-import Login from "./components/Auth/Login";
-import { useFetchUser } from "./lib/user";
-
-export const UserContext = createContext();
+import React from "react";
+import { useFetchUser } from "../shared/user";
+import { UserContext } from "../shared/user-context";
 
 const GET_USER = gql`
   query User($userId: String!) {
@@ -20,8 +18,7 @@ const GET_USER = gql`
   }
 `;
 
-// This default export is required in a new `pages/_app.js` file.
-function UserProvider({ children }) {
+export default function UserProvider({ children }) {
   const { user, loading, error } = useFetchUser();
   const backendUser = useQuery(GET_USER, {
     skip: !user?.sub,
@@ -29,6 +26,7 @@ function UserProvider({ children }) {
       userId: user?.sub,
     },
   });
+  console.log("UserProvider", backendUser);
   if (loading || backendUser.loading) {
     return <div>Loading...</div>;
   }
@@ -43,13 +41,3 @@ function UserProvider({ children }) {
   }
   return <UserContext.Provider value={null}>{children}</UserContext.Provider>;
 }
-
-const useUser = () => {
-  const context = React.useContext(UserContext);
-  if (context === undefined) {
-    throw new Error(`useUser must be used within a UserProvider`);
-  }
-  return context;
-};
-
-export { UserProvider, useUser };

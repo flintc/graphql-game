@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useMovieScore } from "../../lib/useMovieScore";
 import { useTv } from "../../lib/useTv";
 import fetch from "isomorphic-unfetch";
-import { useUserSubscription } from "../../user-subscription";
+import { useUserSubscription } from "../../shared/user-subscription";
 import { useMutation } from "react-query";
 
 function SelectMovie({ movie }) {

@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
-import { useUserSubscription } from "../user-subscription";
-import LeaveRoomButton from "../components/LeaveRoomButton";
+import { useUserSubscription } from "../shared/user-subscription";
+import LeaveRoomButton from "../features/LeaveRoomButton";
 import LogoutBtn from "../components/Auth/Logout";
 import Router from "next/router";
 import { useMovie } from "../lib/useMovie";

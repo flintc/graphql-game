@@ -1,15 +1,13 @@
 // import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/App.css";
-import Header from "../components/Header";
+import { Nav } from "../entities/navigation";
 import { withApollo } from "../lib/withApolloClient";
-import { UserProvider } from "../user-context";
+import UserProvider from "../processes/UserProvider";
 import { QueryClient, QueryClientProvider } from "react-query";
 import React, { useRef, useEffect, memo } from "react";
 import { useRouter } from "next/router";
-import {
-  UserSubcriptionProvider,
-  useUserSubscription,
-} from "../user-subscription";
+import UserSubcriptionProvider from "../processes/UserSubscriptionProvider";
+import { useUserSubscription } from "../shared/user-subscription";
 import Head from "next/head";
 import { AnimateSharedLayout, AnimatePresence } from "framer-motion";
 
@@ -135,7 +133,7 @@ function MyApp({ Component, pageProps }) {
           </Head>
           <AnimateSharedLayout type="crossfade">
             <div className="max-w-3xl m-auto">
-              <Header />
+              <Nav />
 
               {/* <Header /> */}
               {/* <CurrentState /> */}

@@ -6,9 +6,9 @@ import {
 } from "@heroicons/react/solid";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useUser } from "../user-context";
+import { useUser } from "../../shared/user-context";
 
-const Header = () => {
+export const Nav = () => {
   const router = useRouter();
   const user = useUser();
   // const [isDarkTheme] = useState(
@@ -97,5 +97,3 @@ const Header = () => {
     </div>
   );
 };
-
-export default Header;

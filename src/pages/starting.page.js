@@ -1,8 +1,8 @@
 import { useMutation } from "react-query";
-import { useUser } from "../user-context";
+import { useUser } from "../shared/user-context";
 import fetch from "isomorphic-unfetch";
-import { useUserSubscription } from "../user-subscription";
-import LeaveRoomButton from "../components/LeaveRoomButton";
+import { useUserSubscription } from "../shared/user-subscription";
+import LeaveRoomButton from "../features/LeaveRoomButton";
 import Link from "next/link";
 
 const StartGameButton = () => {
@@ -28,7 +28,7 @@ const StartGameButton = () => {
         mutate();
       }}
     >
-      {status === "loading" ? "Starting game..." :"Everybody's In!"}
+      {status === "loading" ? "Starting game..." : "Everybody's In!"}
     </button>
   );
 };

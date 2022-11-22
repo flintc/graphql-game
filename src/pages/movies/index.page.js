@@ -13,7 +13,7 @@ import { useMovieBrowse } from "../../lib/useMovieBrowse";
 import { useQuery } from "react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import ScrollArea from "../../components/ScrollArea";
-import { GENRE_LUT } from "../../constants";
+import { GENRE_LUT } from "../../shared/constants";
 
 const MovieLink = ({ movie }) => {
   return (

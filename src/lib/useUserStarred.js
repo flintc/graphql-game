@@ -1,6 +1,6 @@
 import { gql, useApolloClient } from "@apollo/client";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { useUser } from "../user-context";
+import { useUser } from "../shared/user-context";
 
 const USER_STARRED = gql`
   query User($userId: String!) {

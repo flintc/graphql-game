@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMovie } from "../../../../lib/useMovie";
 import { useMovieScore } from "../../../../lib/useMovieScore";
 import { motion } from "framer-motion";
-import { GENRE_LUT } from "../../../../constants";
+import { GENRE_LUT } from "../../../../shared/constants";
 
 const getAnswerByScoreType = (scores, scoreType) => {
   if (scoreType === "critics") {

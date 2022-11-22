@@ -1,0 +1,8 @@
+
+auth0, sign in with flinc email, not via github
+
+
+get local ip
+ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}'
+
+need to update .env.local with local ip whenever it changes as well as allowed urls in the auth0 app (use website ui)

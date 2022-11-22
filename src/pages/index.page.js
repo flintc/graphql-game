@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useUser } from "../user-context";
+import { useUser } from "../shared/user-context";
 import Router from "next/router";
 
 const CreateOrJoin = () => {

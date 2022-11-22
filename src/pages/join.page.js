@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useUpsertRoomWithUser } from "../lib/useUpsertRoomWithUser";
-import { useUser } from "../user-context";
+import { useUser } from "../shared/user-context";
 
 const CreateRoomForm = ({ roomCode }) => {
   const user = useUser();

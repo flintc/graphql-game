@@ -12,8 +12,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { Drawer } from "../../components/drawer";
-import { GENRE_LUT } from "../../constants";
+import { Drawer } from "../../shared/drawer";
+import { GENRE_LUT } from "../../shared/constants";
 import { getGeneres } from "../../lib/queryClient";
 import { useKeyword } from "../../lib/useKeyword";
 import { useMovieBrowse } from "../../lib/useMovieBrowse";
@@ -22,7 +22,7 @@ import { usePersonSearch } from "../../lib/usePersonSearch";
 import { useQueryParams } from "../../lib/useQueryParams";
 import { useUserStarred } from "../../lib/useUserStarred";
 import { useWatchProviders } from "../../lib/useWatchProviders";
-import { useUser } from "../../user-context";
+import { useUser } from "../../shared/user-context";
 
 const StarButton = ({ movie }) => {
   const { starredQuery, addStarMutation, removeStarMutation } =
@@ -62,7 +62,7 @@ const WithGenresFilter = () => {
   const router = useRouter();
   const params = useQueryParams();
   const [genreOperator, setGenreOperator] = useState(
-    params.with_genres?.includes(",") ? "," :"|"
+    params.with_genres?.includes(",") ? "," : "|"
   );
   const currGenres = new Set(params.with_genres?.split(genreOperator));
   currGenres.delete("");
@@ -152,7 +152,7 @@ const WithGenresFilter = () => {
 
 const WithoutGenresFilter = () => {
   const params = useQueryParams();
-  const genreOperator = params.without_genres?.includes("|") ? "|" :",";
+  const genreOperator = params.without_genres?.includes("|") ? "|" : ",";
   const currGenres = new Set(params.without_genres?.split(genreOperator));
   currGenres.delete("");
   const genres = useQuery("genres", getGeneres, {
@@ -218,7 +218,7 @@ const WithoutGenresFilter = () => {
 
 const KeywordToggle = ({ keywordId }) => {
   const params = useQueryParams();
-  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
+  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" : ",";
 
   const currKeywords = new Set(
     params.with_keywords?.split(withKeywordOperator)
@@ -250,7 +250,7 @@ const KeywordToggle = ({ keywordId }) => {
 
 const WithKeywordsFilter = () => {
   const params = useQueryParams();
-  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" :",";
+  const withKeywordOperator = params.with_keywords?.includes("|") ? "|" : ",";
 
   const currKeywords = new Set(
     params.with_keywords?.split(withKeywordOperator)
@@ -261,7 +261,7 @@ const WithKeywordsFilter = () => {
   return (
     <div className="flex items-center space-x-2">
       <div className="font-medium">
-        Keywords <span>{withKeywordOperator === "|" ? "(any)" :"(all)"}</span>
+        Keywords <span>{withKeywordOperator === "|" ? "(any)" : "(all)"}</span>
       </div>
       <div className="flex flex-wrap items-center justify-start gap-1">
         {[...currKeywords].map((keyword) => {
@@ -417,7 +417,7 @@ const WithCastFilter = () => {
     []
   );
   const [operator, setOperator] = useState(
-    params.with_cast?.includes(",") ? "," :"|"
+    params.with_cast?.includes(",") ? "," : "|"
   );
   const selected = new Set(params.with_cast?.split(operator));
   selected.delete("");
